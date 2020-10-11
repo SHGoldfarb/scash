@@ -1,6 +1,27 @@
 import React, { useState } from "react";
-import { Delete } from "@material-ui/icons";
+import { func, string } from "prop-types";
+import { Delete, Edit } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
+
+const AccountField = ({ name, onDelete, onChange }) => {
+  return (
+    <div>
+      {name}
+      <IconButton aria-label="edit" onClick={onDelete}>
+        <Edit color="primary" />
+      </IconButton>
+      <IconButton aria-label="delete" onClick={onDelete}>
+        <Delete color="error" />
+      </IconButton>
+    </div>
+  );
+};
+
+AccountField.propTypes = {
+  name: string.isRequired,
+  onDelete: func.isRequired,
+  onChange: func.isRequired,
+};
 
 const Accounts = () => {
   const [accounts, setAccounts] = useState([
@@ -10,17 +31,13 @@ const Accounts = () => {
   return (
     <div>
       {accounts.map((account) => (
-        <div key={account.id}>
-          {account.name}
-          <IconButton
-            aria-label="delete"
-            onClick={() =>
-              setAccounts(accounts.filter(({ id }) => id !== account.id))
-            }
-          >
-            <Delete />
-          </IconButton>
-        </div>
+        <AccountField
+          key={account.id}
+          name={account.name}
+          onDelete={() =>
+            setAccounts(accounts.filter(({ id }) => id !== account.id))
+          }
+        />
       ))}
     </div>
   );
