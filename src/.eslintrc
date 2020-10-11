@@ -1,6 +1,8 @@
 {
     "extends": ["airbnb", "airbnb/hooks", "plugin:prettier/recommended"],
     "rules": {
+        "import/prefer-default-export": "off",
+        "react/jsx-curly-newline": "off",
         "react/jsx-filename-extension": "off"
     }
 }

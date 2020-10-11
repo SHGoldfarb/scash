@@ -1,13 +1,48 @@
 import React, { useState } from "react";
 import { func, string } from "prop-types";
-import { Delete, Edit } from "@material-ui/icons";
-import { IconButton } from "@material-ui/core";
+import { Delete, Done, Edit } from "@material-ui/icons";
+import { IconButton, TextField } from "@material-ui/core";
 
-const AccountField = ({ name, onDelete, onChange }) => {
+const EditAccount = ({ name, onChange }) => {
+  const [inputValue, setInputValue] = useState(null);
+
+  const shownValue = inputValue === null ? name : inputValue;
+
   return (
     <div>
+      <TextField
+        id="name-textfield"
+        value={shownValue}
+        onChange={(ev) => setInputValue(ev.target.value)}
+      />
+      <IconButton
+        aria-label="save"
+        onClick={() => {
+          onChange(shownValue);
+          setInputValue(null);
+        }}
+      >
+        <Done color="primary" />
+      </IconButton>
+    </div>
+  );
+};
+
+const AccountField = ({ name, onDelete, onNameChange }) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  return isEditing ? (
+    <EditAccount
+      name={name}
+      onChange={(newName) => {
+        onNameChange(newName);
+        setIsEditing(false);
+      }}
+    />
+  ) : (
+    <div>
       {name}
-      <IconButton aria-label="edit" onClick={onDelete}>
+      <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
         <Edit color="primary" />
       </IconButton>
       <IconButton aria-label="delete" onClick={onDelete}>
@@ -20,7 +55,7 @@ const AccountField = ({ name, onDelete, onChange }) => {
 AccountField.propTypes = {
   name: string.isRequired,
   onDelete: func.isRequired,
-  onChange: func.isRequired,
+  onNameChange: func.isRequired,
 };
 
 const Accounts = () => {
@@ -36,6 +71,15 @@ const Accounts = () => {
           name={account.name}
           onDelete={() =>
             setAccounts(accounts.filter(({ id }) => id !== account.id))
+          }
+          onNameChange={(name) =>
+            setAccounts(
+              accounts.map((oldAccount) =>
+                oldAccount.id === account.id
+                  ? { ...oldAccount, name }
+                  : oldAccount
+              )
+            )
           }
         />
       ))}
