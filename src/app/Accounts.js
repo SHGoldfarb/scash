@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { func, string } from "prop-types";
-import { Delete, Done, Edit } from "@material-ui/icons";
+import { Add, Delete, Done, Edit } from "@material-ui/icons";
 import { IconButton, TextField } from "@material-ui/core";
 
-const EditAccount = ({ name, onConfirm }) => {
+const EditingField = ({ value, onConfirm }) => {
   const [inputValue, setInputValue] = useState(null);
 
-  const shownValue = inputValue === null ? name : inputValue;
+  const shownValue = inputValue === null ? value : inputValue;
 
   return (
     <div>
       <TextField
-        id="name-textfield"
+        id="value-textfield"
         value={shownValue}
         onChange={(ev) => setInputValue(ev.target.value)}
       />
@@ -28,25 +28,25 @@ const EditAccount = ({ name, onConfirm }) => {
   );
 };
 
-EditAccount.propTypes = {
-  name: string.isRequired,
+EditingField.propTypes = {
+  value: string.isRequired,
   onConfirm: func.isRequired,
 };
 
-const AccountField = ({ name, onDelete, onNameChange }) => {
+const EditableField = ({ value, onDelete, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   return isEditing ? (
-    <EditAccount
-      name={name}
+    <EditingField
+      value={value}
       onConfirm={(newName) => {
-        onNameChange(newName);
+        onChange(newName);
         setIsEditing(false);
       }}
     />
   ) : (
     <div>
-      {name}
+      {value}
       <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
         <Edit color="primary" />
       </IconButton>
@@ -57,10 +57,10 @@ const AccountField = ({ name, onDelete, onNameChange }) => {
   );
 };
 
-AccountField.propTypes = {
-  name: string.isRequired,
+EditableField.propTypes = {
+  value: string.isRequired,
   onDelete: func.isRequired,
-  onNameChange: func.isRequired,
+  onChange: func.isRequired,
 };
 
 const useAccounts = () => {
@@ -69,13 +69,18 @@ const useAccounts = () => {
     { id: 2, name: "Bank" },
   ]);
 
+  const newId = () => accounts.reduce((a, b) => Math.max(a, b.id), 1) + 1;
+
   const deleteAccount = (idToDelete) =>
     setAccounts(accounts.filter(({ id }) => id !== idToDelete));
 
   const upsertAccount = (newAccount) => {
     if (!accounts.map(({ id }) => id).includes(newAccount.id)) {
       // Is new account
-      setAccounts([...accounts, newAccount]);
+      setAccounts([
+        ...accounts,
+        { ...newAccount, id: newAccount.id || newId() },
+      ]);
     } else {
       setAccounts(
         accounts.map((oldAccount) =>
@@ -94,14 +99,21 @@ const Accounts = () => {
   const [accounts, deleteAccount, upsertAccount] = useAccounts();
   return (
     <div>
+      <pre>{JSON.stringify(accounts)}</pre>
       {accounts.map((account) => (
-        <AccountField
+        <EditableField
           key={account.id}
-          name={account.name}
+          value={account.name}
           onDelete={() => deleteAccount(account.id)}
-          onNameChange={(name) => upsertAccount({ ...account, name })}
+          onChange={(name) => upsertAccount({ ...account, name })}
         />
       ))}
+      <IconButton
+        aria-label="Create"
+        onClick={() => upsertAccount({ name: "New Account" })}
+      >
+        <Add color="primary" />
+      </IconButton>
     </div>
   );
 };
