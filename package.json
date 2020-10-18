@@ -21,6 +21,15 @@
     "css-loader": "3.4.2",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
+    "eslint": "7.2.0",
+    "eslint-config-airbnb": "18.2.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-plugin-flowtype": "4.6.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "4.1.2",
     "file-loader": "4.3.0",
     "firebase-tools": "^8.11.2",
     "fs-extra": "^8.1.0",
@@ -38,6 +47,7 @@
     "postcss-normalize": "8.0.1",
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "4.0.1",
+    "prettier": "^2.1.2",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-app-polyfill": "^1.0.6",
@@ -74,18 +84,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "eslint": "7.2.0",
-    "eslint-config-airbnb": "18.2.0",
-    "eslint-config-prettier": "^6.12.0",
-    "eslint-plugin-flowtype": "4.6.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-jsx-a11y": "^6.3.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-react": "^7.20.0",
-    "eslint-plugin-react-hooks": "4.1.2",
-    "prettier": "^2.1.2"
-  },
+  "devDependencies": {},
   "jest": {
     "roots": [
       "<rootDir>/src"
