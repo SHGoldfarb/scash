@@ -3,7 +3,7 @@ import { func, string } from "prop-types";
 import { Delete, Done, Edit } from "@material-ui/icons";
 import { IconButton, TextField } from "@material-ui/core";
 
-const EditAccount = ({ name, onChange }) => {
+const EditAccount = ({ name, onConfirm }) => {
   const [inputValue, setInputValue] = useState(null);
 
   const shownValue = inputValue === null ? name : inputValue;
@@ -18,7 +18,7 @@ const EditAccount = ({ name, onChange }) => {
       <IconButton
         aria-label="save"
         onClick={() => {
-          onChange(shownValue);
+          onConfirm(shownValue);
           setInputValue(null);
         }}
       >
@@ -28,13 +28,18 @@ const EditAccount = ({ name, onChange }) => {
   );
 };
 
+EditAccount.propTypes = {
+  name: string.isRequired,
+  onConfirm: func.isRequired,
+};
+
 const AccountField = ({ name, onDelete, onNameChange }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   return isEditing ? (
     <EditAccount
       name={name}
-      onChange={(newName) => {
+      onConfirm={(newName) => {
         onNameChange(newName);
         setIsEditing(false);
       }}
@@ -58,29 +63,43 @@ AccountField.propTypes = {
   onNameChange: func.isRequired,
 };
 
-const Accounts = () => {
+const useAccounts = () => {
   const [accounts, setAccounts] = useState([
     { id: 1, name: "Cash" },
     { id: 2, name: "Bank" },
   ]);
+
+  const deleteAccount = (idToDelete) =>
+    setAccounts(accounts.filter(({ id }) => id !== idToDelete));
+
+  const upsertAccount = (newAccount) => {
+    if (!accounts.map(({ id }) => id).includes(newAccount.id)) {
+      // Is new account
+      setAccounts([...accounts, newAccount]);
+    } else {
+      setAccounts(
+        accounts.map((oldAccount) =>
+          oldAccount.id === newAccount.id
+            ? { ...oldAccount, ...newAccount }
+            : oldAccount
+        )
+      );
+    }
+  };
+
+  return [accounts, deleteAccount, upsertAccount];
+};
+
+const Accounts = () => {
+  const [accounts, deleteAccount, upsertAccount] = useAccounts();
   return (
     <div>
       {accounts.map((account) => (
         <AccountField
           key={account.id}
           name={account.name}
-          onDelete={() =>
-            setAccounts(accounts.filter(({ id }) => id !== account.id))
-          }
-          onNameChange={(name) =>
-            setAccounts(
-              accounts.map((oldAccount) =>
-                oldAccount.id === account.id
-                  ? { ...oldAccount, name }
-                  : oldAccount
-              )
-            )
-          }
+          onDelete={() => deleteAccount(account.id)}
+          onNameChange={(name) => upsertAccount({ ...account, name })}
         />
       ))}
     </div>
