@@ -1,28 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Add } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import { EditableField } from "../components";
+import db from "../database";
 
 const useAccounts = () => {
-  const [accounts, setAccounts] = useState([
-    { id: 1, name: "Cash" },
-    { id: 2, name: "Bank" },
-  ]);
+  const [accounts, setAccounts] = useState([]);
 
-  const newId = () => accounts.reduce((a, b) => Math.max(a, b.id), 1) + 1;
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const fetchedAccounts = await db.accounts.toArray();
+      setAccounts(fetchedAccounts);
+    };
 
-  const deleteAccount = (idToDelete) =>
+    fetchAccounts();
+  }, []);
+
+  const deleteAccount = (idToDelete) => {
+    db.accounts.delete(idToDelete);
+
     setAccounts(accounts.filter(({ id }) => id !== idToDelete));
+  };
 
-  const upsertAccount = (newAccount) => {
+  const upsertAccount = async (newAccount) => {
     if (!accounts.map(({ id }) => id).includes(newAccount.id)) {
       // Is new account
-      setAccounts([
-        ...accounts,
-        { ...newAccount, id: newAccount.id || newId() },
-      ]);
+
+      const newId = await db.accounts.add(newAccount);
+
+      setAccounts([...accounts, { ...newAccount, id: newId }]);
     } else {
       // Is existing account
+      db.accounts.update(newAccount.id, newAccount);
+
       setAccounts(
         accounts.map((oldAccount) =>
           oldAccount.id === newAccount.id
