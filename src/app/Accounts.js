@@ -1,54 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Add } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import { EditableField } from "../components";
-import db from "../database";
+import { useReadData, useWriteData } from "../hooks";
 
-const useAccounts = () => {
-  const [accounts, setAccounts] = useState([]);
+const Accounts = () => {
+  const { loading, data: accounts, update } = useReadData("accounts");
+  const { upsert, remove } = useWriteData("accounts");
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      const fetchedAccounts = await db.accounts.toArray();
-      setAccounts(fetchedAccounts);
-    };
-
-    fetchAccounts();
-  }, []);
-
-  const deleteAccount = (idToDelete) => {
-    db.accounts.delete(idToDelete);
-
-    setAccounts(accounts.filter(({ id }) => id !== idToDelete));
+  const deleteAccount = async (idToDelete) => {
+    await remove(idToDelete);
+    update((currentAccounts) =>
+      currentAccounts.filter(({ id }) => id !== idToDelete)
+    );
   };
 
   const upsertAccount = async (newAccount) => {
-    if (!accounts.map(({ id }) => id).includes(newAccount.id)) {
-      // Is new account
-
-      const newId = await db.accounts.add(newAccount);
-
-      setAccounts([...accounts, { ...newAccount, id: newId }]);
-    } else {
-      // Is existing account
-      db.accounts.update(newAccount.id, newAccount);
-
-      setAccounts(
-        accounts.map((oldAccount) =>
-          oldAccount.id === newAccount.id
-            ? { ...oldAccount, ...newAccount }
-            : oldAccount
-        )
-      );
-    }
+    const newId = await upsert(newAccount);
+    update((currentAccounts) => [
+      ...currentAccounts.filter(({ id }) => id !== newId),
+      { ...newAccount, id: newId },
+    ]);
   };
 
-  return [accounts, deleteAccount, upsertAccount];
-};
-
-const Accounts = () => {
-  const [accounts, deleteAccount, upsertAccount] = useAccounts();
-  return (
+  return loading ? (
+    "Cargando..."
+  ) : (
     <div>
       <pre>{JSON.stringify(accounts, null, 2)}</pre>
       {accounts.map((account) => (
