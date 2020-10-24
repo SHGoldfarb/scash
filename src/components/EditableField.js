@@ -1,37 +1,8 @@
 import React, { useState } from "react";
 import { func, string } from "prop-types";
-import { Delete, Done, Edit } from "@material-ui/icons";
-import { IconButton, TextField } from "@material-ui/core";
-
-const EditingField = ({ value, onConfirm }) => {
-  const [inputValue, setInputValue] = useState(null);
-
-  const shownValue = inputValue === null ? value : inputValue;
-
-  return (
-    <div>
-      <TextField
-        id="value-textfield"
-        value={shownValue}
-        onChange={(ev) => setInputValue(ev.target.value)}
-      />
-      <IconButton
-        aria-label="save"
-        onClick={() => {
-          onConfirm(shownValue);
-          setInputValue(null);
-        }}
-      >
-        <Done color="primary" />
-      </IconButton>
-    </div>
-  );
-};
-
-EditingField.propTypes = {
-  value: string.isRequired,
-  onConfirm: func.isRequired,
-};
+import { Delete, Edit } from "@material-ui/icons";
+import { IconButton } from "@material-ui/core";
+import { EditingField } from "./editable-field";
 
 const EditableField = ({ value, onDelete, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
