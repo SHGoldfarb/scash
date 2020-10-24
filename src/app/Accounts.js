@@ -3,6 +3,7 @@ import { Add } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import { EditableField } from "../components";
 import { useReadData, useWriteData } from "../hooks";
+import { upsertById } from "../utils";
 
 const Accounts = () => {
   const { loading, data: accounts, update } = useReadData("accounts");
@@ -16,11 +17,8 @@ const Accounts = () => {
   };
 
   const upsertAccount = async (newAccount) => {
-    const newId = await upsert(newAccount);
-    update((currentAccounts) => [
-      ...currentAccounts.filter(({ id }) => id !== newId),
-      { ...newAccount, id: newId },
-    ]);
+    const returnedAccount = await upsert(newAccount);
+    update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
 
   return loading ? (

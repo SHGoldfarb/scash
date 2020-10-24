@@ -6,3 +6,22 @@ export const isFunction = (functionToCheck) => {
     functionToCheck && {}.toString.call(functionToCheck) === "[object Function]"
   );
 };
+
+export const upsertBy = (attrName, array, item) => {
+  let inserted;
+  const newArray = array.map((arrayItem) => {
+    if (arrayItem[attrName] === item[attrName]) {
+      inserted = true;
+      return item;
+    }
+    return arrayItem;
+  });
+
+  if (!inserted) {
+    newArray.push(item);
+  }
+
+  return newArray;
+};
+
+export const upsertById = (array, item) => upsertBy("id", array, item);

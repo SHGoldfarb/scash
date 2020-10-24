@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useCache } from "../contexts";
-import db from "../database";
+import { getAll, getById, remove, upsert } from "../database";
 import { isFunction } from "../utils/utils";
 
 export const useReadData = (tableName, options = {}) => {
@@ -12,11 +12,14 @@ export const useReadData = (tableName, options = {}) => {
     if (!cache.loading && !cache.data) {
       setCache((prev) => ({ ...prev, loading: true }));
       (async () => {
-        const data = await db.table(tableName).toArray();
+        const data = options.id
+          ? await getById(tableName, options.id)
+          : await getAll(tableName);
+
         setCache((prev) => ({ ...prev, loading: false, data }));
       })();
     }
-  }, [cache, setCache, tableName]);
+  }, [cache, setCache, tableName, options]);
 
   const update = (newValue) =>
     isFunction(newValue)
@@ -27,7 +30,11 @@ export const useReadData = (tableName, options = {}) => {
 };
 
 export const useWriteData = (tableName) => {
-  const upsert = (newData) => db.table(tableName).put(newData);
-  const remove = (id) => db.table(tableName).delete(id);
-  return { upsert, remove };
+  return {
+    upsert: async (newData) => {
+      const newId = await upsert(tableName, newData);
+      return getById(tableName, newId);
+    },
+    remove: (id) => remove(tableName, id),
+  };
 };
