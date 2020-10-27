@@ -3,7 +3,7 @@ import { func, string } from "prop-types";
 import { Done } from "@material-ui/icons";
 import { IconButton, TextField } from "@material-ui/core";
 
-const EditingField = ({ value, onConfirm }) => {
+const EditingField = ({ value, onConfirm, renderConfirmButton }) => {
   const [inputValue, setInputValue] = useState(null);
 
   const shownValue = inputValue === null ? value : inputValue;
@@ -15,22 +15,29 @@ const EditingField = ({ value, onConfirm }) => {
         value={shownValue}
         onChange={(ev) => setInputValue(ev.target.value)}
       />
-      <IconButton
-        aria-label="save"
-        onClick={() => {
-          onConfirm(shownValue);
-          setInputValue(null);
-        }}
-      >
-        <Done color="primary" />
-      </IconButton>
+      {renderConfirmButton(
+        <IconButton
+          aria-label="save"
+          onClick={() => {
+            onConfirm(shownValue);
+            setInputValue(null);
+          }}
+        >
+          <Done color="primary" />
+        </IconButton>
+      )}
     </div>
   );
+};
+
+EditingField.defaultProps = {
+  renderConfirmButton: (children) => children,
 };
 
 EditingField.propTypes = {
   value: string.isRequired,
   onConfirm: func.isRequired,
+  renderConfirmButton: func,
 };
 
 export default EditingField;

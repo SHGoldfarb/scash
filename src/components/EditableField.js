@@ -1,10 +1,16 @@
-import React, { useState } from "react";
-import { func, string } from "prop-types";
+import React, { Fragment, useState } from "react";
+import { func, node, string } from "prop-types";
 import { Delete, Edit } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import { EditingField } from "./editable-field";
 
-const EditableField = ({ value, onDelete, onChange }) => {
+const EditableField = ({
+  value,
+  onDelete,
+  onChange,
+  children,
+  buttonsContainer: ButtonsContainer,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
 
   return isEditing ? (
@@ -14,24 +20,36 @@ const EditableField = ({ value, onDelete, onChange }) => {
         onChange(newName);
         setIsEditing(false);
       }}
+      renderConfirmButton={(buttonNode) => (
+        <ButtonsContainer>{buttonNode}</ButtonsContainer>
+      )}
     />
   ) : (
-    <div>
-      {value}
-      <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
-        <Edit color="primary" />
-      </IconButton>
-      <IconButton aria-label="delete" onClick={onDelete}>
-        <Delete color="error" />
-      </IconButton>
-    </div>
+    <>
+      {children || value}
+      <ButtonsContainer>
+        <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
+          <Edit color="primary" />
+        </IconButton>
+        <IconButton aria-label="delete" onClick={onDelete}>
+          <Delete color="error" />
+        </IconButton>
+      </ButtonsContainer>
+    </>
   );
+};
+
+EditableField.defaultProps = {
+  children: null,
+  buttonsContainer: Fragment,
 };
 
 EditableField.propTypes = {
   value: string.isRequired,
   onDelete: func.isRequired,
   onChange: func.isRequired,
+  children: node,
+  buttonsContainer: func,
 };
 
 export default EditableField;
