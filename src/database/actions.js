@@ -1,8 +1,11 @@
 import db from "./database";
+import validators from "./validators";
 
-export const getAll = (tableName) => db.table(tableName).toArray();
+export const getAll = async (tableName) =>
+  (await db.table(tableName).toArray()).map(validators[tableName]);
 
-export const getById = (tableName, id) => db.table(tableName).get({ id });
+export const getById = async (tableName, id) =>
+  validators[tableName](await db.table(tableName).get({ id }));
 
 export const upsert = (tableName, newData) => db.table(tableName).put(newData);
 
