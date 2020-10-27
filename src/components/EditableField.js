@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from "react";
-import { func, node, string } from "prop-types";
+import { elementType, func, node, string } from "prop-types";
 import { Delete, Edit } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
 import { EditingField } from "./editable-field";
@@ -49,7 +49,7 @@ EditableField.propTypes = {
   onDelete: func.isRequired,
   onChange: func.isRequired,
   children: node,
-  buttonsContainer: func,
+  buttonsContainer: elementType,
 };
 
 export default EditableField;
