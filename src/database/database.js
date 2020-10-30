@@ -8,5 +8,10 @@ db.version(2).stores({
   accounts: `++id`,
   categories: "++id",
 });
+db.version(3).stores({
+  accounts: `++id`,
+  categories: "++id",
+  transactions: "++id",
+});
 
 export default db;
