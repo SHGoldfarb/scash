@@ -1,8 +1,6 @@
-import { BottomNavigation, BottomNavigationAction } from "@material-ui/core";
-import { Favorite, Restore } from "@material-ui/icons";
 import React from "react";
-import { BrowserRouter, Switch, Route, Link, Redirect } from "react-router-dom";
-import { Accounts, Categories } from "./app";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { Accounts, BottomMenu, Categories } from "./app";
 import { DataCacheProvider } from "./contexts";
 
 const App = () => {
@@ -19,20 +17,7 @@ const App = () => {
             <Redirect to="/transactions" />
           </Route>
         </Switch>
-        <BottomNavigation showLabels>
-          <BottomNavigationAction
-            label="Transactions"
-            icon={<Restore />}
-            component={Link}
-            to="/transactions"
-          />
-          <BottomNavigationAction
-            label="Settings"
-            icon={<Favorite />}
-            component={Link}
-            to="/configuration"
-          />
-        </BottomNavigation>
+        <BottomMenu />
       </BrowserRouter>
     </DataCacheProvider>
   );
