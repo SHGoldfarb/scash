@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Favorite, Restore } from "@material-ui/icons";
+import { ListAlt, Settings } from "@material-ui/icons";
 import {
   BottomNavigation,
   BottomNavigationAction,
   makeStyles,
 } from "@material-ui/core";
+import { makePath, settingsPathName, transactionsPathName } from "../utils";
 
 const useStyles = makeStyles(() => ({
   bottomNavigation: {
@@ -22,15 +23,15 @@ const BottomMenu = () => {
     <BottomNavigation showLabels classes={{ root: classes.bottomNavigation }}>
       <BottomNavigationAction
         label="Transactions"
-        icon={<Restore />}
+        icon={<ListAlt />}
         component={Link}
-        to="/transactions"
+        to={makePath(transactionsPathName)}
       />
       <BottomNavigationAction
         label="Settings"
-        icon={<Favorite />}
+        icon={<Settings />}
         component={Link}
-        to="/configuration"
+        to={makePath(settingsPathName)}
       />
     </BottomNavigation>
   );
