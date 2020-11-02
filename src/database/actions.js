@@ -7,6 +7,7 @@ export const getAll = async (tableName) =>
 export const getById = async (tableName, id) =>
   validators(tableName)(await db.table(tableName).get({ id }));
 
-export const upsert = (tableName, newData) => db.table(tableName).put(newData);
+export const upsert = (tableName, newData) =>
+  db.table(tableName).put(validators(tableName)(newData));
 
 export const remove = (tableName, id) => db.table(tableName).delete(id);
