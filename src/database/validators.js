@@ -18,6 +18,13 @@ const validatorsObject = {
   transactions: (transaction) => ({
     amount: transaction.amount ? parseInt(transaction.amount, 10) : 0,
     comment: transaction.comment || "",
+    date:
+      transaction.date ||
+      (() => {
+        throw new TypeError(
+          `Transaction date is not valid: ${transaction.date}`
+        );
+      })(),
   }),
 };
 

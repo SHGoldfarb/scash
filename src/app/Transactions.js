@@ -1,11 +1,15 @@
 import { Button, IconButton, TextField } from "@material-ui/core";
-import React from "react";
+import React, { forwardRef } from "react";
 import { Link, Route, Switch, useHistory } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { number, shape, string } from "prop-types";
 import { Delete } from "@material-ui/icons";
+import { DateTimePicker } from "@material-ui/pickers";
+import { DateTime } from "luxon";
 import { useReadData, useWriteData } from "../hooks";
 import { editPathName, makePath, transactionsPathName } from "../utils";
+
+const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
 const TransactionCard = ({ transaction }) => {
   const { remove } = useWriteData("transactions");
@@ -13,7 +17,11 @@ const TransactionCard = ({ transaction }) => {
 
   return (
     <div>
-      {`${transaction.id} - ${transaction.comment} - $${transaction.amount}`}
+      {`${transaction.id} - ${transaction.comment} - $${
+        transaction.amount
+      } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
+        DateTime.DATETIME_MED
+      )}`}
       <IconButton
         onClick={async () => {
           await remove(transaction.id);
@@ -51,10 +59,14 @@ const TransactionsList = () => {
   );
 };
 
+const DateTimePickerWithRef = forwardRef((props, ref) => (
+  <DateTimePicker {...props} inputRef={ref} />
+));
+
 const TransactionsForm = () => {
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, control } = useForm();
   const history = useHistory();
 
   return (
@@ -66,9 +78,19 @@ const TransactionsForm = () => {
         type="number"
         required
         error={!!errors.amount}
-        helperText={errors.amount ? "Please enter number" : ""}
+        helperText={errors.amount ? "Enter a number" : ""}
         inputRef={register({ pattern: /[0-9]*/, required: true })}
       />
+      <Controller
+        as={DateTimePickerWithRef}
+        control={control}
+        inputVariant="filled"
+        label="Date"
+        name="date"
+        format={dateDisplayFormat}
+        defaultValue={DateTime.local()}
+      />
+
       <TextField
         variant="filled"
         label="Comment"
@@ -76,8 +98,12 @@ const TransactionsForm = () => {
         inputRef={register}
       />
       <Button
-        onClick={handleSubmit(async ({ comment, amount }) => {
-          const newTransaction = await upsert({ comment, amount });
+        onClick={handleSubmit(async ({ comment, amount, date }) => {
+          const newTransaction = await upsert({
+            comment,
+            amount,
+            date: date.toSeconds(),
+          });
           update((transactions) =>
             transactions ? [...transactions, newTransaction] : transactions
           );

@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { DateTime } from "luxon";
 
 const db = new Dexie("myDb");
 db.version(1).stores({
@@ -12,6 +13,15 @@ db.version(3).stores({
   accounts: `++id`,
   categories: "++id",
   transactions: "++id",
+});
+
+db.version(4).upgrade(async (tx) => {
+  return tx.transactions.bulkPut(
+    (await tx.transactions.toArray()).map((transaction) => ({
+      ...transaction,
+      date: transaction.date || DateTime.local().toSeconds(),
+    }))
+  );
 });
 
 export default db;
