@@ -21,7 +21,7 @@ const TransactionCard = ({ transaction }) => {
         transaction.amount
       } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
         DateTime.DATETIME_MED
-      )}`}
+      )} - ${transaction.type}`}
       <IconButton
         onClick={async () => {
           await remove(transaction.id);
@@ -72,6 +72,18 @@ const TransactionsForm = () => {
   return (
     <>
       <TextField
+        select
+        SelectProps={{ native: true }}
+        label="Type"
+        variant="filled"
+        name="type"
+        inputRef={register}
+      >
+        <option value="expense">Expense</option>
+        <option value="income">Income</option>
+        <option value="transfer">Transfer</option>
+      </TextField>
+      <TextField
         variant="filled"
         label="Amount"
         name="amount"
@@ -98,11 +110,12 @@ const TransactionsForm = () => {
         inputRef={register}
       />
       <Button
-        onClick={handleSubmit(async ({ comment, amount, date }) => {
+        onClick={handleSubmit(async ({ comment, amount, date, type }) => {
           const newTransaction = await upsert({
             comment,
             amount,
             date: date.toSeconds(),
+            type,
           });
           update((transactions) =>
             transactions ? [...transactions, newTransaction] : transactions

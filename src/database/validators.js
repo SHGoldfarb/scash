@@ -8,6 +8,13 @@ const includeIfNotBlank = (attrName) => (validator) => (item) => {
   return validated;
 };
 
+const throwError = (ErrorClass, ...args) => {
+  throw new ErrorClass(...args);
+};
+
+const included = (options) => (choice) =>
+  options.includes(choice) ? choice : null;
+
 const validatorsObject = {
   accounts: (account) => ({
     name: account.name || null,
@@ -20,11 +27,13 @@ const validatorsObject = {
     comment: transaction.comment || "",
     date:
       transaction.date ||
-      (() => {
-        throw new TypeError(
-          `Transaction date is not valid: ${transaction.date}`
-        );
-      })(),
+      throwError(
+        TypeError,
+        `Transaction date is not valid: ${transaction.date}`
+      ),
+    type:
+      included(["income", "expense", "transfer"])(transaction.type) ||
+      "expense",
   }),
 };
 
