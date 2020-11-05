@@ -3,7 +3,7 @@ import { number, shape, string } from "prop-types";
 import { IconButton } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 import { DateTime } from "luxon";
-import { useReadData, useWriteData } from "../../../hooks";
+import { useReadData, useWriteData } from "hooks";
 
 const TransactionCard = ({ transaction }) => {
   const { remove } = useWriteData("transactions");

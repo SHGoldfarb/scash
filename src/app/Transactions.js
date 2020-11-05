@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@material-ui/core";
 import { Link, Route, Switch } from "react-router-dom";
-import { editPathName, makePath, transactionsPathName } from "../utils";
+import { editPathName, makePath, transactionsPathName } from "utils";
 import { TransactionsForm, TransactionsList } from "./transactions";
 
 const Transactions = () => {
