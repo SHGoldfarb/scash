@@ -17,7 +17,7 @@ const EditableList = ({ source, onUpdate, onAdd, onRemove }) => {
         <ListItem key={item.id}>
           <EditableField
             value={item.label}
-            onDelete={() => onRemove(item.id)}
+            onDelete={() => onRemove(item)}
             onChange={(label) => onUpdate({ ...item, label })}
             buttonsContainer={ListItemSecondaryAction}
           >

@@ -1,17 +1,21 @@
 import { Typography } from "@material-ui/core";
+import { DateTime } from "luxon";
 import React from "react";
 import { EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { upsertById } from "../utils";
 
 const Categories = () => {
-  const { loading, data: categories, update } = useReadData("categories");
-  const { upsert, remove } = useWriteData("categories");
+  const { loading, data: categories = [], update } = useReadData("categories");
+  const { upsert } = useWriteData("categories");
 
-  const deleteCategory = async (idToDelete) => {
-    await remove(idToDelete);
+  const deleteCategory = async (categoryToDelete) => {
+    const returnedCategory = await upsert({
+      ...categoryToDelete,
+      deactivatedAt: DateTime.local().toSeconds(),
+    });
     update((currentCategories) =>
-      currentCategories.filter(({ id }) => id !== idToDelete)
+      upsertById(currentCategories, returnedCategory)
     );
   };
 
@@ -22,6 +26,10 @@ const Categories = () => {
     );
   };
 
+  const activeCategories = categories.filter(
+    (category) => !category.deactivatedAt
+  );
+
   return (
     <>
       <Typography variant="h5">Categories</Typography>
@@ -30,7 +38,7 @@ const Categories = () => {
         "Cargando..."
       ) : (
         <EditableList
-          source={categories.map((category) => ({
+          source={activeCategories.map((category) => ({
             ...category,
             label: category.name,
           }))}

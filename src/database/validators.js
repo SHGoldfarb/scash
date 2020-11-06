@@ -18,9 +18,11 @@ const included = (options) => (choice) =>
 const validatorsObject = {
   accounts: (account) => ({
     name: account.name || null,
+    deactivatedAt: account.deactivatedAt || null,
   }),
   categories: (category) => ({
     name: category.name || null,
+    deactivatedAt: category.deactivatedAt || null,
   }),
   transactions: (transaction) => ({
     amount: transaction.amount ? parseInt(transaction.amount, 10) : 0,
