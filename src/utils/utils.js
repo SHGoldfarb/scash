@@ -25,3 +25,5 @@ export const upsertBy = (attrName, array, item) => {
 };
 
 export const upsertById = (array, item) => upsertBy("id", array, item);
+
+export const repeat = (func, times) => [...new Array(times)].map(() => func());
