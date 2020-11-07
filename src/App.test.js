@@ -46,6 +46,22 @@ const transactionMock = () => {
   };
 };
 
+const categoryMock = () => {
+  const id = newId();
+  return {
+    id,
+    name: `Category${id}`,
+  };
+};
+
+const accountMock = () => {
+  const id = newId();
+  return {
+    id,
+    name: `Account${id}`,
+  };
+};
+
 let mockDatabase;
 beforeEach(() => {
   mockDatabase = {};
@@ -201,12 +217,50 @@ describe("App", () => {
   });
 
   describe("user presses settings button", () => {
+    userAction(async () => {
+      fireEvent.click(wrapper.getByText("Settings"));
+
+      // Avoid act() warning
+      await waitFor(() => {});
+    });
+
     describe("database has categories and accounts", () => {
-      it.todo("shows categories and accounts");
+      const categories = repeat(categoryMock, 2);
+      const accounts = repeat(accountMock, 2);
+
+      beforeEach(() => {
+        mockDatabase.categories = categories;
+        mockDatabase.accounts = accounts;
+      });
+
+      it("shows categories and accounts", async () => {
+        await runUserActions();
+
+        await asyncReduce(
+          categories.map((category) => async () => {
+            await wrapper.findByText(category.name);
+          })
+        );
+
+        await asyncReduce(
+          accounts.map((account) => async () => {
+            await wrapper.findByText(account.name);
+          })
+        );
+      });
     });
     describe("user presses transactions button", () => {
-      describe("database has transactions", () => {
-        it.todo("shows transactions");
+      userAction(async () => {
+        fireEvent.click(wrapper.getByText("Transactions"));
+
+        // Avoid act() warning
+        await waitFor(() => {});
+      });
+
+      it("shows new transaction button", async () => {
+        await runUserActions();
+
+        wrapper.getByText("New Transaction");
       });
     });
   });
