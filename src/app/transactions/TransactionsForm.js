@@ -28,6 +28,7 @@ const TransactionsForm = () => {
         variant="filled"
         name="type"
         inputRef={register}
+        id="transaction-type"
       >
         <option value="expense">Expense</option>
         <option value="income">Income</option>
@@ -42,6 +43,7 @@ const TransactionsForm = () => {
         error={!!errors.amount}
         helperText={errors.amount ? "Enter a number" : ""}
         inputRef={register({ pattern: /[0-9]*/, required: true })}
+        id="transaction-amount"
       />
       <Controller
         as={DateTimePickerWithRef}
@@ -51,6 +53,7 @@ const TransactionsForm = () => {
         name="date"
         format={dateDisplayFormat}
         defaultValue={DateTime.local()}
+        id="transaction-date"
       />
 
       <TextField
@@ -58,6 +61,7 @@ const TransactionsForm = () => {
         label="Comment"
         name="comment"
         inputRef={register}
+        id="transaction-comment"
       />
       <Button
         onClick={handleSubmit(async ({ comment, amount, date, type }) => {
