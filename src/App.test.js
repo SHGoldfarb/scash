@@ -1,24 +1,61 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import { DateTime } from "luxon";
 import App from "./App";
+
+let mockDatabase;
 
 jest.mock("dexie", () => {
   return function Dexie() {
     return {
       version: () => ({ stores: () => {}, upgrade: () => {} }),
-      table: () => ({ toArray: async () => [] }),
+      table: (tableName) => ({
+        toArray: async () => mockDatabase[tableName] || [],
+      }),
     };
   };
 });
 
+const asyncReduce = (asyncFunctions) =>
+  asyncFunctions.reduce(
+    async (previousPromise, asyncFunction) =>
+      asyncFunction(await previousPromise),
+    Promise.resolve(null)
+  );
+
 describe("App", () => {
-  it("redirects to the transactions page", async () => {
-    const wrapper = render(<App />);
+  beforeEach(() => {
+    mockDatabase = {};
+  });
 
-    // Test it redirects to transactions page by testing that the new transactions button is rendered
-    wrapper.getByText("New Transaction");
+  describe("when database has transactions", () => {
+    let transactions;
 
-    // wait to avoid missing act() warning
-    await waitFor(() => {});
+    beforeEach(() => {
+      transactions = [
+        {
+          id: 1,
+          comment: "Comment 1",
+          date: DateTime.local().toSeconds(),
+        },
+        {
+          id: 2,
+          comment: "Comment 2",
+          date: DateTime.local().toSeconds(),
+        },
+      ];
+      mockDatabase.transactions = transactions;
+    });
+
+    it("shows transactions list", async () => {
+      const wrapper = render(<App />);
+
+      await asyncReduce(
+        transactions.map((transaction) => async () => {
+          await wrapper.findByText(transaction.comment, { exact: false });
+          // TODO: other attributes
+        })
+      );
+    });
   });
 });
