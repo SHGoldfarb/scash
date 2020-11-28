@@ -144,8 +144,38 @@ describe("App", () => {
     });
 
     describe("user presses the new account button", () => {
+      userAction(async () => {
+        const createButton = wrapper.baseElement.querySelectorAll(
+          "[aria-label='Create']"
+        )[0];
+
+        fireEvent.click(createButton);
+      });
+
+      it("auto focuses on new field", async () => {
+        await runUserActions();
+        const accountInput = wrapper.baseElement.querySelector("input");
+        expect(document.activeElement).toEqual(accountInput);
+      });
+
       describe("user writes name and saves", () => {
-        it.todo("new account name is shown");
+        const newAccountName = "New Account Name";
+
+        userAction(async () => {
+          const accountInput = wrapper.baseElement.querySelector("input");
+
+          fireEvent.change(accountInput, { target: { value: newAccountName } });
+
+          fireEvent.click(
+            wrapper.baseElement.querySelector("[aria-label='save']")
+          );
+        });
+
+        it("new account name is shown", async () => {
+          await runUserActions();
+
+          await wrapper.findByText(newAccountName);
+        });
       });
     });
 
