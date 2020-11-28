@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from "react";
-import { elementType, func, node, string } from "prop-types";
+import { bool, elementType, func, node, string } from "prop-types";
 import { Delete, Edit } from "@material-ui/icons";
 import { IconButton } from "@material-ui/core";
-import { EditingField } from "./editable-field";
+import EditingField from "./EditingField";
 
 const EditableField = ({
   value,
@@ -10,6 +10,7 @@ const EditableField = ({
   onChange,
   children,
   buttonsContainer: ButtonsContainer,
+  autoFocus,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -23,6 +24,7 @@ const EditableField = ({
       renderConfirmButton={(buttonNode) => (
         <ButtonsContainer>{buttonNode}</ButtonsContainer>
       )}
+      autoFocus={autoFocus}
     />
   ) : (
     <>
@@ -42,6 +44,7 @@ const EditableField = ({
 EditableField.defaultProps = {
   children: null,
   buttonsContainer: Fragment,
+  autoFocus: false,
 };
 
 EditableField.propTypes = {
@@ -50,6 +53,7 @@ EditableField.propTypes = {
   onChange: func.isRequired,
   children: node,
   buttonsContainer: elementType,
+  autoFocus: bool,
 };
 
 export default EditableField;

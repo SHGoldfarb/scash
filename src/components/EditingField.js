@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { func, string } from "prop-types";
+import { bool, func, string } from "prop-types";
 import { Done } from "@material-ui/icons";
 import { IconButton, TextField } from "@material-ui/core";
 
-const EditingField = ({ value, onConfirm, renderConfirmButton }) => {
+const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
   const [inputValue, setInputValue] = useState(null);
 
   const shownValue = inputValue === null ? value : inputValue;
@@ -14,6 +14,7 @@ const EditingField = ({ value, onConfirm, renderConfirmButton }) => {
         id="value-textfield"
         value={shownValue}
         onChange={(ev) => setInputValue(ev.target.value)}
+        inputProps={{ autoFocus }}
       />
       {renderConfirmButton(
         <IconButton
@@ -32,12 +33,14 @@ const EditingField = ({ value, onConfirm, renderConfirmButton }) => {
 
 EditingField.defaultProps = {
   renderConfirmButton: (children) => children,
+  autoFocus: false,
 };
 
 EditingField.propTypes = {
   value: string.isRequired,
   onConfirm: func.isRequired,
   renderConfirmButton: func,
+  autoFocus: bool,
 };
 
 export default EditingField;
