@@ -10,7 +10,7 @@
   "overrides": [
     {
       "files": [
-        "**/*.test.js"
+        "**/*.test.js", "**/*test-utils*/**"
       ],
       "env": {
         "jest": true
@@ -23,5 +23,8 @@
         "paths": ["src"]
       }
     }
+  }, 
+  "env": {
+    "browser": true
   }
 }

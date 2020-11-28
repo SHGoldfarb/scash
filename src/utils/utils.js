@@ -27,3 +27,10 @@ export const upsertBy = (attrName, array, item) => {
 export const upsertById = (array, item) => upsertBy("id", array, item);
 
 export const repeat = (func, times) => [...new Array(times)].map(() => func());
+
+export const asyncReduce = (asyncFunctions) =>
+  asyncFunctions.reduce(
+    async (previousPromise, asyncFunction) =>
+      asyncFunction(await previousPromise),
+    Promise.resolve(null)
+  );
