@@ -1,5 +1,6 @@
 {
   "extends": ["airbnb", "airbnb/hooks", "plugin:prettier/recommended"],
+  "parser": "babel-eslint",
   "rules": {
     "import/prefer-default-export": "off",
     "react/jsx-curly-newline": "off",
