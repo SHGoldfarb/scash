@@ -54,6 +54,7 @@ const TransactionsForm = () => {
         format={dateDisplayFormat}
         defaultValue={DateTime.local()}
         id="transaction-date"
+        ampm={false}
       />
 
       <TextField
