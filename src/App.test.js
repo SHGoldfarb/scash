@@ -32,6 +32,17 @@ describe("App", () => {
     wrapper = render(<App />);
   });
 
+  it("higlights transactions button", async () => {
+    await runUserActions();
+
+    expect(wrapper.getByText("Transactions").className).toEqual(
+      expect.stringContaining("Mui-selected")
+    );
+
+    // Avoid missing act() warning
+    await waitFor(() => {});
+  });
+
   describe("database has transactions", () => {
     let transactions;
 
