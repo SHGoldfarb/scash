@@ -44,21 +44,44 @@ describe("App", () => {
   });
 
   describe("database has transactions", () => {
-    let transactions;
+    let transactionsThisMonth;
+    let transactionsPrevMonth;
 
     beforeEach(() => {
-      transactions = repeat(transactionMock, 2);
-      mockTable("transactions").set(transactions);
+      const startOfMonth = DateTime.local().startOf("month");
+
+      // Two transactions this month, two transactions previous month
+      transactionsThisMonth = repeat(transactionMock, 2).map(
+        (transaction, idx) => ({
+          ...transaction,
+          date: startOfMonth.plus({ days: idx }).toSeconds(),
+        })
+      );
+
+      transactionsPrevMonth = repeat(transactionMock, 2).map(
+        (transaction, idx) => ({
+          ...transaction,
+          date: startOfMonth
+            .minus({ months: 1 })
+            .plus({ days: idx })
+            .toSeconds(),
+        })
+      );
+
+      mockTable("transactions").set([
+        ...transactionsThisMonth,
+        ...transactionsPrevMonth,
+      ]);
     });
 
-    it("shows transactions list", async () => {
+    it("shows transactions list for current month", async () => {
       await runUserActions();
 
       // Avoid missing act() warning
       await waitFor(() => {});
 
       await asyncReduce(
-        transactions.map((transaction) => async () => {
+        transactionsThisMonth.map((transaction) => async () => {
           // comment
           await wrapper.findByText(transaction.comment, { exact: false });
           // amount
@@ -72,6 +95,32 @@ describe("App", () => {
           );
         })
       );
+
+      // Make sure it does not show transactions from previous month
+      transactionsPrevMonth.forEach((transaction) => {
+        expect(wrapper.queryByText(transaction.comment, { exact: false })).toBe(
+          null
+        );
+      });
+    });
+
+    it.todo("shows total income/expense for month");
+
+    describe("user selects past month", () => {
+      it.todo("shows transactions list for selected month");
+      describe("user presses new transactions button", () => {
+        it.todo(
+          "default date in transactions form is the last day of selected month"
+        );
+      });
+    });
+
+    describe("user selects future month", () => {
+      describe("user presses new transactions button", () => {
+        it.todo(
+          "default date in transactions form is the first day of selected month"
+        );
+      });
     });
   });
 
