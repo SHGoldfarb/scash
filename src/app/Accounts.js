@@ -26,7 +26,9 @@ const Accounts = () => {
 
   return (
     <>
-      <Typography variant="h5">Accounts</Typography>
+      <Typography variant="h5" color="textPrimary">
+        Accounts
+      </Typography>
 
       {loading ? (
         "Cargando..."

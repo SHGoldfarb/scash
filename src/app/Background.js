@@ -1,0 +1,21 @@
+import React from "react";
+import { makeStyles } from "@material-ui/core";
+import { node } from "prop-types";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.default,
+    height: "100vh",
+  },
+}));
+
+const Background = ({ children }) => {
+  const classes = useStyles();
+  return <div className={classes.root}>{children}</div>;
+};
+
+Background.propTypes = {
+  children: node.isRequired,
+};
+
+export default Background;

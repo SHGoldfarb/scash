@@ -24,7 +24,10 @@ const EditableList = ({ source, onUpdate, onAdd, onRemove }) => {
             buttonsContainer={ListItemSecondaryAction}
             autoFocus
           >
-            <ListItemText primary={item.label} />
+            <ListItemText
+              primary={item.label}
+              primaryTypographyProps={{ color: "textPrimary" }}
+            />
           </EditableField>
         </ListItem>
       ))}

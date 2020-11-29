@@ -1,6 +1,6 @@
 import React from "react";
 import { number, shape, string } from "prop-types";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Typography } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 import { DateTime } from "luxon";
 import { useReadData, useWriteData } from "hooks";
@@ -11,11 +11,14 @@ const TransactionCard = ({ transaction }) => {
 
   return (
     <div>
-      {`${transaction.id} - ${transaction.comment} - $${
-        transaction.amount
-      } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
-        DateTime.DATETIME_MED
-      )} - ${transaction.type}`}
+      <Typography color="textPrimary">
+        {`${transaction.id} - ${transaction.comment} - $${
+          transaction.amount
+        } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
+          DateTime.DATETIME_MED
+        )} - ${transaction.type}`}
+      </Typography>
+
       <IconButton
         onClick={async () => {
           await remove(transaction.id);

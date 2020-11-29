@@ -32,7 +32,9 @@ const Categories = () => {
 
   return (
     <>
-      <Typography variant="h5">Categories</Typography>
+      <Typography variant="h5" color="textPrimary">
+        Categories
+      </Typography>
 
       {loading ? (
         "Cargando..."
