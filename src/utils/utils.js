@@ -35,3 +35,12 @@ export const asyncReduce = (asyncFunctions) =>
       asyncFunction(await previousPromise),
     Promise.resolve(null)
   );
+
+const formatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
+export const moneyFormat = (amount) => {
+  return formatter.format(amount).slice(0, -3);
+};

@@ -14,3 +14,16 @@ export const makeIsTransactionInMonthYear = ({ year, month }) => {
   return (transaction) =>
     transaction.date >= firstSecond && transaction.date <= lastSecond;
 };
+
+export const transactionsTotals = (transactions) =>
+  transactions.reduce(
+    (totals, transaction) => ({
+      income:
+        totals.income +
+        (transaction.type === "income" ? transaction.amount : 0),
+      expense:
+        totals.expense +
+        (transaction.type === "expense" ? transaction.amount : 0),
+    }),
+    { income: 0, expense: 0 }
+  );

@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { DateTime } from "luxon";
-import { repeat, asyncReduce } from "utils";
+import { repeat, asyncReduce, transactionsTotals, moneyFormat } from "utils";
 import App from "./App";
 import {
   mockTable,
@@ -35,7 +35,7 @@ describe("App", () => {
   it("higlights transactions button", async () => {
     await runUserActions();
 
-    expect(wrapper.getByText("Transactions").className).toEqual(
+    expect(wrapper.getAllByText("Transactions")[1].className).toEqual(
       expect.stringContaining("Mui-selected")
     );
 
@@ -50,15 +50,15 @@ describe("App", () => {
     beforeEach(() => {
       const startOfMonth = DateTime.local().startOf("month");
 
-      // Two transactions this month, two transactions previous month
-      transactionsThisMonth = repeat(transactionMock, 2).map(
+      // some transactions this month, some transactions previous month
+      transactionsThisMonth = repeat(transactionMock, 4).map(
         (transaction, idx) => ({
           ...transaction,
           date: startOfMonth.plus({ days: idx }).toSeconds(),
         })
       );
 
-      transactionsPrevMonth = repeat(transactionMock, 2).map(
+      transactionsPrevMonth = repeat(transactionMock, 4).map(
         (transaction, idx) => ({
           ...transaction,
           date: startOfMonth
@@ -104,7 +104,14 @@ describe("App", () => {
       });
     });
 
-    it.todo("shows total income/expense for month");
+    it("shows total income/expense for month", async () => {
+      const { income, expense } = transactionsTotals(transactionsThisMonth);
+
+      await runUserActions();
+
+      await wrapper.findByText(`${moneyFormat(income)}`);
+      await wrapper.findByText(`${moneyFormat(expense)}`);
+    });
 
     describe("user selects past month", () => {
       it.todo("shows transactions list for selected month");
