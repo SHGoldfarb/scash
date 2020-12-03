@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { DateTime } from "luxon";
 import { repeat, asyncReduce, transactionsTotals, moneyFormat } from "utils";
 import App from "./App";
@@ -35,7 +35,7 @@ describe("App", () => {
   it("higlights transactions button", async () => {
     await runUserActions();
 
-    expect(wrapper.getAllByText("Transactions")[1].className).toEqual(
+    expect(wrapper.getByText("Transactions").className).toEqual(
       expect.stringContaining("Mui-selected")
     );
 
@@ -74,27 +74,35 @@ describe("App", () => {
       ]);
     });
 
+    const expectTransactionInList = async (transaction) => {
+      // comment
+      await wrapper.findByText(transaction.comment, { exact: false });
+      // amount
+      await wrapper.findByText(`${transaction.amount}`, { exact: false });
+      // date
+      await wrapper.findByText(
+        DateTime.fromSeconds(transaction.date).toLocaleString(
+          DateTime.DATETIME_MED
+        ),
+        { exact: false }
+      );
+    };
+
+    const expectTransactionsInList = async (transactions) => {
+      await asyncReduce(
+        transactions.map((transaction) => async () => {
+          await expectTransactionInList(transaction);
+        })
+      );
+    };
+
     it("shows transactions list for current month", async () => {
       await runUserActions();
 
       // Avoid missing act() warning
       await waitFor(() => {});
 
-      await asyncReduce(
-        transactionsThisMonth.map((transaction) => async () => {
-          // comment
-          await wrapper.findByText(transaction.comment, { exact: false });
-          // amount
-          await wrapper.findByText(`${transaction.amount}`, { exact: false });
-          // date
-          await wrapper.findByText(
-            DateTime.fromSeconds(transaction.date).toLocaleString(
-              DateTime.DATETIME_MED
-            ),
-            { exact: false }
-          );
-        })
-      );
+      await expectTransactionsInList(transactionsThisMonth);
 
       // Make sure it does not show transactions from previous month
       transactionsPrevMonth.forEach((transaction) => {
@@ -114,7 +122,49 @@ describe("App", () => {
     });
 
     describe("user selects past month", () => {
-      it.todo("shows transactions list for selected month");
+      // Select previous month
+      userAction(async () => {
+        // Click on month field to open month dialog
+        const currentDate = DateTime.local();
+        const monthInput = await wrapper.findByDisplayValue(
+          `${currentDate.monthLong} ${currentDate.year}`
+        );
+        fireEvent.click(monthInput);
+
+        // On the dialog, select the previous month
+        const dialogWrapper = await wrapper.findByRole("presentation");
+        const previousMonthDate = currentDate
+          .startOf("month")
+          .minus({ months: 1 });
+        fireEvent.click(
+          // Select year
+          within(dialogWrapper)
+            .getAllByText(`${previousMonthDate.year}`)
+            .slice(-1) // Last of the array
+            .pop()
+        );
+        fireEvent.click(
+          // Select month
+          within(dialogWrapper).getByText(`${previousMonthDate.monthShort}`)
+        );
+      });
+
+      it("shows transactions list for selected month", async () => {
+        await runUserActions();
+
+        // Avoid missing act() warning
+        await waitFor(() => {});
+
+        await expectTransactionsInList(transactionsPrevMonth);
+
+        // Make sure it does not show transactions from current month
+        transactionsThisMonth.forEach((transaction) => {
+          expect(
+            wrapper.queryByText(transaction.comment, { exact: false })
+          ).toBe(null);
+        });
+      });
+
       describe("user presses new transactions button", () => {
         it.todo(
           "default date in transactions form is the last day of selected month"

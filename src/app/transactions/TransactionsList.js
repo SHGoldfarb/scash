@@ -18,6 +18,7 @@ import {
   transactionsPathName,
   transactionsTotals,
 } from "utils";
+import { DatePicker } from "@material-ui/pickers";
 import { useReadData } from "../../hooks";
 import { TransactionCard } from "./transactions-list";
 
@@ -42,20 +43,23 @@ const useStyles = makeStyles((theme) => ({
       margin: "auto",
     },
   },
+  createButton: {
+    minWidth: "10rem",
+  },
 }));
 
 const TransactionsList = () => {
-  const [selectedMonth] = useState(() => ({
-    year: DateTime.local().year,
-    month: DateTime.local().month,
-  }));
+  const [selectedMonth, setSelectedMonth] = useState(() => DateTime.local());
 
   const { loading, data: transactions = [] } = useReadData("transactions");
 
   const classes = useStyles();
 
   const filteredTransactions = transactions.filter(
-    makeIsTransactionInMonthYear(selectedMonth)
+    makeIsTransactionInMonthYear({
+      month: selectedMonth.month,
+      year: selectedMonth.year,
+    })
   );
 
   const { income, expense } = transactionsTotals(filteredTransactions);
@@ -64,11 +68,18 @@ const TransactionsList = () => {
     <>
       <AppBar position="sticky">
         <Toolbar classes={{ root: classes.spacedChildren }}>
-          <Typography variant="h6">Transactions</Typography>
+          <DatePicker
+            variant="inline"
+            openTo="year"
+            views={["year", "month"]}
+            value={selectedMonth}
+            onChange={setSelectedMonth}
+          />
 
           <Button
             component={Link}
             to={makePath(transactionsPathName, editPathName)}
+            className={classes.createButton}
           >
             New Transaction
           </Button>
