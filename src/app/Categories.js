@@ -33,7 +33,7 @@ const Categories = () => {
   return (
     <>
       <Typography variant="h5" color="textPrimary">
-        Categories
+        Expense Categories
       </Typography>
 
       {loading ? (
