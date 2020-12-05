@@ -24,6 +24,9 @@ describe("App", () => {
   let wrapper;
   beforeEach(() => {
     wrapper = undefined;
+
+    // reset url
+    window.history.pushState({}, "", "/");
   });
 
   const [userAction, runUserActions] = makeEventsPoint();
@@ -42,6 +45,10 @@ describe("App", () => {
     // Avoid missing act() warning
     await waitFor(() => {});
   });
+
+  const pressNewTransanctionButton = async () => {
+    fireEvent.click(await wrapper.findByText("New Transaction"));
+  };
 
   describe("database has transactions", () => {
     let transactionsThisMonth;
@@ -121,32 +128,38 @@ describe("App", () => {
       await wrapper.findByText(`${moneyFormat(expense)}`);
     });
 
+    const selectMonth = async (date) => {
+      // Click on month field to open month dialog
+      const currentDate = DateTime.local();
+      const monthInput = await wrapper.findByDisplayValue(
+        `${currentDate.monthLong} ${currentDate.year}`
+      );
+      fireEvent.click(monthInput);
+
+      // On the dialog, select the year and month
+      const dialogWrapper = await wrapper.findByRole("presentation");
+
+      fireEvent.click(
+        // Select year
+        within(dialogWrapper)
+          .getAllByText(`${date.year}`)
+          .slice(-1) // Last of the array
+          .pop()
+      );
+      fireEvent.click(
+        // Select month
+        within(dialogWrapper).getByText(`${date.monthShort}`)
+      );
+    };
+
     describe("user selects past month", () => {
       // Select previous month
       userAction(async () => {
-        // Click on month field to open month dialog
-        const currentDate = DateTime.local();
-        const monthInput = await wrapper.findByDisplayValue(
-          `${currentDate.monthLong} ${currentDate.year}`
-        );
-        fireEvent.click(monthInput);
-
-        // On the dialog, select the previous month
-        const dialogWrapper = await wrapper.findByRole("presentation");
-        const previousMonthDate = currentDate
+        const previousMonthDate = DateTime.local()
           .startOf("month")
           .minus({ months: 1 });
-        fireEvent.click(
-          // Select year
-          within(dialogWrapper)
-            .getAllByText(`${previousMonthDate.year}`)
-            .slice(-1) // Last of the array
-            .pop()
-        );
-        fireEvent.click(
-          // Select month
-          within(dialogWrapper).getByText(`${previousMonthDate.monthShort}`)
-        );
+
+        await selectMonth(previousMonthDate);
       });
 
       it("shows transactions list for selected month", async () => {
@@ -166,17 +179,49 @@ describe("App", () => {
       });
 
       describe("user presses new transactions button", () => {
-        it.todo(
-          "default date in transactions form is the last day of selected month"
-        );
+        userAction(async () => {
+          await pressNewTransanctionButton();
+        });
+
+        it("default date in transactions form is the last day of selected month", async () => {
+          await runUserActions();
+
+          // Find that the date input has the correct default value
+          await wrapper.findByDisplayValue(
+            DateTime.local()
+              .minus({ months: 1 })
+              .endOf("month")
+              .toFormat("yyyy-MM-dd HH:mm")
+          );
+        });
       });
     });
 
     describe("user selects future month", () => {
+      // Select next month
+      userAction(async () => {
+        const nextMonthDate = DateTime.local()
+          .startOf("month")
+          .plus({ months: 1 });
+
+        await selectMonth(nextMonthDate);
+      });
       describe("user presses new transactions button", () => {
-        it.todo(
-          "default date in transactions form is the first day of selected month"
-        );
+        userAction(async () => {
+          await pressNewTransanctionButton();
+        });
+
+        it("default date in transactions form is the first day of selected month", async () => {
+          await runUserActions();
+
+          // Find that the date input has the correct default value
+          await wrapper.findByDisplayValue(
+            DateTime.local()
+              .plus({ months: 1 })
+              .startOf("month")
+              .toFormat("yyyy-MM-dd HH:mm")
+          );
+        });
       });
     });
   });
@@ -186,7 +231,7 @@ describe("App", () => {
       // Avoid missing act() warning
       await waitFor(() => {});
 
-      fireEvent.click(wrapper.getByText("New Transaction"));
+      await pressNewTransanctionButton();
     });
 
     describe("user enters transaction fields", () => {

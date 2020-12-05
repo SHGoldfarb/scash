@@ -78,7 +78,12 @@ const TransactionsList = () => {
 
           <Button
             component={Link}
-            to={makePath(transactionsPathName, editPathName)}
+            to={makePath(transactionsPathName, editPathName, {
+              params: {
+                month: selectedMonth.month,
+                year: selectedMonth.year,
+              },
+            })}
             className={classes.createButton}
           >
             New Transaction

@@ -44,3 +44,7 @@ const formatter = new Intl.NumberFormat("en-US", {
 export const moneyFormat = (amount) => {
   return formatter.format(amount).slice(0, -3);
 };
+
+export const isString = (variable) => {
+  return !!(typeof variable === "string" || variable instanceof String);
+};
