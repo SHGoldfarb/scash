@@ -5,7 +5,7 @@ import { node } from "prop-types";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.default,
-    height: "100vh",
+    minHeight: "100vh",
   },
 }));
 

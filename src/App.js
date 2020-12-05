@@ -7,6 +7,8 @@ import {
   Background,
   BottomMenu,
   Categories,
+  IncomeCategories,
+  PageContainer,
   ScashThemeProvider,
   Transactions,
 } from "./app";
@@ -21,18 +23,21 @@ const App = () => {
         <MuiPickersUtilsProvider utils={LuxonUtils}>
           <DataCacheProvider>
             <BrowserRouter>
-              <Switch>
-                <Route path={makePath(settingsPathName)}>
-                  <Accounts />
-                  <Categories />
-                </Route>
-                <Route path={makePath(transactionsPathName)}>
-                  <Transactions />
-                </Route>
-                <Route path={makePath()}>
-                  <Redirect to={makePath(transactionsPathName)} />
-                </Route>
-              </Switch>
+              <PageContainer>
+                <Switch>
+                  <Route path={makePath(settingsPathName)}>
+                    <Accounts />
+                    <Categories />
+                    <IncomeCategories />
+                  </Route>
+                  <Route path={makePath(transactionsPathName)}>
+                    <Transactions />
+                  </Route>
+                  <Route path={makePath()}>
+                    <Redirect to={makePath(transactionsPathName)} />
+                  </Route>
+                </Switch>
+              </PageContainer>
               <BottomMenu />
             </BrowserRouter>
           </DataCacheProvider>

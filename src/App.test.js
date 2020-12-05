@@ -305,6 +305,37 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    describe("user presses the new income category button", () => {
+      userAction(async () => {
+        const createButton = wrapper.baseElement.querySelectorAll(
+          "[aria-label='Create']"
+        )[2];
+
+        fireEvent.click(createButton);
+      });
+      describe("user writes income category name and saves", () => {
+        const newIncomeCategoryName = "this is an income category";
+
+        userAction(async () => {
+          const accountInput = wrapper.baseElement.querySelector("input");
+
+          fireEvent.change(accountInput, {
+            target: { value: newIncomeCategoryName },
+          });
+
+          fireEvent.click(
+            wrapper.baseElement.querySelector("[aria-label='save']")
+          );
+        });
+
+        it("adds the new income category to the list", async () => {
+          await runUserActions();
+
+          await wrapper.findByText(newIncomeCategoryName);
+        });
+      });
+    });
+
     describe("user presses the new account button", () => {
       userAction(async () => {
         const createButton = wrapper.baseElement.querySelectorAll(

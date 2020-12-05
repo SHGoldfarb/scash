@@ -24,4 +24,11 @@ db.version(4).upgrade(async (tx) => {
   );
 });
 
+db.version(5).stores({
+  accounts: `++id`,
+  categories: "++id",
+  transactions: "++id",
+  incomeCategories: "++id",
+});
+
 export default db;
