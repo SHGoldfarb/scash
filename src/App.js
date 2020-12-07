@@ -7,6 +7,7 @@ import {
   Background,
   BottomMenu,
   Categories,
+  Commands,
   IncomeCategories,
   PageContainer,
   ScashThemeProvider,
@@ -26,6 +27,7 @@ const App = () => {
               <PageContainer>
                 <Switch>
                   <Route path={makePath(settingsPathName)}>
+                    <Commands />
                     <Accounts />
                     <Categories />
                     <IncomeCategories />

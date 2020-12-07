@@ -2,6 +2,7 @@ export { default as Accounts } from "./Accounts";
 export { default as Background } from "./Background";
 export { default as BottomMenu } from "./BottomMenu";
 export { default as Categories } from "./Categories";
+export { default as Commands } from "./Commands";
 export { default as IncomeCategories } from "./IncomeCategories";
 export { default as PageContainer } from "./PageContainer";
 export { default as ScashThemeProvider } from "./ScashThemeProvider";

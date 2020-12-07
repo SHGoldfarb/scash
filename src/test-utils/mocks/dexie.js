@@ -1,4 +1,4 @@
-import { upsertById } from "utils";
+import { asyncReduce, upsertById } from "utils";
 import { newId } from "./utils";
 
 let mockDatabase;
@@ -33,29 +33,24 @@ const set = (tableName) =>
     mockDatabase[tableName] = items;
   });
 
+const clear = (tableName) =>
+  jest.fn(async () => {
+    mockDatabase[tableName] = [];
+
+    return null;
+  });
+
+const bulkAdd = (tableName) =>
+  jest.fn(async (items) => {
+    await asyncReduce(items.map((item) => () => put(tableName)(item)));
+    return null;
+  });
+
 export const mockTable = (tableName) => ({
   toArray: async () => mockDatabase[tableName] || [],
   put: put(tableName),
   get: get(tableName),
   set: set(tableName),
+  clear: clear(tableName),
+  bulkAdd: bulkAdd(tableName),
 });
-
-const makeEntityMock = (defaultAttributes) => (customAttributes) => {
-  const id = newId();
-  return {
-    ...defaultAttributes(id),
-    ...customAttributes,
-    id,
-  };
-};
-
-export const transactionMock = makeEntityMock((id) => ({
-  comment: `Comment${id} for ${id}`,
-  date: 1604767791 + id * 60,
-  amount: 5000 + id,
-  type: ["expense", "income", "transfer"][id % 3],
-}));
-
-export const categoryMock = makeEntityMock((id) => ({ name: `Category${id}` }));
-
-export const accountMock = makeEntityMock((id) => ({ name: `Account${id}` }));

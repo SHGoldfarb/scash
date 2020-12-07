@@ -24,6 +24,10 @@ const validatorsObject = {
     name: category.name || null,
     deactivatedAt: category.deactivatedAt || null,
   }),
+  incomeCategories: (category) => ({
+    name: category.name || null,
+    deactivatedAt: category.deactivatedAt || null,
+  }),
   transactions: (transaction) => ({
     amount: transaction.amount ? parseInt(transaction.amount, 10) : 0,
     comment: transaction.comment || "",

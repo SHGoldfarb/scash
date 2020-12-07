@@ -11,3 +11,8 @@ export const upsert = (tableName, newData) =>
   db.table(tableName).put(validators(tableName)(newData));
 
 export const remove = (tableName, id) => db.table(tableName).delete(id);
+
+export const clear = (tableName) => db.table(tableName).clear();
+
+export const bulkAdd = (tableName, items) =>
+  db.table(tableName).bulkAdd(items.map((item) => validators(tableName)(item)));

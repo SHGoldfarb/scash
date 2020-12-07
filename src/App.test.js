@@ -3,12 +3,12 @@ import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { DateTime } from "luxon";
 import { repeat, asyncReduce, transactionsTotals, moneyFormat } from "utils";
 import App from "./App";
+import { mockTable } from "./test-utils/mocks";
 import {
-  mockTable,
   transactionMock,
   categoryMock,
   accountMock,
-} from "./test-utils/mocks";
+} from "./test-utils/mocks/entities";
 import { makeEventsPoint } from "./test-utils";
 
 jest.mock("dexie", () => {
@@ -305,6 +305,32 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    describe("user enters mock seed command", () => {
+      userAction(async () => {
+        const commandInput = await wrapper.findByLabelText("Command line");
+        fireEvent.change(commandInput, { target: { value: "seed5000" } });
+        fireEvent.focus(commandInput);
+        fireEvent.keyPress(commandInput, {
+          key: "Enter",
+          code: "Enter",
+          charCode: 13,
+        });
+      });
+
+      it("populates everything", async () => {
+        await runUserActions();
+
+        // Shows the correct amount of list items
+        await waitFor(() => {
+          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(15);
+        });
+
+        // This is not ideal test, since we must test from the user perspective and not peek into the database
+        // TODO: test correctly
+        expect((await mockTable("transactions").toArray()).length).toBe(5000);
+      });
+    });
+
     describe("user presses the new income category button", () => {
       userAction(async () => {
         const createButton = wrapper.baseElement.querySelectorAll(
@@ -317,9 +343,9 @@ describe("App", () => {
         const newIncomeCategoryName = "this is an income category";
 
         userAction(async () => {
-          const accountInput = wrapper.baseElement.querySelector("input");
+          const nameInput = wrapper.baseElement.querySelectorAll("input")[1];
 
-          fireEvent.change(accountInput, {
+          fireEvent.change(nameInput, {
             target: { value: newIncomeCategoryName },
           });
 
@@ -347,7 +373,7 @@ describe("App", () => {
 
       it("auto focuses on new field", async () => {
         await runUserActions();
-        const accountInput = wrapper.baseElement.querySelector("input");
+        const accountInput = wrapper.baseElement.querySelectorAll("input")[1];
         expect(document.activeElement).toEqual(accountInput);
       });
 
@@ -355,7 +381,7 @@ describe("App", () => {
         const newAccountName = "New Account Name";
 
         userAction(async () => {
-          const accountInput = wrapper.baseElement.querySelector("input");
+          const accountInput = wrapper.baseElement.querySelectorAll("input")[1];
 
           fireEvent.change(accountInput, { target: { value: newAccountName } });
 

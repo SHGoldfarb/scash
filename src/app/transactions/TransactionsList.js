@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
+  by,
   editPathName,
   makeIsTransactionInMonthYear,
   makePath,
@@ -55,12 +56,14 @@ const TransactionsList = () => {
 
   const classes = useStyles();
 
-  const filteredTransactions = transactions.filter(
-    makeIsTransactionInMonthYear({
-      month: selectedMonth.month,
-      year: selectedMonth.year,
-    })
-  );
+  const filteredTransactions = transactions
+    .filter(
+      makeIsTransactionInMonthYear({
+        month: selectedMonth.month,
+        year: selectedMonth.year,
+      })
+    )
+    .sort(by("date"));
 
   const { income, expense } = transactionsTotals(filteredTransactions);
 

@@ -48,3 +48,11 @@ export const moneyFormat = (amount) => {
 export const isString = (variable) => {
   return !!(typeof variable === "string" || variable instanceof String);
 };
+
+export const by = (getter) => {
+  if (isFunction(getter)) {
+    return (a, b) => (getter(a) < getter(b) ? -1 : 1);
+  }
+
+  return (a, b) => (a[getter] < b[getter] ? -1 : 1);
+};

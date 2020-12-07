@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useCache } from "../contexts";
-import { getAll, getById, remove, upsert } from "../database";
+import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
 import { isFunction } from "../utils/utils";
 
 export const useReadData = (tableName, options = {}) => {
@@ -26,7 +26,14 @@ export const useReadData = (tableName, options = {}) => {
       ? setCache((prev) => ({ ...prev, data: newValue(prev.data) }))
       : setCache((prev) => ({ ...prev, data: newValue }));
 
-  return { ...cache, loading: cache.loading || !cache.data, update };
+  const reset = () => setCache(undefined);
+
+  return {
+    ...cache,
+    loading: cache.loading || !cache.data,
+    update,
+    refetch: reset,
+  };
 };
 
 export const useWriteData = (tableName) => {
@@ -36,5 +43,12 @@ export const useWriteData = (tableName) => {
       return getById(tableName, newId);
     },
     remove: (id) => remove(tableName, id),
+    clear: () => clear(tableName),
+    bulkAdd: (items) => bulkAdd(tableName, items),
+    set: async (items) => {
+      await clear(tableName);
+      await bulkAdd(tableName, items);
+      return getAll(tableName);
+    },
   };
 };
