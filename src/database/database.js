@@ -31,4 +31,8 @@ db.version(5).stores({
   incomeCategories: "++id",
 });
 
+db.version(6).upgrade(async (tx) => {
+  return tx.transactions.clear();
+});
+
 export default db;

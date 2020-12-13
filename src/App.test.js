@@ -232,6 +232,90 @@ describe("App", () => {
       await waitFor(() => {});
 
       await pressNewTransanctionButton();
+
+      // Avoid missing act() warning
+      await waitFor(() => {});
+    });
+
+    describe("database has accounts", () => {
+      let accounts;
+      beforeEach(async () => {
+        mockTable("accounts").set(repeat(accountMock, 5));
+        accounts = await mockTable("accounts").toArray();
+      });
+
+      describe("user creates an income transaction", () => {
+        const createTransactionInForm = ({ type, accountName } = {}) => {
+          const newTransaction = transactionMock();
+
+          // Enter type
+          fireEvent.change(wrapper.getByLabelText("Type"), {
+            target: { value: type || newTransaction.type },
+          });
+
+          // Enter amount
+          fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
+            target: { value: newTransaction.amount },
+          });
+
+          // Enter account
+          fireEvent.change(wrapper.getByLabelText("Account"), {
+            target: { value: wrapper.getByText(accountName).value },
+          });
+
+          // Enter date
+          // TODO: this not working
+          fireEvent.change(wrapper.getByLabelText("Date"), {
+            target: {
+              value: DateTime.fromSeconds(newTransaction.date).toFormat(
+                "yyyy-MM-dd HH:mm"
+              ),
+            },
+          });
+
+          // Enter comment
+          fireEvent.change(wrapper.getByLabelText("Comment"), {
+            target: {
+              value: newTransaction.comment,
+            },
+          });
+
+          fireEvent.click(wrapper.getByText("Save"));
+        };
+
+        let selectedAccount;
+        userAction(() => {
+          [selectedAccount] = accounts;
+
+          createTransactionInForm({
+            accountName: selectedAccount.name,
+            type: "income",
+          });
+        });
+
+        const expectToBeInTransactionsPage = async () => {
+          // Test we are in transaction page by expecting the new transaction button to be shown
+          await wrapper.findByText("New Transaction");
+        };
+
+        it("correctly assosiates transaction to account", async () => {
+          await runUserActions();
+
+          // Test the account was associated by looking for it in the transactions page
+          // First make sure we are in transactions page
+          await expectToBeInTransactionsPage();
+
+          await wrapper.findByText(selectedAccount.name, { exact: false });
+        });
+      });
+
+      describe("user creates an expense transaction", () => {
+        it.todo("correctly assosiates transaction to account");
+      });
+
+      describe("user creates a transfer transaction", () => {
+        it.todo("correctly assosiates transaction to account");
+      });
     });
 
     describe("user enters transaction fields", () => {
@@ -303,6 +387,10 @@ describe("App", () => {
 
       // Avoid act() warning
       await waitFor(() => {});
+    });
+
+    describe("there is an account with a noncero amount", () => {
+      it.todo("does not let the user delte the account");
     });
 
     describe("user enters mock seed command", () => {
@@ -422,6 +510,10 @@ describe("App", () => {
           })
         );
       });
+
+      describe("database has some transactions", () => {
+        it.todo("shows the amount in the account for each account");
+      });
     });
     describe("user presses transactions button", () => {
       userAction(async () => {
@@ -431,9 +523,10 @@ describe("App", () => {
         await waitFor(() => {});
       });
 
-      it("shows new transaction button", async () => {
+      it("goes to transactions page", async () => {
         await runUserActions();
 
+        // Test it goes to transaction page by expecting the new transaction button to be shown
         wrapper.getByText("New Transaction");
       });
     });

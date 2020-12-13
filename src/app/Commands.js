@@ -2,12 +2,13 @@ import { TextField } from "@material-ui/core";
 import { useReadData, useWriteData } from "hooks";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
-import { isEnterKey } from "utils";
+import { isActive, isEnterKey, sample } from "utils";
 import {
   accountMock,
   categoryMock,
   transactionMock,
 } from "../test-utils/mocks/entities";
+import { useTransactionsForList } from "./hooks";
 
 const MOCK_SEED_COMMAND = "seed5000";
 
@@ -22,11 +23,11 @@ const useCommands = () => {
   const { refetch: refetchAccounts } = useReadData("accounts");
   const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
   const { refetch: refetchExpenseCategories } = useReadData("categories");
-  const { refetch: refetchTransactions } = useReadData("transactions");
+  const { refetch: refetchTransactions } = useTransactionsForList();
 
   const populate = async () => {
     // Create accounts
-    await setAccounts(
+    const accounts = await setAccounts(
       [...Array(20)].map(accountMock).map((item, idx) =>
         noId({
           ...item,
@@ -61,12 +62,18 @@ const useCommands = () => {
 
     refetchExpenseCategories();
 
+    const activeAccounts = accounts.filter(isActive);
+
     // Create transactions
     let runningDate = DateTime.local();
     await setTransactions(
       [...Array(5000)].map(transactionMock).map((item, idx) => {
         runningDate = runningDate.minus({ hours: 3 + (idx % 15) });
-        return noId({ ...item, date: runningDate.toSeconds() });
+        return noId({
+          ...item,
+          date: runningDate.toSeconds(),
+          accountId: sample(activeAccounts).id,
+        });
       })
     );
 

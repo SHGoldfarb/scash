@@ -20,8 +20,8 @@ import {
   transactionsTotals,
 } from "utils";
 import { DatePicker } from "@material-ui/pickers";
-import { useReadData } from "../../hooks";
 import { TransactionCard } from "./transactions-list";
+import { useTransactionsForList } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
   spacedChildren: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 const TransactionsList = () => {
   const [selectedMonth, setSelectedMonth] = useState(() => DateTime.local());
 
-  const { loading, data: transactions = [] } = useReadData("transactions");
+  const { loading, data: transactions = [] } = useTransactionsForList();
 
   const classes = useStyles();
 

@@ -3,11 +3,12 @@ import { number, shape, string } from "prop-types";
 import { IconButton, Typography } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 import { DateTime } from "luxon";
-import { useReadData, useWriteData } from "hooks";
+import { useWriteData } from "hooks";
+import { useTransactionsForList } from "../../hooks";
 
 const TransactionCard = ({ transaction }) => {
   const { remove } = useWriteData("transactions");
-  const { update } = useReadData("transactions");
+  const { update } = useTransactionsForList();
 
   return (
     <div>
@@ -16,7 +17,7 @@ const TransactionCard = ({ transaction }) => {
           transaction.amount
         } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
           DateTime.DATETIME_MED
-        )} - ${transaction.type}`}
+        )} - ${transaction.type} - ${transaction.account?.name}`}
       </Typography>
 
       <IconButton

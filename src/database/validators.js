@@ -35,11 +35,26 @@ const validatorsObject = {
       transaction.date ||
       throwError(
         TypeError,
-        `Transaction date is not valid: ${transaction.date}`
+        `Transaction must include a date: ${JSON.stringify(
+          transaction,
+          null,
+          2
+        )}`
       ),
     type:
       included(["income", "expense", "transfer"])(transaction.type) ||
       "expense",
+    accountId: included(["income", "expense"])(transaction.type)
+      ? transaction.accountId ||
+        throwError(
+          TypeError,
+          `Transaction must include an accountId: ${JSON.stringify(
+            transaction,
+            null,
+            2
+          )}`
+        )
+      : null,
   }),
 };
 

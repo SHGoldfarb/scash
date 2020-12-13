@@ -1,45 +1,28 @@
 import { Button, TextField } from "@material-ui/core";
 import React, { forwardRef } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { DateTime } from "luxon";
 import { DateTimePicker } from "@material-ui/pickers";
 import { useReadData, useWriteData } from "../../hooks";
-import { makePath, parseSearchParams, transactionsPathName } from "../../utils";
+import { isActive, makePath, transactionsPathName } from "../../utils";
+import { useDefaultDate } from "./utils";
+import { useTransactionsForList } from "../hooks";
 
 const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
-const useDefaultDate = () => {
-  const location = useLocation();
-
-  const { month, year } = parseSearchParams(location.search);
-
-  const currentDate = DateTime.local();
-
-  if (`${currentDate.month}` === month && `${currentDate.year}` === year) {
-    // selected month is today's month
-    return currentDate;
-  }
-
-  const selectedDate = DateTime.fromObject({ month, year });
-
-  if (currentDate > selectedDate) {
-    // selected month is a past month
-    return selectedDate.endOf("month");
-  }
-
-  // selected month is a future month
-
-  return selectedDate.startOf("month");
-};
-
 const TransactionsForm = () => {
   const { upsert } = useWriteData("transactions");
-  const { update } = useReadData("transactions");
+  const { update } = useTransactionsForList();
   const { register, handleSubmit, errors, control } = useForm();
   const history = useHistory();
 
   const defaultDate = useDefaultDate();
+
+  const { data: accounts = [], loading: accountsLoading } = useReadData(
+    "accounts"
+  );
+
+  const activeAccounts = accounts.filter(isActive);
 
   return (
     <>
@@ -84,6 +67,25 @@ const TransactionsForm = () => {
         fullWidth
         inputProps={{ autoFocus: true }}
       />
+      {!accountsLoading && (
+        <TextField
+          select
+          SelectProps={{ native: true }}
+          label="Account"
+          variant="filled"
+          name="accountId"
+          inputRef={register}
+          id="transaction-account"
+          fullWidth
+          defaultValue={activeAccounts[0]?.id}
+        >
+          {activeAccounts.map((account) => (
+            <option value={account.id} key={account.id}>
+              {account.name}
+            </option>
+          ))}
+        </TextField>
+      )}
       <TextField
         variant="filled"
         label="Comment"
@@ -93,18 +95,26 @@ const TransactionsForm = () => {
         fullWidth
       />
       <Button
-        onClick={handleSubmit(async ({ comment, amount, date, type }) => {
-          const newTransaction = await upsert({
-            comment,
-            amount,
-            date: date.toSeconds(),
-            type,
-          });
-          update((transactions) =>
-            transactions ? [...transactions, newTransaction] : transactions
-          );
-          history.push(makePath(transactionsPathName));
-        })}
+        onClick={handleSubmit(
+          async ({ comment, amount, date, type, accountId }) => {
+            const newTransaction = await upsert({
+              comment,
+              amount,
+              date: date.toSeconds(),
+              type,
+              accountId: accountId ? parseInt(accountId, 10) : null,
+            });
+
+            newTransaction.account = accounts.find(
+              (account) => account.id === newTransaction.accountId
+            );
+
+            update((transactions) =>
+              transactions ? [...transactions, newTransaction] : transactions
+            );
+            history.push(makePath(transactionsPathName));
+          }
+        )}
       >
         Save
       </Button>
