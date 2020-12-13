@@ -1,7 +1,6 @@
 import {
   AppBar,
   Button,
-  CircularProgress,
   makeStyles,
   Toolbar,
   Typography,
@@ -20,6 +19,7 @@ import {
   transactionsTotals,
 } from "utils";
 import { DatePicker } from "@material-ui/pickers";
+import { DelayedCircularProgress } from "components";
 import { TransactionCard } from "./transactions-list";
 import { useTransactionsForList } from "../hooks";
 
@@ -103,7 +103,7 @@ const TransactionsList = () => {
       </div>
 
       {loading ? (
-        <CircularProgress />
+        <DelayedCircularProgress />
       ) : (
         filteredTransactions
           .reduce((reversed, transaction) => [transaction, ...reversed], [])

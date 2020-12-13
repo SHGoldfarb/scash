@@ -61,3 +61,11 @@ export const isActive = (entity) => !entity.deactivatedAt;
 
 export const sample = (items) =>
   items[Math.floor(Math.random() * items.length)];
+
+export const waitms = async (ms) => {
+  const promise = new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+  return promise;
+};
