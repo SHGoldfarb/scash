@@ -35,4 +35,8 @@ db.version(6).upgrade(async (tx) => {
   return tx.transactions.clear();
 });
 
+db.version(7).upgrade(async (tx) => {
+  return tx.transactions.clear();
+});
+
 export default db;

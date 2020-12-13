@@ -55,6 +55,30 @@ const validatorsObject = {
           )}`
         )
       : null,
+    originAccountId:
+      transaction.type === "transfer"
+        ? transaction.originAccountId ||
+          throwError(
+            TypeError,
+            `Transaction must include an originAccountId: ${JSON.stringify(
+              transaction,
+              null,
+              2
+            )}`
+          )
+        : null,
+    destinationAccountId:
+      transaction.type === "transfer"
+        ? transaction.destinationAccountId ||
+          throwError(
+            TypeError,
+            `Transaction must include an destinationAccountId: ${JSON.stringify(
+              transaction,
+              null,
+              2
+            )}`
+          )
+        : null,
   }),
 };
 

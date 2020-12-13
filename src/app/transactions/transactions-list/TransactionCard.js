@@ -17,7 +17,9 @@ const TransactionCard = ({ transaction }) => {
           transaction.amount
         } - ${DateTime.fromSeconds(transaction.date).toLocaleString(
           DateTime.DATETIME_MED
-        )} - ${transaction.type} - ${transaction.account?.name}`}
+        )} - ${transaction.type} - ${transaction.account?.name} - ${
+          transaction.originAccount?.name
+        } - ${transaction.destinationAccount?.name}`}
       </Typography>
 
       <IconButton

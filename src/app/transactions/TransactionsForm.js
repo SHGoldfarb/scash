@@ -13,7 +13,7 @@ const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 const TransactionsForm = () => {
   const { upsert } = useWriteData("transactions");
   const { update } = useTransactionsForList();
-  const { register, handleSubmit, errors, control } = useForm();
+  const { register, handleSubmit, errors, control, watch } = useForm();
   const history = useHistory();
 
   const defaultDate = useDefaultDate();
@@ -67,7 +67,7 @@ const TransactionsForm = () => {
         fullWidth
         inputProps={{ autoFocus: true }}
       />
-      {!accountsLoading && (
+      {!accountsLoading && watch("type") !== "transfer" ? (
         <TextField
           select
           SelectProps={{ native: true }}
@@ -85,7 +85,45 @@ const TransactionsForm = () => {
             </option>
           ))}
         </TextField>
-      )}
+      ) : null}
+      {!accountsLoading && watch("type") === "transfer" ? (
+        <>
+          <TextField
+            select
+            SelectProps={{ native: true }}
+            label="Origin Account"
+            variant="filled"
+            name="originAccountId"
+            inputRef={register}
+            id="transaction-account"
+            fullWidth
+            defaultValue={activeAccounts[0]?.id}
+          >
+            {activeAccounts.map((account) => (
+              <option value={account.id} key={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </TextField>
+          <TextField
+            select
+            SelectProps={{ native: true }}
+            label="Destination Account"
+            variant="filled"
+            name="destinationAccountId"
+            inputRef={register}
+            id="transaction-account"
+            fullWidth
+            defaultValue={activeAccounts[0]?.id}
+          >
+            {activeAccounts.map((account) => (
+              <option value={account.id} key={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </TextField>
+        </>
+      ) : null}
       <TextField
         variant="filled"
         label="Comment"
@@ -96,17 +134,39 @@ const TransactionsForm = () => {
       />
       <Button
         onClick={handleSubmit(
-          async ({ comment, amount, date, type, accountId }) => {
+          async ({
+            comment,
+            amount,
+            date,
+            type,
+            accountId,
+            originAccountId,
+            destinationAccountId,
+          }) => {
             const newTransaction = await upsert({
               comment,
               amount,
               date: date.toSeconds(),
               type,
               accountId: accountId ? parseInt(accountId, 10) : null,
+              originAccountId: originAccountId
+                ? parseInt(originAccountId, 10)
+                : null,
+              destinationAccountId: destinationAccountId
+                ? parseInt(destinationAccountId, 10)
+                : null,
             });
 
             newTransaction.account = accounts.find(
               (account) => account.id === newTransaction.accountId
+            );
+
+            newTransaction.originAccount = accounts.find(
+              (account) => account.id === newTransaction.originAccountId
+            );
+
+            newTransaction.destinationAccount = accounts.find(
+              (account) => account.id === newTransaction.destinationAccountId
             );
 
             update((transactions) =>

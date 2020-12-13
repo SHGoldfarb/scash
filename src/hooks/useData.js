@@ -15,13 +15,14 @@ export const useReadData = (tableName, options = {}) => {
         let data = await getAll(tableName);
 
         if (options.belongsTo) {
+          const tables = {};
           await asyncReduce(
             Object.entries(options.belongsTo).map(
               ([relationship, { through, source }]) => async () => {
-                const relatedItems = await getAll(source);
+                tables[source] = tables[source] || (await getAll(source));
                 data = data.map((item) => ({
                   ...item,
-                  [relationship]: relatedItems.find(
+                  [relationship]: tables[source].find(
                     (related) => related.id === item[through]
                   ),
                 }));

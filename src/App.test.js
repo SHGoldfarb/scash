@@ -243,50 +243,84 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    const createTransactionInForm = ({
+      type,
+      accountName,
+      originAccountName,
+      destinationAccountName,
+      amount,
+      comment,
+    } = {}) => {
+      const newTransaction = transactionMock();
+
+      // Enter type
+      fireEvent.change(wrapper.getByLabelText("Type"), {
+        target: { value: type || newTransaction.type },
+      });
+
+      // Enter amount
+      fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
+        target: { value: amount || newTransaction.amount },
+      });
+
+      if (accountName) {
+        // Enter account
+        fireEvent.change(wrapper.getByLabelText("Account"), {
+          target: { value: wrapper.getByText(accountName).value },
+        });
+      }
+
+      if (originAccountName) {
+        // Enter account
+        const originAccountInput = wrapper.getByLabelText("Origin Account");
+        fireEvent.change(originAccountInput, {
+          target: {
+            value: within(originAccountInput).getByText(originAccountName)
+              .value,
+          },
+        });
+      }
+
+      if (destinationAccountName) {
+        // Enter account
+        const destinationAccountInput = wrapper.getByLabelText(
+          "Destination Account"
+        );
+        fireEvent.change(destinationAccountInput, {
+          target: {
+            value: within(destinationAccountInput).getByText(
+              destinationAccountName
+            ).value,
+          },
+        });
+      }
+
+      // Enter date
+      // TODO: this not working
+      fireEvent.change(wrapper.getByLabelText("Date"), {
+        target: {
+          value: DateTime.fromSeconds(newTransaction.date).toFormat(
+            "yyyy-MM-dd HH:mm"
+          ),
+        },
+      });
+
+      // Enter comment
+      fireEvent.change(wrapper.getByLabelText("Comment"), {
+        target: {
+          value: comment || newTransaction.comment,
+        },
+      });
+
+      fireEvent.click(wrapper.getByText("Save"));
+    };
+
     describe("database has accounts", () => {
       let accounts;
       beforeEach(async () => {
         mockTable("accounts").set(repeat(accountMock, 5));
         accounts = await mockTable("accounts").toArray();
       });
-
-      const createTransactionInForm = ({ type, accountName } = {}) => {
-        const newTransaction = transactionMock();
-
-        // Enter type
-        fireEvent.change(wrapper.getByLabelText("Type"), {
-          target: { value: type || newTransaction.type },
-        });
-
-        // Enter amount
-        fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
-          target: { value: newTransaction.amount },
-        });
-
-        // Enter account
-        fireEvent.change(wrapper.getByLabelText("Account"), {
-          target: { value: wrapper.getByText(accountName).value },
-        });
-
-        // Enter date
-        // TODO: this not working
-        fireEvent.change(wrapper.getByLabelText("Date"), {
-          target: {
-            value: DateTime.fromSeconds(newTransaction.date).toFormat(
-              "yyyy-MM-dd HH:mm"
-            ),
-          },
-        });
-
-        // Enter comment
-        fireEvent.change(wrapper.getByLabelText("Comment"), {
-          target: {
-            value: newTransaction.comment,
-          },
-        });
-
-        fireEvent.click(wrapper.getByText("Save"));
-      };
 
       const expectToBeInTransactionsPage = async () => {
         // Test we are in transaction page by expecting the new transaction button to be shown
@@ -338,7 +372,31 @@ describe("App", () => {
       });
 
       describe("user creates a transfer transaction", () => {
-        it.todo("correctly assosiates transaction to account");
+        let originAccount;
+        let destinationAccount;
+        userAction(async () => {
+          [originAccount, destinationAccount] = accounts;
+
+          createTransactionInForm({
+            originAccountName: originAccount.name,
+            destinationAccountName: destinationAccount.name,
+            type: "transfer",
+          });
+
+          // Avoid missing act() warning
+          await waitFor(() => {});
+        });
+
+        it("correctly assosiates transactions to account", async () => {
+          await runUserActions();
+
+          // Test the account was associated by looking for it in the transactions page
+          // First make sure we are in transactions page
+          await expectToBeInTransactionsPage();
+
+          await wrapper.findByText(originAccount.name, { exact: false });
+          await wrapper.findByText(destinationAccount.name, { exact: false });
+        });
       });
     });
 
@@ -346,38 +404,20 @@ describe("App", () => {
       const newTransaction = transactionMock();
       newTransaction.type = "transfer";
 
-      userAction(() => {
-        // Enter type
-        fireEvent.change(wrapper.getByLabelText("Type"), {
-          target: { value: newTransaction.type },
+      userAction(async () => {
+        createTransactionInForm({
+          type: "transfer",
+          amount: newTransaction.amount,
+          comment: newTransaction.comment,
         });
 
-        // Enter amount
-        fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
-          target: { value: newTransaction.amount },
-        });
-
-        // Enter date
-        // TODO: this not working
-        fireEvent.change(wrapper.getByLabelText("Date"), {
-          target: {
-            value: DateTime.fromSeconds(newTransaction.date).toFormat(
-              "yyyy-MM-dd HH:mm"
-            ),
-          },
-        });
-
-        // Enter comment
-        fireEvent.change(wrapper.getByLabelText("Comment"), {
-          target: {
-            value: newTransaction.comment,
-          },
-        });
+        // Avoid missing act() warning
+        await waitFor(() => {});
       });
 
-      describe("user presses save button", () => {
-        userAction(() => {
-          fireEvent.click(wrapper.getByText("Save"));
+      describe("database has at least 1 account", () => {
+        beforeEach(() => {
+          mockTable("accounts").set([accountMock()]);
         });
 
         it("displays new transaction", async () => {

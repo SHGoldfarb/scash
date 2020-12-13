@@ -73,6 +73,8 @@ const useCommands = () => {
           ...item,
           date: runningDate.toSeconds(),
           accountId: sample(activeAccounts).id,
+          originAccountId: sample(activeAccounts).id,
+          destinationAccountId: sample(activeAccounts).id,
         });
       })
     );
