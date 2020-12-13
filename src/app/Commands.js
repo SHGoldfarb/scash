@@ -2,7 +2,7 @@ import { TextField } from "@material-ui/core";
 import { useReadData, useWriteData } from "hooks";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
-import { isActive, isEnterKey, sample } from "utils";
+import { isActive, isEnterKey } from "utils";
 import {
   accountMock,
   categoryMock,
@@ -69,12 +69,15 @@ const useCommands = () => {
     await setTransactions(
       [...Array(5000)].map(transactionMock).map((item, idx) => {
         runningDate = runningDate.minus({ hours: 3 + (idx % 15) });
+        const activeAccountsLength = activeAccounts.length;
         return noId({
           ...item,
           date: runningDate.toSeconds(),
-          accountId: sample(activeAccounts).id,
-          originAccountId: sample(activeAccounts).id,
-          destinationAccountId: sample(activeAccounts).id,
+          accountId: activeAccounts[(idx + 1) % activeAccountsLength].id,
+          originAccountId:
+            activeAccounts[(idx * 2 + 2) % activeAccountsLength].id,
+          destinationAccountId:
+            activeAccounts[(idx * 3 + 3) % activeAccountsLength].id,
         });
       })
     );

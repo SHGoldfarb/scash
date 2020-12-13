@@ -1,7 +1,13 @@
 import React from "react";
 import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { DateTime } from "luxon";
-import { repeat, asyncReduce, transactionsTotals, moneyFormat } from "utils";
+import {
+  repeat,
+  asyncReduce,
+  transactionsTotals,
+  currencyFormat,
+  getTransactionsStats,
+} from "utils";
 import App from "./App";
 import { mockTable } from "./test-utils/mocks";
 import {
@@ -124,8 +130,8 @@ describe("App", () => {
 
       await runUserActions();
 
-      await wrapper.findByText(`${moneyFormat(income)}`);
-      await wrapper.findByText(`${moneyFormat(expense)}`);
+      await wrapper.findByText(`${currencyFormat(income)}`);
+      await wrapper.findByText(`${currencyFormat(expense)}`);
     });
 
     const selectMonth = async (date) => {
@@ -551,12 +557,14 @@ describe("App", () => {
     });
 
     describe("database has categories and accounts", () => {
-      const categories = repeat(categoryMock, 2);
-      const accounts = repeat(accountMock, 2);
+      let categories;
+      let accounts;
+      beforeEach(async () => {
+        mockTable("categories").set(repeat(categoryMock, 4));
+        mockTable("accounts").set(repeat(accountMock, 4));
 
-      beforeEach(() => {
-        mockTable("categories").set(categories);
-        mockTable("accounts").set(accounts);
+        categories = await mockTable("categories").toArray();
+        accounts = await mockTable("accounts").toArray();
       });
 
       it("shows categories and accounts", async () => {
@@ -576,7 +584,35 @@ describe("App", () => {
       });
 
       describe("database has some transactions", () => {
-        it.todo("shows the amount in the account for each account");
+        let transactions;
+        beforeEach(async () => {
+          const accountsLength = accounts.length;
+          mockTable("transactions").set(
+            repeat(
+              (idx) =>
+                transactionMock({
+                  accountId: accounts[(idx * 1 + 1) % accountsLength].id,
+                  originAccountId: accounts[(idx * 2 + 3) % accountsLength].id,
+                  destinationAccountId:
+                    accounts[(idx * 3 + 4) % accountsLength].id,
+                }),
+              50
+            )
+          );
+          transactions = await mockTable("transactions").toArray();
+        });
+
+        it("shows the amount in the account for each account", async () => {
+          await runUserActions();
+
+          const { accountAmounts } = getTransactionsStats(transactions);
+
+          accounts.forEach((account) => {
+            wrapper.getByText(
+              `${currencyFormat(accountAmounts[account.id] || 0)}`
+            );
+          });
+        });
       });
     });
     describe("user presses transactions button", () => {

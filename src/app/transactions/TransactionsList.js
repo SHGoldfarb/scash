@@ -14,7 +14,7 @@ import {
   editPathName,
   makeIsTransactionInMonthYear,
   makePath,
-  moneyFormat,
+  currencyFormat,
   transactionsPathName,
   transactionsTotals,
 } from "utils";
@@ -95,10 +95,10 @@ const TransactionsList = () => {
       </AppBar>
       <div className={clsx(classes.totalsDisplay)}>
         <Typography variant="body1" classes={{ root: classes.income }}>
-          {moneyFormat(income)}
+          {currencyFormat(income)}
         </Typography>
         <Typography variant="body1" classes={{ root: classes.expense }}>
-          {moneyFormat(expense)}
+          {currencyFormat(expense)}
         </Typography>
       </div>
 

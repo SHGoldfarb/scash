@@ -7,7 +7,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
 } from "@material-ui/core";
-import { arrayOf, func, number, shape, string } from "prop-types";
+import { arrayOf, func, node, number, shape, string } from "prop-types";
 import EditableField from "./EditableField";
 import EditingField from "./EditingField";
 
@@ -27,6 +27,7 @@ const EditableList = ({ source, onUpdate, onAdd, onRemove }) => {
             <ListItemText
               primary={item.label}
               primaryTypographyProps={{ color: "textPrimary" }}
+              secondary={item.sublabel}
             />
           </EditableField>
         </ListItem>
@@ -58,6 +59,7 @@ EditableList.propTypes = {
     shape({
       id: number.isRequired,
       label: string.isRequired,
+      sublabel: node,
     })
   ).isRequired,
   onUpdate: func.isRequired,

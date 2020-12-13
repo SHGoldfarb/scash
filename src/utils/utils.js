@@ -41,7 +41,7 @@ const formatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-export const moneyFormat = (amount) => {
+export const currencyFormat = (amount) => {
   return formatter.format(amount).slice(0, -3);
 };
 
@@ -69,3 +69,44 @@ export const waitms = async (ms) => {
 
   return promise;
 };
+
+export const getTransactionsStats = (transactions) =>
+  transactions.reduce(
+    ({ accountAmounts }, transaction) => {
+      if (transaction.type === "transfer") {
+        return {
+          accountAmounts: {
+            ...accountAmounts,
+            [transaction.originAccountId]:
+              (accountAmounts[transaction.originAccountId] || 0) -
+              transaction.amount,
+            [transaction.destinationAccountId]:
+              (accountAmounts[transaction.destinationAccountId] || 0) +
+              transaction.amount,
+          },
+        };
+      }
+      if (transaction.type === "expense") {
+        return {
+          accountAmounts: {
+            ...accountAmounts,
+            [transaction.accountId]:
+              (accountAmounts[transaction.accountId] || 0) - transaction.amount,
+          },
+        };
+      }
+      if (transaction.type === "income") {
+        return {
+          accountAmounts: {
+            ...accountAmounts,
+            [transaction.accountId]:
+              (accountAmounts[transaction.accountId] || 0) + transaction.amount,
+          },
+        };
+      }
+      throw new Error(
+        `Transation type is not valid ${JSON.stringify(transaction, null, 2)}`
+      );
+    },
+    { accountAmounts: {} }
+  );
