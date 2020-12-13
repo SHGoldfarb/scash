@@ -250,45 +250,50 @@ describe("App", () => {
         accounts = await mockTable("accounts").toArray();
       });
 
+      const createTransactionInForm = ({ type, accountName } = {}) => {
+        const newTransaction = transactionMock();
+
+        // Enter type
+        fireEvent.change(wrapper.getByLabelText("Type"), {
+          target: { value: type || newTransaction.type },
+        });
+
+        // Enter amount
+        fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
+          target: { value: newTransaction.amount },
+        });
+
+        // Enter account
+        fireEvent.change(wrapper.getByLabelText("Account"), {
+          target: { value: wrapper.getByText(accountName).value },
+        });
+
+        // Enter date
+        // TODO: this not working
+        fireEvent.change(wrapper.getByLabelText("Date"), {
+          target: {
+            value: DateTime.fromSeconds(newTransaction.date).toFormat(
+              "yyyy-MM-dd HH:mm"
+            ),
+          },
+        });
+
+        // Enter comment
+        fireEvent.change(wrapper.getByLabelText("Comment"), {
+          target: {
+            value: newTransaction.comment,
+          },
+        });
+
+        fireEvent.click(wrapper.getByText("Save"));
+      };
+
+      const expectToBeInTransactionsPage = async () => {
+        // Test we are in transaction page by expecting the new transaction button to be shown
+        await wrapper.findByText("New Transaction");
+      };
+
       describe("user creates an income transaction", () => {
-        const createTransactionInForm = ({ type, accountName } = {}) => {
-          const newTransaction = transactionMock();
-
-          // Enter type
-          fireEvent.change(wrapper.getByLabelText("Type"), {
-            target: { value: type || newTransaction.type },
-          });
-
-          // Enter amount
-          fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
-            target: { value: newTransaction.amount },
-          });
-
-          // Enter account
-          fireEvent.change(wrapper.getByLabelText("Account"), {
-            target: { value: wrapper.getByText(accountName).value },
-          });
-
-          // Enter date
-          // TODO: this not working
-          fireEvent.change(wrapper.getByLabelText("Date"), {
-            target: {
-              value: DateTime.fromSeconds(newTransaction.date).toFormat(
-                "yyyy-MM-dd HH:mm"
-              ),
-            },
-          });
-
-          // Enter comment
-          fireEvent.change(wrapper.getByLabelText("Comment"), {
-            target: {
-              value: newTransaction.comment,
-            },
-          });
-
-          fireEvent.click(wrapper.getByText("Save"));
-        };
-
         let selectedAccount;
         userAction(() => {
           [selectedAccount] = accounts;
@@ -298,11 +303,6 @@ describe("App", () => {
             type: "income",
           });
         });
-
-        const expectToBeInTransactionsPage = async () => {
-          // Test we are in transaction page by expecting the new transaction button to be shown
-          await wrapper.findByText("New Transaction");
-        };
 
         it("correctly assosiates transaction to account", async () => {
           await runUserActions();
@@ -316,7 +316,25 @@ describe("App", () => {
       });
 
       describe("user creates an expense transaction", () => {
-        it.todo("correctly assosiates transaction to account");
+        let selectedAccount;
+        userAction(() => {
+          [selectedAccount] = accounts;
+
+          createTransactionInForm({
+            accountName: selectedAccount.name,
+            type: "expense",
+          });
+        });
+
+        it("correctly assosiates transaction to account", async () => {
+          await runUserActions();
+
+          // Test the account was associated by looking for it in the transactions page
+          // First make sure we are in transactions page
+          await expectToBeInTransactionsPage();
+
+          await wrapper.findByText(selectedAccount.name, { exact: false });
+        });
       });
 
       describe("user creates a transfer transaction", () => {
