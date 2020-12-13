@@ -181,6 +181,9 @@ describe("App", () => {
       describe("user presses new transactions button", () => {
         userAction(async () => {
           await pressNewTransanctionButton();
+
+          // Avoid missing act() warning
+          await waitFor(() => {});
         });
 
         it("default date in transactions form is the last day of selected month", async () => {
@@ -209,6 +212,9 @@ describe("App", () => {
       describe("user presses new transactions button", () => {
         userAction(async () => {
           await pressNewTransanctionButton();
+
+          // Avoid missing act() warning
+          await waitFor(() => {});
         });
 
         it("default date in transactions form is the first day of selected month", async () => {

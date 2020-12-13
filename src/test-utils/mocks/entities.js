@@ -14,6 +14,7 @@ export const transactionMock = makeEntityMock((id) => ({
   date: 1604767791 + id * 60,
   amount: 5000 + id,
   type: ["expense", "income", "transfer"][id % 3],
+  accountId: newId(),
 }));
 
 export const categoryMock = makeEntityMock((id) => ({ name: `Category${id}` }));
