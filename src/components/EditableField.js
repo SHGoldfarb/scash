@@ -11,6 +11,7 @@ const EditableField = ({
   children,
   buttonsContainer: ButtonsContainer,
   autoFocus,
+  disableDelete,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -33,8 +34,12 @@ const EditableField = ({
         <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
           <Edit color="primary" />
         </IconButton>
-        <IconButton aria-label="delete" onClick={onDelete}>
-          <Delete color="error" />
+        <IconButton
+          aria-label="delete"
+          onClick={onDelete}
+          disabled={disableDelete}
+        >
+          <Delete color={disableDelete ? "disabled" : "error"} />
         </IconButton>
       </ButtonsContainer>
     </>
@@ -45,6 +50,7 @@ EditableField.defaultProps = {
   children: null,
   buttonsContainer: Fragment,
   autoFocus: false,
+  disableDelete: false,
 };
 
 EditableField.propTypes = {
@@ -54,6 +60,7 @@ EditableField.propTypes = {
   children: node,
   buttonsContainer: elementType,
   autoFocus: bool,
+  disableDelete: bool,
 };
 
 export default EditableField;

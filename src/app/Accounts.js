@@ -1,7 +1,7 @@
 import { makeStyles, Typography } from "@material-ui/core";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
-import { EditableList } from "../components";
+import { DelayedCircularProgress, EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { currencyFormat, getTransactionsStats, upsertById } from "../utils";
 import { useTransactionsForList } from "./hooks";
@@ -51,24 +51,25 @@ const Accounts = () => {
       </Typography>
 
       {loading || transactionsLoading ? (
-        "Cargando..."
+        <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={activeAccounts.map((account) => ({
-            ...account,
-            label: account.name,
-            sublabel: (
-              <span
-                className={
-                  (accountAmounts[account.id] || 0) < 0
-                    ? classes.negative
-                    : classes.positive
-                }
-              >
-                {currencyFormat(accountAmounts[account.id] || 0)}
-              </span>
-            ),
-          }))}
+          source={activeAccounts.map((account) => {
+            const amount = accountAmounts[account.id] || 0;
+
+            return {
+              ...account,
+              label: account.name,
+              disableDelete: amount !== 0,
+              sublabel: (
+                <span
+                  className={amount < 0 ? classes.negative : classes.positive}
+                >
+                  {currencyFormat(amount)}
+                </span>
+              ),
+            };
+          })}
           onUpdate={(account) =>
             upsertAccount({ id: account.id, name: account.label })
           }

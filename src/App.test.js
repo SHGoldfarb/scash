@@ -460,7 +460,22 @@ describe("App", () => {
     });
 
     describe("there is an account with a noncero amount", () => {
-      it.todo("does not let the user delte the account");
+      beforeEach(async () => {
+        mockTable("accounts").set([accountMock()]);
+        const [account] = await mockTable("accounts").toArray();
+
+        mockTable("transactions").set([
+          transactionMock({ type: "income", accountId: account.id }),
+        ]);
+      });
+
+      it("does not let the user delete the account", async () => {
+        await runUserActions();
+
+        expect(
+          wrapper.baseElement.querySelector("[aria-label='delete']").disabled
+        ).toBeTruthy();
+      });
     });
 
     describe("user enters mock seed command", () => {

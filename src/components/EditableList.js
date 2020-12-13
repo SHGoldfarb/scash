@@ -7,7 +7,7 @@ import {
   ListItemSecondaryAction,
   ListItemText,
 } from "@material-ui/core";
-import { arrayOf, func, node, number, shape, string } from "prop-types";
+import { arrayOf, bool, func, node, number, shape, string } from "prop-types";
 import EditableField from "./EditableField";
 import EditingField from "./EditingField";
 
@@ -23,6 +23,7 @@ const EditableList = ({ source, onUpdate, onAdd, onRemove }) => {
             onChange={(label) => onUpdate({ ...item, label })}
             buttonsContainer={ListItemSecondaryAction}
             autoFocus
+            disableDelete={item.disableDelete}
           >
             <ListItemText
               primary={item.label}
@@ -60,6 +61,7 @@ EditableList.propTypes = {
       id: number.isRequired,
       label: string.isRequired,
       sublabel: node,
+      disableDelete: bool,
     })
   ).isRequired,
   onUpdate: func.isRequired,

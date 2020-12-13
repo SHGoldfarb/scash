@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { DateTime } from "luxon";
 import React from "react";
-import { EditableList } from "../components";
+import { DelayedCircularProgress, EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { upsertById } from "../utils";
 
@@ -37,7 +37,7 @@ const Categories = () => {
       </Typography>
 
       {loading ? (
-        "Cargando..."
+        <DelayedCircularProgress />
       ) : (
         <EditableList
           source={activeCategories.map((category) => ({
