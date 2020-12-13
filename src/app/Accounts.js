@@ -1,10 +1,19 @@
-import { Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
 import { EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { currencyFormat, getTransactionsStats, upsertById } from "../utils";
 import { useTransactionsForList } from "./hooks";
+
+const useStyles = makeStyles((theme) => ({
+  positive: {
+    color: theme.palette.success.light,
+  },
+  negative: {
+    color: theme.palette.error.light,
+  },
+}));
 
 const Accounts = () => {
   const { loading, data: accounts = [], update } = useReadData("accounts");
@@ -33,6 +42,8 @@ const Accounts = () => {
     transactions,
   ]);
 
+  const classes = useStyles();
+
   return (
     <>
       <Typography variant="h5" color="textPrimary">
@@ -46,7 +57,17 @@ const Accounts = () => {
           source={activeAccounts.map((account) => ({
             ...account,
             label: account.name,
-            sublabel: currencyFormat(accountAmounts[account.id] || 0),
+            sublabel: (
+              <span
+                className={
+                  (accountAmounts[account.id] || 0) < 0
+                    ? classes.negative
+                    : classes.positive
+                }
+              >
+                {currencyFormat(accountAmounts[account.id] || 0)}
+              </span>
+            ),
           }))}
           onUpdate={(account) =>
             upsertAccount({ id: account.id, name: account.label })
