@@ -3,12 +3,11 @@ import { number, shape, string } from "prop-types";
 import { IconButton, Typography } from "@material-ui/core";
 import { Delete } from "@material-ui/icons";
 import { DateTime } from "luxon";
-import { useWriteData } from "hooks";
-import { useTransactionsForList } from "../../hooks";
+import { useReadData, useWriteData } from "hooks";
 
 const TransactionCard = ({ transaction }) => {
   const { remove } = useWriteData("transactions");
-  const { update } = useTransactionsForList();
+  const { update } = useReadData("transactions");
 
   return (
     <div>

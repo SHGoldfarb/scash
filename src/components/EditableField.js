@@ -31,7 +31,11 @@ const EditableField = ({
     <>
       {children || value}
       <ButtonsContainer>
-        <IconButton aria-label="edit" onClick={() => setIsEditing(true)}>
+        <IconButton
+          aria-label="edit"
+          onClick={() => setIsEditing(true)}
+          data-testid="edit"
+        >
           <Edit color="primary" />
         </IconButton>
         <IconButton

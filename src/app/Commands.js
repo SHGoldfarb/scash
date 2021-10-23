@@ -8,7 +8,6 @@ import {
   categoryMock,
   transactionMock,
 } from "../test-utils/mocks/entities";
-import { useTransactionsForList } from "./hooks";
 
 const MOCK_SEED_COMMAND = "seed5000";
 
@@ -23,7 +22,7 @@ const useCommands = () => {
   const { refetch: refetchAccounts } = useReadData("accounts");
   const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
   const { refetch: refetchExpenseCategories } = useReadData("categories");
-  const { refetch: refetchTransactions } = useTransactionsForList();
+  const { refetch: refetchTransactions } = useReadData("transactions");
 
   const populate = async () => {
     // Create accounts

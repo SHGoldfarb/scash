@@ -56,6 +56,76 @@ describe("App", () => {
     fireEvent.click(await wrapper.findByText("New Transaction"));
   };
 
+  const expectTransactionInList = async (transaction) => {
+    // comment
+    await wrapper.findByText(transaction.comment, { exact: false });
+    // amount
+    await wrapper.findByText(`${transaction.amount}`, { exact: false });
+    // date
+    await wrapper.findByText(
+      DateTime.fromSeconds(transaction.date).toLocaleString(
+        DateTime.DATETIME_MED
+      ),
+      { exact: false }
+    );
+  };
+
+  describe("database has a single transaction and single account", () => {
+    let transaction;
+    let account;
+    beforeEach(() => {
+      const startOfMonth = DateTime.local().startOf("month");
+
+      transaction = transactionMock({
+        date: startOfMonth.toSeconds(),
+        type: "expense",
+      });
+
+      account = accountMock({ id: transaction.accountId });
+
+      mockTable("transactions").set([transaction]);
+      mockTable("accounts").set([account]);
+    });
+
+    describe("user is in the transactions page and account name is rendered", () => {
+      userAction(async () => {
+        await expectTransactionInList(transaction);
+        await wrapper.findByText(account.name, { exact: false });
+      });
+
+      describe("user goes to settings and updates the account name", () => {
+        const newAccountName = "new-account-name";
+
+        userAction(async () => {
+          // Go to settings
+          fireEvent.click(wrapper.getByText("Settings"));
+          // Click in update icon
+          fireEvent.click(await wrapper.findByTestId("edit"));
+
+          // Change text
+          fireEvent.change(await wrapper.findByDisplayValue(account.name), {
+            target: { value: newAccountName },
+          });
+
+          // Click in save icon
+          fireEvent.click(await wrapper.findByTestId("save"));
+        });
+
+        describe("user goes back to transactions page", () => {
+          userAction(() => {
+            fireEvent.click(wrapper.getByText("Transactions"));
+          });
+
+          it("shows new account name", async () => {
+            await runUserActions();
+
+            await wrapper.findByText(newAccountName, { exact: false });
+          });
+        });
+      });
+    });
+  });
+
   describe("database has transactions", () => {
     let transactionsThisMonth;
     let transactionsPrevMonth;
@@ -86,20 +156,6 @@ describe("App", () => {
         ...transactionsPrevMonth,
       ]);
     });
-
-    const expectTransactionInList = async (transaction) => {
-      // comment
-      await wrapper.findByText(transaction.comment, { exact: false });
-      // amount
-      await wrapper.findByText(`${transaction.amount}`, { exact: false });
-      // date
-      await wrapper.findByText(
-        DateTime.fromSeconds(transaction.date).toLocaleString(
-          DateTime.DATETIME_MED
-        ),
-        { exact: false }
-      );
-    };
 
     const expectTransactionsInList = async (transactions) => {
       await asyncReduce(

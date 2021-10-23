@@ -1,7 +1,7 @@
 import { newId } from "./utils";
 
-const makeEntityMock = (defaultAttributes) => (customAttributes) => {
-  const id = newId();
+const makeEntityMock = (defaultAttributes) => (customAttributes = {}) => {
+  const id = customAttributes.id || newId();
   return {
     ...defaultAttributes(id),
     ...customAttributes,

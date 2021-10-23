@@ -6,13 +6,12 @@ import { DateTimePicker } from "@material-ui/pickers";
 import { useReadData, useWriteData } from "../../hooks";
 import { isActive, makePath, transactionsPathName } from "../../utils";
 import { useDefaultDate } from "./utils";
-import { useTransactionsForList } from "../hooks";
 
 const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
 const TransactionsForm = () => {
   const { upsert } = useWriteData("transactions");
-  const { update } = useTransactionsForList();
+  const { update } = useReadData("transactions");
   const { register, handleSubmit, errors, control, watch } = useForm();
   const history = useHistory();
 
@@ -157,21 +156,10 @@ const TransactionsForm = () => {
                 : null,
             });
 
-            newTransaction.account = accounts.find(
-              (account) => account.id === newTransaction.accountId
-            );
-
-            newTransaction.originAccount = accounts.find(
-              (account) => account.id === newTransaction.originAccountId
-            );
-
-            newTransaction.destinationAccount = accounts.find(
-              (account) => account.id === newTransaction.destinationAccountId
-            );
-
             update((transactions) =>
               transactions ? [...transactions, newTransaction] : transactions
             );
+
             history.push(makePath(transactionsPathName));
           }
         )}

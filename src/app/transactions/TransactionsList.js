@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { DateTime } from "luxon";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
@@ -20,8 +20,8 @@ import {
 } from "utils";
 import { DatePicker } from "@material-ui/pickers";
 import { DelayedCircularProgress } from "components";
+import { useReadData } from "hooks";
 import { TransactionCard } from "./transactions-list";
-import { useTransactionsForList } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
   spacedChildren: {
@@ -52,20 +52,44 @@ const useStyles = makeStyles((theme) => ({
 const TransactionsList = () => {
   const [selectedMonth, setSelectedMonth] = useState(() => DateTime.local());
 
-  const { loading, data: transactions = [] } = useTransactionsForList();
+  const { loading, data: transactions = [] } = useReadData("transactions");
+
+  const filteredTransactions = useMemo(
+    () =>
+      transactions
+        .filter(
+          makeIsTransactionInMonthYear({
+            month: selectedMonth.month,
+            year: selectedMonth.year,
+          })
+        )
+        .sort(by("date")),
+    [transactions, selectedMonth]
+  );
+
+  const { loading: accountsLoading, data: accounts = [] } = useReadData(
+    "accounts"
+  );
+
+  const accountsHash = useMemo(
+    () =>
+      accounts.reduce(
+        (hash, account) => ({ ...hash, [account.id]: account }),
+        {}
+      ),
+    [accounts]
+  );
+
+  const transactionsWithAccounts = filteredTransactions.map((transaction) => ({
+    ...transaction,
+    account: accountsHash[transaction.accountId],
+    originAccount: accountsHash[transaction.originAccountId],
+    destinationAccount: accountsHash[transaction.destinationAccountId],
+  }));
+
+  const { income, expense } = transactionsTotals(transactionsWithAccounts);
 
   const classes = useStyles();
-
-  const filteredTransactions = transactions
-    .filter(
-      makeIsTransactionInMonthYear({
-        month: selectedMonth.month,
-        year: selectedMonth.year,
-      })
-    )
-    .sort(by("date"));
-
-  const { income, expense } = transactionsTotals(filteredTransactions);
 
   return (
     <>
@@ -102,10 +126,10 @@ const TransactionsList = () => {
         </Typography>
       </div>
 
-      {loading ? (
+      {loading || accountsLoading ? (
         <DelayedCircularProgress />
       ) : (
-        filteredTransactions
+        transactionsWithAccounts
           .reduce((reversed, transaction) => [transaction, ...reversed], [])
           .map((transaction) => (
             <TransactionCard transaction={transaction} key={transaction.id} />

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useCache } from "../contexts";
 import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
-import { asyncReduce, isFunction } from "../utils/utils";
+import { isFunction } from "../utils/utils";
 
 export const useReadData = (tableName, options = {}) => {
   const key = JSON.stringify({ tableName, options });
@@ -12,24 +12,7 @@ export const useReadData = (tableName, options = {}) => {
     if (!cache.loading && !cache.data) {
       setCache((prev) => ({ ...prev, loading: true }));
       (async () => {
-        let data = await getAll(tableName);
-
-        if (options.belongsTo) {
-          const tables = {};
-          await asyncReduce(
-            Object.entries(options.belongsTo).map(
-              ([relationship, { through, source }]) => async () => {
-                tables[source] = tables[source] || (await getAll(source));
-                data = data.map((item) => ({
-                  ...item,
-                  [relationship]: tables[source].find(
-                    (related) => related.id === item[through]
-                  ),
-                }));
-              }
-            )
-          );
-        }
+        const data = await getAll(tableName);
 
         setCache((prev) => ({ ...prev, loading: false, data }));
       })();

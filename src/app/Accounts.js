@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { currencyFormat, getTransactionsStats, upsertById } from "../utils";
-import { useTransactionsForList } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   positive: {
@@ -18,10 +17,9 @@ const useStyles = makeStyles((theme) => ({
 const Accounts = () => {
   const { loading, data: accounts = [], update } = useReadData("accounts");
   const { upsert } = useWriteData("accounts");
-  const {
-    data: transactions = [],
-    loading: transactionsLoading,
-  } = useTransactionsForList();
+  const { data: transactions = [], loading: transactionsLoading } = useReadData(
+    "transactions"
+  );
 
   const deleteAccount = async (accountToDelete) => {
     const returnedAccount = await upsert({

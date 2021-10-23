@@ -18,6 +18,7 @@ const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
       />
       {renderConfirmButton(
         <IconButton
+          data-testid="save"
           aria-label="save"
           onClick={() => {
             onConfirm(shownValue);
