@@ -23,6 +23,8 @@ const TransactionsForm = () => {
 
   const activeAccounts = accounts.filter(isActive);
 
+  const defaultAccountId = activeAccounts[0]?.id;
+
   return (
     <>
       <TextField
@@ -76,7 +78,7 @@ const TransactionsForm = () => {
           inputRef={register}
           id="transaction-account"
           fullWidth
-          defaultValue={activeAccounts[0]?.id}
+          defaultValue={defaultAccountId}
         >
           {activeAccounts.map((account) => (
             <option value={account.id} key={account.id}>
@@ -96,7 +98,7 @@ const TransactionsForm = () => {
             inputRef={register}
             id="transaction-account"
             fullWidth
-            defaultValue={activeAccounts[0]?.id}
+            defaultValue={defaultAccountId}
           >
             {activeAccounts.map((account) => (
               <option value={account.id} key={account.id}>
@@ -113,7 +115,7 @@ const TransactionsForm = () => {
             inputRef={register}
             id="transaction-account"
             fullWidth
-            defaultValue={activeAccounts[0]?.id}
+            defaultValue={defaultAccountId}
           >
             {activeAccounts.map((account) => (
               <option value={account.id} key={account.id}>
@@ -132,7 +134,7 @@ const TransactionsForm = () => {
         fullWidth
       />
       <Button
-        disabled={!watch("accountId")}
+        disabled={!defaultAccountId}
         onClick={handleSubmit(
           async ({
             comment,

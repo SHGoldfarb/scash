@@ -397,6 +397,14 @@ describe("App", () => {
         await wrapper.findByText("New Transaction");
       };
 
+      it("shows the save button as enabled", async () => {
+        await runUserActions();
+
+        expect(
+          (await wrapper.findByText("Save")).closest("button")
+        ).not.toBeDisabled();
+      });
+
       describe("user creates an income transaction", () => {
         let selectedAccount;
         userAction(() => {
