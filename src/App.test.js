@@ -377,6 +377,14 @@ describe("App", () => {
       fireEvent.click(wrapper.getByText("Save"));
     };
 
+    it("shows the save button as disabled", async () => {
+      await runUserActions();
+
+      expect(
+        (await wrapper.findByText("Save")).closest("button")
+      ).toBeDisabled();
+    });
+
     describe("database has accounts", () => {
       let accounts;
       beforeEach(async () => {

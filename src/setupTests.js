@@ -4,4 +4,4 @@
 // learn more: https://github.com/testing-library/jest-dom
 
 // Commented on testing library update, lets see if we need this
-// import '@testing-library/jest-dom/extend-expect';
+import "@testing-library/jest-dom/extend-expect";

@@ -132,6 +132,7 @@ const TransactionsForm = () => {
         fullWidth
       />
       <Button
+        disabled={!watch("accountId")}
         onClick={handleSubmit(
           async ({
             comment,
