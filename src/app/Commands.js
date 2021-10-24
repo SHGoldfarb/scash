@@ -9,22 +9,31 @@ import {
   transactionMock,
 } from "../test-utils/mocks/entities";
 
-const MOCK_SEED_COMMAND = "seed5000";
+const MOCK_SEED_COMMAND = "seed";
+const CLEAR_COMMAND = "clear";
 
 const noId = ({ id, ...rest }) => rest;
 
 const useCommands = () => {
-  const { set: setAccounts } = useWriteData("accounts");
-  const { set: setIncomeCategories } = useWriteData("incomeCategories");
-  const { set: setExpenseCategories } = useWriteData("categories");
-  const { set: setTransactions } = useWriteData("transactions");
+  const { set: setAccounts, clear: clearAccounts } = useWriteData("accounts");
+  const {
+    set: setIncomeCategories,
+    clear: clearIncomeCategories,
+  } = useWriteData("incomeCategories");
+  const {
+    set: setExpenseCategories,
+    clear: clearExpenseCategories,
+  } = useWriteData("categories");
+  const { set: setTransactions, clear: clearTransactions } = useWriteData(
+    "transactions"
+  );
 
   const { refetch: refetchAccounts } = useReadData("accounts");
   const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
   const { refetch: refetchExpenseCategories } = useReadData("categories");
   const { refetch: refetchTransactions } = useReadData("transactions");
 
-  const populate = async () => {
+  const populate = async (number) => {
     // Create accounts
     const accounts = await setAccounts(
       [...Array(20)].map(accountMock).map((item, idx) =>
@@ -66,7 +75,7 @@ const useCommands = () => {
     // Create transactions
     let runningDate = DateTime.local();
     await setTransactions(
-      [...Array(5000)].map(transactionMock).map((item, idx) => {
+      [...Array(number)].map(transactionMock).map((item, idx) => {
         runningDate = runningDate.minus({ hours: 3 + (idx % 15) });
         const activeAccountsLength = activeAccounts.length;
         return noId({
@@ -84,22 +93,37 @@ const useCommands = () => {
     refetchTransactions();
   };
 
-  return { populate };
+  const clear = async () => {
+    await clearTransactions();
+    refetchTransactions();
+    await clearAccounts();
+    refetchAccounts();
+    await clearIncomeCategories();
+    refetchIncomeCategories();
+    await clearExpenseCategories();
+    refetchExpenseCategories();
+  };
+
+  return { populate, clear };
 };
 
 const Commands = () => {
   const [value, setValue] = useState("");
   const [disabled, setDisabled] = useState(false);
 
-  const { populate } = useCommands();
+  const { populate, clear } = useCommands();
 
   const submit = async () => {
-    if (value === MOCK_SEED_COMMAND) {
-      setDisabled(true);
-      await populate();
-      setDisabled(false);
-      setValue("");
+    setDisabled(true);
+    if (value.slice(0, 4) === MOCK_SEED_COMMAND) {
+      const number = parseInt(value.slice(4), 10);
+      await populate(number);
     }
+    if (value === CLEAR_COMMAND) {
+      await clear();
+    }
+    setDisabled(false);
+    setValue("");
   };
 
   return (
