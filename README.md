@@ -27,6 +27,10 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `yarn deploy`
+
+Builds de app with `yarn build` and then deploys it with `firebase deploy`. [Firebase cli](https://firebase.google.com/docs/cli) needed.
+
 ## Contributing
 
 Before contributing, please read the [CONTRIBUTING.md](CONTRIBUTING.md).
