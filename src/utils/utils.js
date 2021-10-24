@@ -110,3 +110,6 @@ export const getTransactionsStats = (transactions) =>
     },
     { accountAmounts: {} }
   );
+
+export const oneOfOrNull = (options) => (choice) =>
+  options.includes(choice) ? choice : null;
