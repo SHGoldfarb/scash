@@ -18,7 +18,9 @@ const TransactionCard = ({ transaction }) => {
           DateTime.DATETIME_MED
         )} - ${transaction.type} - ${transaction.account?.name} - ${
           transaction.originAccount?.name
-        } - ${transaction.destinationAccount?.name}`}
+        } - ${transaction.destinationAccount?.name} - ${
+          transaction.category?.name
+        }`}
       </Typography>
 
       <IconButton

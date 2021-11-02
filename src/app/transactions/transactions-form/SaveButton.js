@@ -21,6 +21,7 @@ const SaveButton = ({ defaultAccountId, handleSubmit }) => {
           accountId,
           originAccountId,
           destinationAccountId,
+          categoryId,
         }) => {
           const newTransaction = await upsert({
             comment,
@@ -36,6 +37,7 @@ const SaveButton = ({ defaultAccountId, handleSubmit }) => {
             destinationAccountId: destinationAccountId
               ? parseInt(destinationAccountId, 10)
               : null || defaultAccountId,
+            categoryId: parseInt(categoryId, 10),
           });
 
           update((transactions) =>

@@ -6,6 +6,7 @@ import { isActive } from "../../utils";
 import {
   AccountsFields,
   AmountField,
+  CategoryField,
   CommentField,
   DateField,
   SaveButton,
@@ -38,6 +39,7 @@ const TransactionsForm = () => {
       ) : (
         <DelayedCircularProgress />
       )}
+      <CategoryField inputRef={register} />
       <CommentField inputRef={register} />
       <SaveButton
         defaultAccountId={defaultAccountId}

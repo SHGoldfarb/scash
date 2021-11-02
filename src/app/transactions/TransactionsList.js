@@ -71,6 +71,10 @@ const TransactionsList = () => {
     "accounts"
   );
 
+  const { loading: categoriesLoading, data: categories = [] } = useReadData(
+    "categories"
+  );
+
   const accountsHash = useMemo(
     () =>
       accounts.reduce(
@@ -80,14 +84,26 @@ const TransactionsList = () => {
     [accounts]
   );
 
-  const transactionsWithAccounts = filteredTransactions.map((transaction) => ({
-    ...transaction,
-    account: accountsHash[transaction.accountId],
-    originAccount: accountsHash[transaction.originAccountId],
-    destinationAccount: accountsHash[transaction.destinationAccountId],
-  }));
+  const categoriesHash = useMemo(
+    () =>
+      categories.reduce(
+        (hash, category) => ({ ...hash, [category.id]: category }),
+        {}
+      ),
+    [categories]
+  );
 
-  const { income, expense } = transactionsTotals(transactionsWithAccounts);
+  const transactionsWithRelationships = filteredTransactions.map(
+    (transaction) => ({
+      ...transaction,
+      account: accountsHash[transaction.accountId],
+      originAccount: accountsHash[transaction.originAccountId],
+      destinationAccount: accountsHash[transaction.destinationAccountId],
+      category: categoriesHash[transaction.categoryId],
+    })
+  );
+
+  const { income, expense } = transactionsTotals(transactionsWithRelationships);
 
   const classes = useStyles();
 
@@ -126,10 +142,10 @@ const TransactionsList = () => {
         </Typography>
       </div>
 
-      {loading || accountsLoading ? (
+      {loading || accountsLoading || categoriesLoading ? (
         <DelayedCircularProgress />
       ) : (
-        transactionsWithAccounts
+        transactionsWithRelationships
           .reduce((reversed, transaction) => [transaction, ...reversed], [])
           .map((transaction) => (
             <TransactionCard transaction={transaction} key={transaction.id} />

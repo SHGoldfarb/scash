@@ -38,11 +38,21 @@ export const validTransaction = (data) => ({
       ? data.destinationAccountId ||
         throwError(
           TypeError,
-          `Transaction must include an destinationAccountId: ${JSON.stringify(
+          `Transaction must include a destinationAccountId: ${JSON.stringify(
             data,
             null,
             2
           )}`
         )
       : null,
+  categoryId: oneOfOrNull(["income", "expense"])(data.type)
+    ? data.categoryId
+    : throwError(
+        TypeError,
+        `Transaction must include a categoryId: ${JSON.stringify(
+          data,
+          null,
+          2
+        )}`
+      ),
 });
