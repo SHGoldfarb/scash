@@ -24,6 +24,8 @@ const TransactionsForm = () => {
 
   const defaultAccountId = activeAccounts[0]?.id;
 
+  const isTransfer = watch("type") === "transfer";
+
   return (
     <>
       <TypeField inputRef={register} />
@@ -31,7 +33,7 @@ const TransactionsForm = () => {
       <AmountField errors={errors} register={register} />
       {!accountsLoading ? (
         <AccountsFields
-          isTransfer={watch("type") === "transfer"}
+          isTransfer={isTransfer}
           register={register}
           defaultValue={defaultAccountId}
           accounts={activeAccounts}
@@ -39,7 +41,7 @@ const TransactionsForm = () => {
       ) : (
         <DelayedCircularProgress />
       )}
-      <CategoryField inputRef={register} />
+      <CategoryField inputRef={register} isTransfer={isTransfer} />
       <CommentField inputRef={register} />
       <SaveButton
         defaultAccountId={defaultAccountId}

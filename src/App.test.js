@@ -305,6 +305,12 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    const selectTransactionTypeInForm = (type) => {
+      fireEvent.change(wrapper.getByLabelText("Type"), {
+        target: { value: type },
+      });
+    };
+
     const createTransactionInForm = ({
       type,
       accountName,
@@ -316,9 +322,7 @@ describe("App", () => {
       const newTransaction = transactionMock();
 
       // Enter type
-      fireEvent.change(wrapper.getByLabelText("Type"), {
-        target: { value: type || newTransaction.type },
-      });
+      selectTransactionTypeInForm(type || newTransaction.type);
 
       // Enter amount
       fireEvent.change(wrapper.getByLabelText("Amount", { exact: false }), {
@@ -404,6 +408,23 @@ describe("App", () => {
         expect(
           (await wrapper.findByText("Save")).closest("button")
         ).not.toBeDisabled();
+      });
+
+      describe("user selects transfer transaction", () => {
+        userAction(async () => {
+          selectTransactionTypeInForm("transfer");
+
+          // Avoid act() warning
+          await waitFor(() => {});
+        });
+
+        it("does not show category field", async () => {
+          await runUserActions();
+
+          await waitFor(() => {
+            expect(wrapper.queryByLabelText("Category")).toBeNull();
+          });
+        });
       });
 
       describe("user creates an income transaction", () => {

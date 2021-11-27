@@ -1,11 +1,16 @@
 import React from "react";
+import { bool } from "prop-types";
 import { TextField } from "@material-ui/core";
 import { useReadData } from "hooks";
 import { DelayedCircularProgress } from "components";
 import { isActive } from "utils";
 
-const CategoryField = (props) => {
+const CategoryField = ({ isTransfer, ...props }) => {
   const { data: categories = [], loading } = useReadData("categories");
+
+  if (isTransfer) {
+    return null;
+  }
 
   if (loading) {
     return <DelayedCircularProgress />;
@@ -34,6 +39,14 @@ const CategoryField = (props) => {
       ))}
     </TextField>
   );
+};
+
+CategoryField.defaultProps = {
+  isTransfer: false,
+};
+
+CategoryField.propTypes = {
+  isTransfer: bool,
 };
 
 export default CategoryField;
