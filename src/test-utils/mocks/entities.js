@@ -17,6 +17,7 @@ export const transactionMock = makeEntityMock((id) => ({
   accountId: newId(),
   originAccountId: newId(),
   destinationAccountId: newId(),
+  categoryId: newId(),
 }));
 
 export const categoryMock = makeEntityMock((id) => ({ name: `Category${id}` }));

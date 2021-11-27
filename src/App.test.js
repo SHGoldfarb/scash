@@ -385,10 +385,11 @@ describe("App", () => {
       ).toBeDisabled();
     });
 
-    describe("database has accounts", () => {
+    describe("database has accounts and categories", () => {
       let accounts;
       beforeEach(async () => {
         mockTable("accounts").set(repeat(accountMock, 5));
+        mockTable("categories").set(repeat(categoryMock, 5));
         accounts = await mockTable("accounts").toArray();
       });
 

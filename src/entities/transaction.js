@@ -46,13 +46,14 @@ export const validTransaction = (data) => ({
         )
       : null,
   categoryId: oneOfOrNull(["income", "expense"])(data.type)
-    ? data.categoryId
-    : throwError(
+    ? data.categoryId ||
+      throwError(
         TypeError,
         `Transaction must include a categoryId: ${JSON.stringify(
           data,
           null,
           2
         )}`
-      ),
+      )
+    : null,
 });
