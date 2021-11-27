@@ -1,14 +1,17 @@
 import React from "react";
-import { bool } from "prop-types";
+import { string } from "prop-types";
 import { TextField } from "@material-ui/core";
 import { useReadData } from "hooks";
 import { DelayedCircularProgress } from "components";
 import { isActive } from "utils";
 
-const CategoryField = ({ isTransfer, ...props }) => {
-  const { data: categories = [], loading } = useReadData("categories");
+const CategoryField = ({ transactionType, ...props }) => {
+  const categoriesTable =
+    transactionType === "expense" ? "categories" : "incomeCategories";
 
-  if (isTransfer) {
+  const { data: categories = [], loading } = useReadData(categoriesTable);
+
+  if (transactionType === "transfer") {
     return null;
   }
 
@@ -41,12 +44,8 @@ const CategoryField = ({ isTransfer, ...props }) => {
   );
 };
 
-CategoryField.defaultProps = {
-  isTransfer: false,
-};
-
 CategoryField.propTypes = {
-  isTransfer: bool,
+  transactionType: string.isRequired,
 };
 
 export default CategoryField;

@@ -394,6 +394,7 @@ describe("App", () => {
       beforeEach(async () => {
         mockTable("accounts").set(repeat(accountMock, 5));
         mockTable("categories").set(repeat(categoryMock, 5));
+        mockTable("incomeCategories").set(repeat(categoryMock, 5));
         accounts = await mockTable("accounts").toArray();
       });
 
@@ -408,6 +409,41 @@ describe("App", () => {
         expect(
           (await wrapper.findByText("Save")).closest("button")
         ).not.toBeDisabled();
+      });
+
+      it("shows the expense categories", async () => {
+        await runUserActions();
+
+        const expenseCategories = await mockTable("categories").toArray();
+
+        await waitFor(() => {
+          expenseCategories.forEach((cat) => {
+            wrapper.getByText(cat.name);
+          });
+        });
+      });
+
+      describe("user selects income transaction", () => {
+        userAction(async () => {
+          selectTransactionTypeInForm("income");
+
+          // Avoid act() warning
+          await waitFor(() => {});
+        });
+
+        it("shows the income categories", async () => {
+          await runUserActions();
+
+          const expenseCategories = await mockTable(
+            "incomeCategories"
+          ).toArray();
+
+          await waitFor(() => {
+            expenseCategories.forEach((cat) => {
+              wrapper.getByText(cat.name);
+            });
+          });
+        });
       });
 
       describe("user selects transfer transaction", () => {
@@ -429,13 +465,16 @@ describe("App", () => {
 
       describe("user creates an income transaction", () => {
         let selectedAccount;
-        userAction(() => {
+        userAction(async () => {
           [selectedAccount] = accounts;
 
           createTransactionInForm({
             accountName: selectedAccount.name,
             type: "income",
           });
+
+          // Avoid act() warning
+          await waitFor(() => {});
         });
 
         it("correctly assosiates transaction to account", async () => {
