@@ -35,7 +35,7 @@ const CategoryField = ({ transactionType, ...props }) => {
       defaultValue={defaultCategoryId}
       {...props}
     >
-      {categories.map((category) => (
+      {activeCategories.map((category) => (
         <option value={category.id} key={category.id}>
           {category.name}
         </option>

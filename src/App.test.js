@@ -423,6 +423,38 @@ describe("App", () => {
         });
       });
 
+      describe("when some categories are deactivated", () => {
+        let activeCategories;
+        let deactivatedCategories;
+        beforeEach(async () => {
+          activeCategories = await mockTable("categories").toArray();
+
+          deactivatedCategories = repeat(
+            () => categoryMock({ deactivatedAt: DateTime.local().toSeconds() }),
+            5
+          );
+
+          mockTable("categories").set([
+            ...activeCategories,
+            ...deactivatedCategories,
+          ]);
+        });
+
+        it("only shows active categories", async () => {
+          await runUserActions();
+
+          await waitFor(() => {
+            activeCategories.forEach((category) => {
+              wrapper.getByText(category.name);
+            });
+
+            deactivatedCategories.forEach((category) => {
+              expect(wrapper.queryByText(category.name)).toBeNull();
+            });
+          });
+        });
+      });
+
       describe("user selects income transaction", () => {
         userAction(async () => {
           selectTransactionTypeInForm("income");
