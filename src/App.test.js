@@ -311,7 +311,7 @@ describe("App", () => {
       });
     };
 
-    const createTransactionInForm = ({
+    const createTransactionInForm = async ({
       type,
       accountName,
       originAccountName,
@@ -378,6 +378,11 @@ describe("App", () => {
         },
       });
 
+      // wait for save button to be enabled
+      await waitFor(() => {
+        expect(wrapper.getByText("Save").closest("button")).not.toBeDisabled();
+      });
+
       fireEvent.click(wrapper.getByText("Save"));
     };
 
@@ -389,86 +394,45 @@ describe("App", () => {
       ).toBeDisabled();
     });
 
-    describe("database has accounts and categories", () => {
+    describe("database has accounts", () => {
       let accounts;
       beforeEach(async () => {
         mockTable("accounts").set(repeat(accountMock, 5));
-        mockTable("categories").set(repeat(categoryMock, 5));
-        mockTable("incomeCategories").set(repeat(categoryMock, 5));
+
         accounts = await mockTable("accounts").toArray();
       });
 
-      const expectToBeInTransactionsPage = async () => {
-        // Test we are in transaction page by expecting the new transaction button to be shown
-        await wrapper.findByText("New Transaction");
-      };
-
-      it("shows the save button as enabled", async () => {
+      it("shows save button disabled", async () => {
         await runUserActions();
 
         expect(
           (await wrapper.findByText("Save")).closest("button")
-        ).not.toBeDisabled();
+        ).toBeDisabled();
       });
 
-      it("shows the expense categories", async () => {
-        await runUserActions();
-
-        const expenseCategories = await mockTable("categories").toArray();
-
-        await waitFor(() => {
-          expenseCategories.forEach((cat) => {
-            wrapper.getByText(cat.name);
-          });
-        });
-      });
-
-      describe("when some categories are deactivated", () => {
-        let activeCategories;
-        let deactivatedCategories;
+      describe("database has accounts and categories", () => {
         beforeEach(async () => {
-          activeCategories = await mockTable("categories").toArray();
-
-          deactivatedCategories = repeat(
-            () => categoryMock({ deactivatedAt: DateTime.local().toSeconds() }),
-            5
-          );
-
-          mockTable("categories").set([
-            ...activeCategories,
-            ...deactivatedCategories,
-          ]);
+          mockTable("categories").set(repeat(categoryMock, 5));
+          mockTable("incomeCategories").set(repeat(categoryMock, 5));
         });
 
-        it("only shows active categories", async () => {
+        const expectToBeInTransactionsPage = async () => {
+          // Test we are in transaction page by expecting the new transaction button to be shown
+          await wrapper.findByText("New Transaction");
+        };
+
+        it("shows the save button as enabled", async () => {
           await runUserActions();
 
-          await waitFor(() => {
-            activeCategories.forEach((category) => {
-              wrapper.getByText(category.name);
-            });
-
-            deactivatedCategories.forEach((category) => {
-              expect(wrapper.queryByText(category.name)).toBeNull();
-            });
-          });
-        });
-      });
-
-      describe("user selects income transaction", () => {
-        userAction(async () => {
-          selectTransactionTypeInForm("income");
-
-          // Avoid act() warning
-          await waitFor(() => {});
+          expect(
+            (await wrapper.findByText("Save")).closest("button")
+          ).not.toBeDisabled();
         });
 
-        it("shows the income categories", async () => {
+        it("shows the expense categories", async () => {
           await runUserActions();
 
-          const expenseCategories = await mockTable(
-            "incomeCategories"
-          ).toArray();
+          const expenseCategories = await mockTable("categories").toArray();
 
           await waitFor(() => {
             expenseCategories.forEach((cat) => {
@@ -476,97 +440,153 @@ describe("App", () => {
             });
           });
         });
-      });
 
-      describe("user selects transfer transaction", () => {
-        userAction(async () => {
-          selectTransactionTypeInForm("transfer");
+        describe("when some categories are deactivated", () => {
+          let activeCategories;
+          let deactivatedCategories;
+          beforeEach(async () => {
+            activeCategories = await mockTable("categories").toArray();
 
-          // Avoid act() warning
-          await waitFor(() => {});
-        });
+            deactivatedCategories = repeat(
+              () =>
+                categoryMock({ deactivatedAt: DateTime.local().toSeconds() }),
+              5
+            );
 
-        it("does not show category field", async () => {
-          await runUserActions();
-
-          await waitFor(() => {
-            expect(wrapper.queryByLabelText("Category")).toBeNull();
-          });
-        });
-      });
-
-      describe("user creates an income transaction", () => {
-        let selectedAccount;
-        userAction(async () => {
-          [selectedAccount] = accounts;
-
-          createTransactionInForm({
-            accountName: selectedAccount.name,
-            type: "income",
+            mockTable("categories").set([
+              ...activeCategories,
+              ...deactivatedCategories,
+            ]);
           });
 
-          // Avoid act() warning
-          await waitFor(() => {});
-        });
+          it("only shows active categories", async () => {
+            await runUserActions();
 
-        it("correctly assosiates transaction to account", async () => {
-          await runUserActions();
+            await waitFor(() => {
+              activeCategories.forEach((category) => {
+                wrapper.getByText(category.name);
+              });
 
-          // Test the account was associated by looking for it in the transactions page
-          // First make sure we are in transactions page
-          await expectToBeInTransactionsPage();
-
-          await wrapper.findByText(selectedAccount.name, { exact: false });
-        });
-      });
-
-      describe("user creates an expense transaction", () => {
-        let selectedAccount;
-        userAction(() => {
-          [selectedAccount] = accounts;
-
-          createTransactionInForm({
-            accountName: selectedAccount.name,
-            type: "expense",
+              deactivatedCategories.forEach((category) => {
+                expect(wrapper.queryByText(category.name)).toBeNull();
+              });
+            });
           });
         });
 
-        it("correctly assosiates transaction to account", async () => {
-          await runUserActions();
+        describe("user selects income transaction", () => {
+          userAction(async () => {
+            selectTransactionTypeInForm("income");
 
-          // Test the account was associated by looking for it in the transactions page
-          // First make sure we are in transactions page
-          await expectToBeInTransactionsPage();
-
-          await wrapper.findByText(selectedAccount.name, { exact: false });
-        });
-      });
-
-      describe("user creates a transfer transaction", () => {
-        let originAccount;
-        let destinationAccount;
-        userAction(async () => {
-          [originAccount, destinationAccount] = accounts;
-
-          createTransactionInForm({
-            originAccountName: originAccount.name,
-            destinationAccountName: destinationAccount.name,
-            type: "transfer",
+            // Avoid act() warning
+            await waitFor(() => {});
           });
 
-          // Avoid missing act() warning
-          await waitFor(() => {});
+          it("shows the income categories", async () => {
+            await runUserActions();
+
+            const expenseCategories = await mockTable(
+              "incomeCategories"
+            ).toArray();
+
+            await waitFor(() => {
+              expenseCategories.forEach((cat) => {
+                wrapper.getByText(cat.name);
+              });
+            });
+          });
         });
 
-        it("correctly assosiates transactions to account", async () => {
-          await runUserActions();
+        describe("user selects transfer transaction", () => {
+          userAction(async () => {
+            selectTransactionTypeInForm("transfer");
 
-          // Test the account was associated by looking for it in the transactions page
-          // First make sure we are in transactions page
-          await expectToBeInTransactionsPage();
+            // Avoid act() warning
+            await waitFor(() => {});
+          });
 
-          await wrapper.findByText(originAccount.name, { exact: false });
-          await wrapper.findByText(destinationAccount.name, { exact: false });
+          it("does not show category field", async () => {
+            await runUserActions();
+
+            await waitFor(() => {
+              expect(wrapper.queryByLabelText("Category")).toBeNull();
+            });
+          });
+        });
+
+        describe("user creates an income transaction", () => {
+          let selectedAccount;
+          userAction(async () => {
+            [selectedAccount] = accounts;
+
+            await createTransactionInForm({
+              accountName: selectedAccount.name,
+              type: "income",
+            });
+
+            // Avoid act() warning
+            await waitFor(() => {});
+          });
+
+          it("correctly assosiates transaction to account", async () => {
+            await runUserActions();
+
+            // Test the account was associated by looking for it in the transactions page
+            // First make sure we are in transactions page
+            await expectToBeInTransactionsPage();
+
+            await wrapper.findByText(selectedAccount.name, { exact: false });
+          });
+        });
+
+        describe("user creates an expense transaction", () => {
+          let selectedAccount;
+          userAction(async () => {
+            [selectedAccount] = accounts;
+
+            await createTransactionInForm({
+              accountName: selectedAccount.name,
+              type: "expense",
+            });
+          });
+
+          it("correctly assosiates transaction to account", async () => {
+            await runUserActions();
+
+            // Test the account was associated by looking for it in the transactions page
+            // First make sure we are in transactions page
+            await expectToBeInTransactionsPage();
+
+            await wrapper.findByText(selectedAccount.name, { exact: false });
+          });
+        });
+
+        describe("user creates a transfer transaction", () => {
+          let originAccount;
+          let destinationAccount;
+          userAction(async () => {
+            [originAccount, destinationAccount] = accounts;
+
+            await createTransactionInForm({
+              originAccountName: originAccount.name,
+              destinationAccountName: destinationAccount.name,
+              type: "transfer",
+            });
+
+            // Avoid missing act() warning
+            await waitFor(() => {});
+          });
+
+          it("correctly assosiates transactions to account", async () => {
+            await runUserActions();
+
+            // Test the account was associated by looking for it in the transactions page
+            // First make sure we are in transactions page
+            await expectToBeInTransactionsPage();
+
+            await wrapper.findByText(originAccount.name, { exact: false });
+            await wrapper.findByText(destinationAccount.name, { exact: false });
+          });
         });
       });
     });
@@ -576,7 +596,7 @@ describe("App", () => {
       newTransaction.type = "transfer";
 
       userAction(async () => {
-        createTransactionInForm({
+        await createTransactionInForm({
           type: "transfer",
           amount: newTransaction.amount,
           comment: newTransaction.comment,

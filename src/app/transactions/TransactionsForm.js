@@ -24,6 +24,9 @@ const TransactionsForm = () => {
 
   const defaultAccountId = activeAccounts[0]?.id;
 
+  // TODO: default value for transaction type should only be defined in one place
+  const transactionType = watch("type") || "expense";
+
   return (
     <>
       <TypeField inputRef={register} />
@@ -31,7 +34,7 @@ const TransactionsForm = () => {
       <AmountField errors={errors} register={register} />
       {!accountsLoading ? (
         <AccountsFields
-          isTransfer={watch("type") === "transfer"}
+          isTransfer={transactionType === "transfer"}
           register={register}
           defaultValue={defaultAccountId}
           accounts={activeAccounts}
@@ -39,14 +42,12 @@ const TransactionsForm = () => {
       ) : (
         <DelayedCircularProgress />
       )}
-      <CategoryField
-        inputRef={register}
-        transactionType={watch("type") || "expense"}
-      />
+      <CategoryField inputRef={register} transactionType={transactionType} />
       <CommentField inputRef={register} />
       <SaveButton
         defaultAccountId={defaultAccountId}
         handleSubmit={handleSubmit}
+        transactionType={transactionType}
       />
     </>
   );

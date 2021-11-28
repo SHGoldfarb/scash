@@ -1,15 +1,11 @@
 import React from "react";
 import { string } from "prop-types";
 import { TextField } from "@material-ui/core";
-import { useReadData } from "hooks";
 import { DelayedCircularProgress } from "components";
-import { isActive } from "utils";
+import { useFormCategories } from "./hooks";
 
 const CategoryField = ({ transactionType, ...props }) => {
-  const categoriesTable =
-    transactionType === "expense" ? "categories" : "incomeCategories";
-
-  const { data: categories = [], loading } = useReadData(categoriesTable);
+  const { activeCategories, loading } = useFormCategories(transactionType);
 
   if (transactionType === "transfer") {
     return null;
@@ -18,8 +14,6 @@ const CategoryField = ({ transactionType, ...props }) => {
   if (loading) {
     return <DelayedCircularProgress />;
   }
-
-  const activeCategories = categories.filter(isActive);
 
   const defaultCategoryId = activeCategories[0]?.id;
 

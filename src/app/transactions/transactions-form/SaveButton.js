@@ -1,17 +1,23 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { func, number } from "prop-types";
+import { func, number, string } from "prop-types";
 import { Button } from "@material-ui/core";
 import { useReadData, useWriteData } from "../../../hooks";
 import { makePath, transactionsPathName } from "../../../utils";
+import { useFormCategories } from "./hooks";
 
-const SaveButton = ({ defaultAccountId, handleSubmit }) => {
+const SaveButton = ({ defaultAccountId, handleSubmit, transactionType }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
+  const { activeCategories } = useFormCategories(transactionType);
+
   return (
     <Button
-      disabled={!defaultAccountId}
+      disabled={
+        !defaultAccountId ||
+        (transactionType !== "transfer" && !activeCategories.length)
+      }
       onClick={handleSubmit(
         async ({
           comment,
@@ -60,6 +66,7 @@ SaveButton.defaultProps = {
 SaveButton.propTypes = {
   defaultAccountId: number,
   handleSubmit: func.isRequired,
+  transactionType: string.isRequired,
 };
 
 export default SaveButton;
