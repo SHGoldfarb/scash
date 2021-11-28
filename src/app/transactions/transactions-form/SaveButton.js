@@ -1,21 +1,24 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { func, number, string } from "prop-types";
+import { func, string } from "prop-types";
 import { Button } from "@material-ui/core";
 import { useReadData, useWriteData } from "../../../hooks";
 import { makePath, transactionsPathName } from "../../../utils";
-import { useFormCategories } from "./hooks";
+import { useFormAccounts, useFormCategories } from "./hooks";
 
-const SaveButton = ({ defaultAccountId, handleSubmit, transactionType }) => {
+const SaveButton = ({ handleSubmit, transactionType }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
   const { activeCategories } = useFormCategories(transactionType);
+  const { activeAccounts } = useFormAccounts();
+
+  const defaultAccountId = activeAccounts[0]?.id;
 
   return (
     <Button
       disabled={
-        !defaultAccountId ||
+        !activeAccounts.length ||
         (transactionType !== "transfer" && !activeCategories.length)
       }
       onClick={handleSubmit(
@@ -24,9 +27,9 @@ const SaveButton = ({ defaultAccountId, handleSubmit, transactionType }) => {
           amount,
           date,
           type,
-          accountId,
-          originAccountId,
-          destinationAccountId,
+          accountId = defaultAccountId,
+          originAccountId = defaultAccountId,
+          destinationAccountId = defaultAccountId,
           categoryId,
         }) => {
           const newTransaction = await upsert({
@@ -34,15 +37,9 @@ const SaveButton = ({ defaultAccountId, handleSubmit, transactionType }) => {
             amount,
             date: date.toSeconds(),
             type,
-            accountId: accountId
-              ? parseInt(accountId, 10)
-              : null || defaultAccountId,
-            originAccountId: originAccountId
-              ? parseInt(originAccountId, 10)
-              : null || defaultAccountId,
-            destinationAccountId: destinationAccountId
-              ? parseInt(destinationAccountId, 10)
-              : null || defaultAccountId,
+            accountId: parseInt(accountId, 10),
+            originAccountId: parseInt(originAccountId, 10),
+            destinationAccountId: parseInt(destinationAccountId, 10),
             categoryId: parseInt(categoryId, 10),
           });
 
@@ -59,12 +56,7 @@ const SaveButton = ({ defaultAccountId, handleSubmit, transactionType }) => {
   );
 };
 
-SaveButton.defaultProps = {
-  defaultAccountId: null,
-};
-
 SaveButton.propTypes = {
-  defaultAccountId: number,
   handleSubmit: func.isRequired,
   transactionType: string.isRequired,
 };

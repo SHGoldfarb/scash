@@ -11,3 +11,11 @@ export const useFormCategories = (transactionType) => {
 
   return { activeCategories, ...result };
 };
+
+export const useFormAccounts = () => {
+  const result = useReadData("accounts");
+
+  const activeAccounts = (result.data || []).filter(isActive);
+
+  return { activeAccounts, ...result };
+};

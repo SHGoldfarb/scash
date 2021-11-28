@@ -410,7 +410,7 @@ describe("App", () => {
         ).toBeDisabled();
       });
 
-      describe("database has accounts and categories", () => {
+      describe("database has categories", () => {
         beforeEach(async () => {
           mockTable("categories").set(repeat(categoryMock, 5));
           mockTable("incomeCategories").set(repeat(categoryMock, 5));
