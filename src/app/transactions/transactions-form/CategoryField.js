@@ -1,6 +1,6 @@
 import React from "react";
 import { string } from "prop-types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 import { DelayedCircularProgress } from "components";
 import { useFormCategories } from "./hooks";
 

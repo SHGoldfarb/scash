@@ -1,10 +1,5 @@
-import {
-  AppBar,
-  Button,
-  makeStyles,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+import { AppBar, Button, TextField, Toolbar, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { DateTime } from "luxon";
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -18,9 +13,9 @@ import {
   transactionsPathName,
   transactionsTotals,
 } from "utils";
-import { DatePicker } from "@material-ui/pickers";
 import { DelayedCircularProgress } from "components";
 import { useReadData } from "hooks";
+import { MobileDatePicker } from "@mui/lab";
 import { TransactionCard } from "./transactions-list";
 
 const useStyles = makeStyles((theme) => ({
@@ -111,12 +106,12 @@ const TransactionsList = () => {
     <>
       <AppBar position="sticky">
         <Toolbar classes={{ root: classes.spacedChildren }}>
-          <DatePicker
-            variant="inline"
+          <MobileDatePicker
             openTo="year"
             views={["year", "month"]}
             value={selectedMonth}
             onChange={setSelectedMonth}
+            renderInput={(props) => <TextField {...props} variant="standard" />}
           />
 
           <Button

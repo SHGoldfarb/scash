@@ -1,7 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { func, string } from "prop-types";
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import { useReadData, useWriteData } from "../../../hooks";
 import { makePath, transactionsPathName } from "../../../utils";
 import { useFormAccounts, useFormCategories } from "./hooks";

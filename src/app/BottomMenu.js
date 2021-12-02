@@ -1,11 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ListAlt, Settings } from "@material-ui/icons";
-import {
-  BottomNavigation,
-  BottomNavigationAction,
-  makeStyles,
-} from "@material-ui/core";
+import { ListAlt, Settings } from "@mui/icons-material";
+import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { makePath, settingsPathName, transactionsPathName } from "../utils";
 
 const useStyles = makeStyles(() => ({

@@ -1,4 +1,5 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
 import { DelayedCircularProgress, EditableList } from "../components";

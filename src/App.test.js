@@ -199,7 +199,7 @@ describe("App", () => {
       fireEvent.click(monthInput);
 
       // On the dialog, select the year and month
-      const dialogWrapper = await wrapper.findByRole("presentation");
+      const dialogWrapper = (await wrapper.findAllByRole("presentation"))[0];
 
       fireEvent.click(
         // Select year

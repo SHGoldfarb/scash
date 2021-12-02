@@ -1,6 +1,6 @@
 import React from "react";
 import { func, shape, string } from "prop-types";
-import { TextField } from "@material-ui/core";
+import { TextField } from "@mui/material";
 
 const AmountField = ({ errors, register }) => {
   return (

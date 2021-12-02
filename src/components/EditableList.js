@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Add } from "@material-ui/icons";
+import { Add } from "@mui/icons-material";
 import {
   IconButton,
   List,
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-} from "@material-ui/core";
+} from "@mui/material";
 import { arrayOf, bool, func, node, number, shape, string } from "prop-types";
 import EditableField from "./EditableField";
 import EditingField from "./EditingField";
@@ -48,7 +48,11 @@ const EditableList = ({ source, onUpdate, onAdd, onRemove }) => {
           />
         </ListItem>
       )}
-      <IconButton aria-label="Create" onClick={() => setIsAddingNew(true)}>
+      <IconButton
+        aria-label="Create"
+        onClick={() => setIsAddingNew(true)}
+        size="large"
+      >
         <Add color="primary" />
       </IconButton>
     </List>

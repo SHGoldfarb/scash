@@ -1,5 +1,5 @@
-import LuxonUtils from "@date-io/luxon";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import AdapterLuxon from "@mui/lab/AdapterLuxon";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import React from "react";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import {
@@ -21,7 +21,7 @@ const App = () => {
   return (
     <ScashThemeProvider>
       <Background>
-        <MuiPickersUtilsProvider utils={LuxonUtils}>
+        <LocalizationProvider dateAdapter={AdapterLuxon}>
           <DataCacheProvider>
             <BrowserRouter>
               <PageContainer>
@@ -43,7 +43,7 @@ const App = () => {
               <BottomMenu />
             </BrowserRouter>
           </DataCacheProvider>
-        </MuiPickersUtilsProvider>
+        </LocalizationProvider>
       </Background>
     </ScashThemeProvider>
   );

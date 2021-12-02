@@ -1,7 +1,7 @@
 import React from "react";
 import { number, shape, string } from "prop-types";
-import { IconButton, Typography } from "@material-ui/core";
-import { Delete } from "@material-ui/icons";
+import { IconButton, Typography } from "@mui/material";
+import { Delete } from "@mui/icons-material";
 import { DateTime } from "luxon";
 import { useReadData, useWriteData } from "hooks";
 
@@ -30,6 +30,7 @@ const TransactionCard = ({ transaction }) => {
             transactions.filter(({ id }) => id !== transaction.id)
           );
         }}
+        size="large"
       >
         <Delete color="error" />
       </IconButton>

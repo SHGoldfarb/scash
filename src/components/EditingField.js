@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { bool, func, string } from "prop-types";
-import { Done } from "@material-ui/icons";
-import { IconButton, TextField } from "@material-ui/core";
+import { Done } from "@mui/icons-material";
+import { IconButton, TextField } from "@mui/material";
 
 const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
   const [inputValue, setInputValue] = useState(null);
@@ -24,6 +24,7 @@ const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
             onConfirm(shownValue);
             setInputValue(null);
           }}
+          size="large"
         >
           <Done color="primary" />
         </IconButton>

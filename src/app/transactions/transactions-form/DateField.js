@@ -1,8 +1,9 @@
 import React, { forwardRef } from "react";
 import { Controller } from "react-hook-form";
-import { DateTimePicker } from "@material-ui/pickers";
 import { useLocation } from "react-router-dom";
 import { DateTime } from "luxon";
+import { MobileDateTimePicker } from "@mui/lab";
+import { TextField } from "@mui/material";
 import { parseSearchParams } from "../../../utils";
 
 const useDefaultDate = () => {
@@ -36,16 +37,24 @@ const DateField = (props) => {
   return (
     <Controller
       as={forwardRef((pickerProps, ref) => (
-        <DateTimePicker {...pickerProps} inputRef={ref} />
+        <MobileDateTimePicker
+          {...pickerProps}
+          renderInput={(textFieldProps) => (
+            <TextField
+              fullWidth
+              {...textFieldProps}
+              variant="filled"
+              inputRef={ref}
+            />
+          )}
+        />
       ))}
-      inputVariant="filled"
       label="Date"
       name="date"
-      format={dateDisplayFormat}
+      inputFormat={dateDisplayFormat}
       defaultValue={defaultDate}
       id="transaction-date"
       ampm={false}
-      fullWidth
       {...props}
     />
   );

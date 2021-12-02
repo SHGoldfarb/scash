@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { bool, elementType, func, node, string } from "prop-types";
-import { Delete, Edit } from "@material-ui/icons";
-import { IconButton } from "@material-ui/core";
+import { Delete, Edit } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 import EditingField from "./EditingField";
 
 const EditableField = ({
@@ -35,6 +35,7 @@ const EditableField = ({
           aria-label="edit"
           onClick={() => setIsEditing(true)}
           data-testid="edit"
+          size="large"
         >
           <Edit color="primary" />
         </IconButton>
@@ -42,6 +43,7 @@ const EditableField = ({
           aria-label="delete"
           onClick={onDelete}
           disabled={disableDelete}
+          size="large"
         >
           <Delete color={disableDelete ? "disabled" : "error"} />
         </IconButton>

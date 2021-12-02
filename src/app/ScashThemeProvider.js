@@ -1,15 +1,26 @@
 import React from "react";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import {
+  createTheme,
+  ThemeProvider,
+  StyledEngineProvider,
+  adaptV4Theme,
+} from "@mui/material/styles";
 import { node } from "prop-types";
 
-const theme = createMuiTheme({
-  palette: {
-    type: "dark",
-  },
-});
+const theme = createTheme(
+  adaptV4Theme({
+    palette: {
+      mode: "dark",
+    },
+  })
+);
 
 const ScashThemeProvider = ({ children }) => {
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+  return (
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    </StyledEngineProvider>
+  );
 };
 
 ScashThemeProvider.propTypes = {
