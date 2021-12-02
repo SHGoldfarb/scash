@@ -1,16 +1,32 @@
-import { oneOfOrNull, throwError } from "utils";
+import {
+  isString,
+  oneOfOrNull,
+  throwError,
+  throwInvalidEntityError,
+} from "utils";
+
+export const validTransactionTypes = ["income", "expense", "transfer"];
+
+export const isValidTransactionType = (type) =>
+  validTransactionTypes.includes(type);
 
 export const validTransaction = (data) => ({
-  amount: data.amount ? parseInt(data.amount, 10) : 0,
-  comment: data.comment || "",
+  amount: Number.isInteger(data.amount)
+    ? data.amount
+    : throwInvalidEntityError(data, "Transaction must include amount"),
+  comment: isString(data.comment)
+    ? data.comment
+    : throwInvalidEntityError(data, "Transaction must include a comment"),
   date:
     data.date ||
     throwError(
       TypeError,
       `Transaction must include a date: ${JSON.stringify(data, null, 2)}`
     ),
-  type: oneOfOrNull(["income", "expense", "transfer"])(data.type) || "expense",
-  accountId: oneOfOrNull(["income", "expense"])(data.type)
+  type: isValidTransactionType(data.type)
+    ? data.type
+    : throwInvalidEntityError(data, "Transaction must include a comment"),
+  accountId: ["income", "expense"].includes(data.type)
     ? data.accountId ||
       throwError(
         TypeError,

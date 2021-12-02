@@ -34,7 +34,7 @@ const SaveButton = ({ handleSubmit, transactionType }) => {
         }) => {
           const newTransaction = await upsert({
             comment,
-            amount,
+            amount: parseInt(amount, 10),
             date: date.toSeconds(),
             type,
             accountId: parseInt(accountId, 10),
