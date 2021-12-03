@@ -18,6 +18,8 @@ import { useReadData } from "hooks";
 import { MobileDatePicker } from "@mui/lab";
 import { TransactionCard } from "./transactions-list";
 
+export const dateFormat = "MMMM yyyy";
+
 const useStyles = makeStyles((theme) => ({
   spacedChildren: {
     "& > *": {
@@ -108,7 +110,10 @@ const TransactionsList = () => {
         <Toolbar classes={{ root: classes.spacedChildren }}>
           <MobileDatePicker
             openTo="year"
-            views={["year", "month"]}
+            // TODO: fix this throwing console warning then opening month view
+            // views={["year", "month"]}
+            // TODO: remove the inputFormat prop once the `views` issue is resolved
+            inputFormat={dateFormat}
             value={selectedMonth}
             onChange={setSelectedMonth}
             renderInput={(props) => <TextField {...props} variant="standard" />}

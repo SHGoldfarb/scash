@@ -196,22 +196,27 @@ describe("App", () => {
       const monthInput = await wrapper.findByDisplayValue(
         `${currentDate.monthLong} ${currentDate.year}`
       );
+
       fireEvent.click(monthInput);
 
-      // On the dialog, select the year and month
+      // Identify the dialog
       const dialogWrapper = (await wrapper.findAllByRole("presentation"))[0];
 
-      fireEvent.click(
-        // Select year
-        within(dialogWrapper)
-          .getAllByText(`${date.year}`)
-          .slice(-1) // Last of the array
-          .pop()
+      // Click on the pen icon to manually input date
+      fireEvent.click(within(dialogWrapper).getByTestId("PenIcon"));
+
+      // Input new date
+      fireEvent.change(
+        within(dialogWrapper).getByDisplayValue(
+          `${currentDate.monthLong} ${currentDate.year}`
+        ),
+        {
+          target: { value: `${date.monthLong} ${date.year}` },
+        }
       );
-      fireEvent.click(
-        // Select month
-        within(dialogWrapper).getByText(`${date.monthShort}`)
-      );
+
+      // Click OK
+      fireEvent.click(within(dialogWrapper).getByText("OK"));
     };
 
     describe("user selects past month", () => {
