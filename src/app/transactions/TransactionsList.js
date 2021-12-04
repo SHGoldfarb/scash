@@ -87,6 +87,11 @@ const TransactionsList = () => {
     "categories"
   );
 
+  const {
+    loading: incomeCategoriesLoading,
+    data: incomeCategories = [],
+  } = useReadData("incomeCategories");
+
   const accountsHash = useMemo(
     () =>
       accounts.reduce(
@@ -105,13 +110,25 @@ const TransactionsList = () => {
     [categories]
   );
 
+  const incomeCategoriesHash = useMemo(
+    () =>
+      incomeCategories.reduce(
+        (hash, category) => ({ ...hash, [category.id]: category }),
+        {}
+      ),
+    [incomeCategories]
+  );
+
   const transactionsWithRelationships = filteredTransactions.map(
     (transaction) => ({
       ...transaction,
       account: accountsHash[transaction.accountId],
       originAccount: accountsHash[transaction.originAccountId],
       destinationAccount: accountsHash[transaction.destinationAccountId],
-      category: categoriesHash[transaction.categoryId],
+      category:
+        transaction.type === "expense"
+          ? categoriesHash[transaction.categoryId]
+          : incomeCategoriesHash[transaction.categoryId],
     })
   );
 
@@ -154,7 +171,10 @@ const TransactionsList = () => {
           {currencyFormat(expense)}
         </Typography>
       </div>
-      {loading || accountsLoading || categoriesLoading ? (
+      {loading ||
+      accountsLoading ||
+      categoriesLoading ||
+      incomeCategoriesLoading ? (
         <DelayedCircularProgress />
       ) : (
         transactionsWithRelationships

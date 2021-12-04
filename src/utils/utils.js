@@ -62,6 +62,12 @@ export const isActive = (entity) => !entity.deactivatedAt;
 export const sample = (items) =>
   items[Math.floor(Math.random() * items.length)];
 
+export const shuffle = (items) =>
+  items
+    .map((item) => ({ item, sort: Math.random() }))
+    .sort(by("sort"))
+    .map(({ item }) => item);
+
 export const waitms = async (ms) => {
   const promise = new Promise((resolve) => {
     setTimeout(resolve, ms);

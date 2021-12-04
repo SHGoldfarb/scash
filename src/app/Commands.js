@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import { useReadData, useWriteData } from "hooks";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
-import { isActive, isEnterKey } from "utils";
+import { isEnterKey, shuffle } from "utils";
 import {
   accountMock,
   categoryMock,
@@ -11,6 +11,42 @@ import {
 
 const MOCK_SEED_COMMAND = "seed";
 const CLEAR_COMMAND = "clear";
+
+const mockAccountNames = [
+  "Cash",
+  "Bank Account - BChile",
+  "Credit Card - Nat - BChile",
+  "Credit Card - Int - BChile",
+  "Bank Account - Santander",
+  "Bank Account - BEstado",
+  "Savings Account - BEstado",
+  "My Debts",
+  "Their Debts",
+  "Depositos a Plazo",
+  "Silicon Fund",
+  "Risky Norris",
+  "Portafolio Activo Agresivo BChile",
+];
+
+const mockCategoryNames = [
+  "Expenses",
+  "Going Out",
+  "Vacations",
+  "Snacks & Food",
+  "Other",
+  "Education",
+  "Health",
+  "Apparel",
+  "Gifts",
+];
+
+const mockIncomeCategoryNames = [
+  "Salary",
+  "Gift",
+  "Allowance",
+  "Investment",
+  "Other",
+];
 
 const noId = ({ id, ...rest }) => rest;
 
@@ -36,56 +72,65 @@ const useCommands = () => {
   const populate = async (number) => {
     // Create accounts
     const accounts = await setAccounts(
-      [...Array(20)].map(accountMock).map((item, idx) =>
-        noId({
-          ...item,
-          deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
-        })
-      )
+      shuffle(mockAccountNames)
+        .map((name, idx) =>
+          accountMock({
+            name,
+            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+          })
+        )
+        .map((item) => noId(item))
     );
 
     refetchAccounts();
 
     // Create income cats
-    await setIncomeCategories(
-      [...Array(20)].map(categoryMock).map((item, idx) =>
-        noId({
-          ...item,
-          deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
-        })
-      )
+    const incomeCategories = await setIncomeCategories(
+      shuffle(mockIncomeCategoryNames)
+        .map((name, idx) =>
+          categoryMock({
+            name,
+            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+          })
+        )
+        .map((item) => noId(item))
     );
 
     refetchIncomeCategories();
 
     // Create expense cats
-    await setExpenseCategories(
-      [...Array(20)].map(categoryMock).map((item, idx) =>
-        noId({
-          ...item,
-          deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
-        })
-      )
+    const expenseCategories = await setExpenseCategories(
+      shuffle(mockCategoryNames)
+        .map((name, idx) =>
+          categoryMock({
+            name,
+            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+          })
+        )
+        .map((item) => noId(item))
     );
 
     refetchExpenseCategories();
-
-    const activeAccounts = accounts.filter(isActive);
 
     // Create transactions
     let runningDate = DateTime.local();
     await setTransactions(
       [...Array(number)].map(transactionMock).map((item, idx) => {
         runningDate = runningDate.minus({ hours: 3 + (idx % 15) });
-        const activeAccountsLength = activeAccounts.length;
+        const accountsLength = accounts.length;
+
         return noId({
           ...item,
           date: runningDate.toSeconds(),
-          accountId: activeAccounts[(idx + 1) % activeAccountsLength].id,
-          originAccountId:
-            activeAccounts[(idx * 2 + 2) % activeAccountsLength].id,
-          destinationAccountId:
-            activeAccounts[(idx * 3 + 3) % activeAccountsLength].id,
+          accountId: accounts[(idx + 1) % accountsLength].id,
+          originAccountId: accounts[(idx * 2 + 2) % accountsLength].id,
+          destinationAccountId: accounts[(idx * 3 + 3) % accountsLength].id,
+          categoryId:
+            (item.type === "income" &&
+              incomeCategories[idx % incomeCategories.length].id) ||
+            (item.type === "expense" &&
+              expenseCategories[idx % expenseCategories.length].id) ||
+            null,
         });
       })
     );

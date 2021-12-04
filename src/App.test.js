@@ -685,7 +685,7 @@ describe("App", () => {
 
         // Shows the correct amount of list items
         await waitFor(() => {
-          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(15);
+          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(9);
         });
 
         // This is not ideal test, since we must test from the user perspective and not peek into the database
