@@ -3,17 +3,14 @@ import {
   createTheme,
   ThemeProvider,
   StyledEngineProvider,
-  adaptV4Theme,
 } from "@mui/material/styles";
 import { node } from "prop-types";
 
-const theme = createTheme(
-  adaptV4Theme({
-    palette: {
-      mode: "dark",
-    },
-  })
-);
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 const ScashThemeProvider = ({ children }) => {
   return (
