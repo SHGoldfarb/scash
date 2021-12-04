@@ -1,16 +1,23 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import { node } from "prop-types";
 
-const useStyles = makeStyles({ bottomNavigationBarHeight: { height: "56px" } });
+const PREFIX = "PageContainer";
+
+const classes = {
+  bottomNavigationBarHeight: `${PREFIX}-bottomNavigationBarHeight`,
+};
+
+const Root = styled("div")({
+  [`& .${classes.bottomNavigationBarHeight}`]: { height: "56px" },
+});
 
 const PageContainer = ({ children }) => {
-  const classes = useStyles();
   return (
-    <div>
+    <Root>
       {children}
       <div className={classes.bottomNavigationBarHeight} />
-    </div>
+    </Root>
   );
 };
 

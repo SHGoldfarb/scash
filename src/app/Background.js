@@ -1,17 +1,14 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import { node } from "prop-types";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: theme.palette.background.default,
-    minHeight: "100vh",
-  },
+const Root = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  minHeight: "100vh",
 }));
 
 const Background = ({ children }) => {
-  const classes = useStyles();
-  return <div className={classes.root}>{children}</div>;
+  return <Root>{children}</Root>;
 };
 
 Background.propTypes = {

@@ -1,5 +1,5 @@
 import { AppBar, Button, TextField, Toolbar, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -18,33 +18,48 @@ import { useReadData } from "hooks";
 import { MobileDatePicker } from "@mui/lab";
 import { TransactionCard } from "./transactions-list";
 
-export const dateFormat = "MMMM yyyy";
+const PREFIX = "TransactionsList";
 
-const useStyles = makeStyles((theme) => ({
-  spacedChildren: {
+const classes = {
+  spacedChildren: `${PREFIX}-spacedChildren`,
+  income: `${PREFIX}-income`,
+  expense: `${PREFIX}-expense`,
+  totalsDisplay: `${PREFIX}-totalsDisplay`,
+  createButton: `${PREFIX}-createButton`,
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.spacedChildren}`]: {
     "& > *": {
       "&:not(:last-child)": {
         marginRight: "auto",
       },
     },
   },
-  income: {
+
+  [`& .${classes.income}`]: {
     color: theme.palette.success.light,
   },
-  expense: {
+
+  [`& .${classes.expense}`]: {
     color: theme.palette.error.light,
   },
-  totalsDisplay: {
+
+  [`& .${classes.totalsDisplay}`]: {
     display: "flex",
     padding: theme.spacing(2),
     "& > *": {
       margin: "auto",
     },
   },
-  createButton: {
+
+  [`& .${classes.createButton}`]: {
     minWidth: "10rem",
   },
 }));
+
+export const dateFormat = "MMMM yyyy";
 
 const TransactionsList = () => {
   const [selectedMonth, setSelectedMonth] = useState(() => DateTime.local());
@@ -102,10 +117,8 @@ const TransactionsList = () => {
 
   const { income, expense } = transactionsTotals(transactionsWithRelationships);
 
-  const classes = useStyles();
-
   return (
-    <>
+    <Root>
       <AppBar position="sticky">
         <Toolbar classes={{ root: classes.spacedChildren }}>
           <MobileDatePicker
@@ -141,7 +154,6 @@ const TransactionsList = () => {
           {currencyFormat(expense)}
         </Typography>
       </div>
-
       {loading || accountsLoading || categoriesLoading ? (
         <DelayedCircularProgress />
       ) : (
@@ -151,7 +163,7 @@ const TransactionsList = () => {
             <TransactionCard transaction={transaction} key={transaction.id} />
           ))
       )}
-    </>
+    </Root>
   );
 };
 

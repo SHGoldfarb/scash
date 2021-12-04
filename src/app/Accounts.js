@@ -1,16 +1,25 @@
 import { Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useReadData, useWriteData } from "../hooks";
 import { currencyFormat, getTransactionsStats, upsertById } from "../utils";
 
-const useStyles = makeStyles((theme) => ({
-  positive: {
+const PREFIX = "Accounts";
+
+const classes = {
+  positive: `${PREFIX}-positive`,
+  negative: `${PREFIX}-negative`,
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.positive}`]: {
     color: theme.palette.success.light,
   },
-  negative: {
+
+  [`& .${classes.negative}`]: {
     color: theme.palette.error.light,
   },
 }));
@@ -41,14 +50,11 @@ const Accounts = () => {
     transactions,
   ]);
 
-  const classes = useStyles();
-
   return (
-    <>
+    <Root>
       <Typography variant="h5" color="textPrimary">
         Accounts
       </Typography>
-
       {loading || transactionsLoading ? (
         <DelayedCircularProgress />
       ) : (
@@ -76,7 +82,7 @@ const Accounts = () => {
           onRemove={deleteAccount}
         />
       )}
-    </>
+    </Root>
   );
 };
 
