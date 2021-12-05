@@ -62,12 +62,13 @@ describe("App", () => {
     // amount
     await wrapper.findByText(`${transaction.amount}`, { exact: false });
     // date
-    await wrapper.findByText(
-      DateTime.fromSeconds(transaction.date).toLocaleString(
-        DateTime.DATETIME_MED
-      ),
-      { exact: false }
-    );
+    await waitFor(() => {
+      expect(
+        wrapper.getAllByText(
+          `${DateTime.fromSeconds(transaction.date).day}`.padStart(2, "0")
+        ).length
+      ).toBeTruthy();
+    });
   };
 
   describe("database has a single transaction and single account", () => {

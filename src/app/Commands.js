@@ -14,12 +14,12 @@ const CLEAR_COMMAND = "clear";
 
 const mockAccountNames = [
   "Cash",
-  "Bank Account - BChile",
-  "Credit Card - Nat - BChile",
-  "Credit Card - Int - BChile",
-  "Bank Account - Santander",
-  "Bank Account - BEstado",
-  "Savings Account - BEstado",
+  "Bank Account BChile",
+  "Credit Card Nat BChile",
+  "Credit Card Int BChile",
+  "Bank Account Santander",
+  "Bank Account BEstado",
+  "Savings Account BEstado",
   "My Debts",
   "Their Debts",
   "Depositos a Plazo",

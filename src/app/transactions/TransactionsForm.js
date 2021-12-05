@@ -21,12 +21,10 @@ const TransactionsForm = () => {
       <TypeField inputRef={register} />
       <DateField control={control} />
       <AmountField errors={errors} register={register} />
-
       <AccountsFields
         isTransfer={transactionType === "transfer"}
         register={register}
       />
-
       <CategoryField inputRef={register} transactionType={transactionType} />
       <CommentField inputRef={register} />
       <SaveButton
