@@ -27,6 +27,8 @@ jest.mock("dexie", () => {
 });
 
 describe("App", () => {
+  const startOfMonth = () => DateTime.local().startOf("month");
+
   let wrapper;
   beforeEach(() => {
     wrapper = undefined;
@@ -79,10 +81,8 @@ describe("App", () => {
     let transaction;
     let account;
     beforeEach(() => {
-      const startOfMonth = DateTime.local().startOf("month");
-
       transaction = transactionMock({
-        date: startOfMonth.toSeconds(),
+        date: startOfMonth().toSeconds(),
         type: "expense",
       });
 
@@ -131,35 +131,19 @@ describe("App", () => {
     });
   });
 
-  describe("database has transactions", () => {
+  describe("database has transactions this month", () => {
     let transactionsThisMonth;
-    let transactionsPrevMonth;
 
     beforeEach(() => {
-      const startOfMonth = DateTime.local().startOf("month");
-
       // some transactions this month, some transactions previous month
       transactionsThisMonth = repeat(transactionMock, 4).map(
         (transaction, idx) => ({
           ...transaction,
-          date: startOfMonth.plus({ days: idx }).toSeconds(),
+          date: startOfMonth().plus({ days: idx }).toSeconds(),
         })
       );
 
-      transactionsPrevMonth = repeat(transactionMock, 4).map(
-        (transaction, idx) => ({
-          ...transaction,
-          date: startOfMonth
-            .minus({ months: 1 })
-            .plus({ days: idx })
-            .toSeconds(),
-        })
-      );
-
-      mockTable("transactions").set([
-        ...transactionsThisMonth,
-        ...transactionsPrevMonth,
-      ]);
+      mockTable("transactions").set([...transactionsThisMonth]);
     });
 
     const expectTransactionsInList = async (transactions) => {
@@ -169,37 +153,6 @@ describe("App", () => {
         })
       );
     };
-
-    it("shows transactions list for current month", async () => {
-      await runUserActions();
-
-      // Avoid missing act() warning
-      await waitFor(() => {});
-
-      await expectTransactionsInList(transactionsThisMonth);
-
-      // Make sure it does not show transactions from previous month
-      transactionsPrevMonth.forEach((transaction) => {
-        expect(wrapper.queryByText(transaction.comment, { exact: false })).toBe(
-          null
-        );
-      });
-    });
-
-    it("shows total income/expense for month", async () => {
-      const { income, expense } = transactionsTotals(transactionsThisMonth);
-
-      await runUserActions();
-
-      await waitFor(() => {
-        expect(
-          wrapper.getAllByText(currencyFormat(income)).length
-        ).toBeTruthy();
-        expect(
-          wrapper.getAllByText(currencyFormat(expense)).length
-        ).toBeTruthy();
-      });
-    });
 
     const selectMonth = async (date) => {
       // Click on month field to open month dialog
@@ -230,50 +183,113 @@ describe("App", () => {
       fireEvent.click(within(dialogWrapper).getByText("OK"));
     };
 
-    describe("user selects past month", () => {
-      // Select previous month
-      userAction(async () => {
-        const previousMonthDate = DateTime.local()
-          .startOf("month")
-          .minus({ months: 1 });
+    it("shows total income/expense for month", async () => {
+      const { income, expense } = transactionsTotals(transactionsThisMonth);
 
-        await selectMonth(previousMonthDate);
+      await runUserActions();
+
+      await waitFor(() => {
+        expect(
+          wrapper.getAllByText(currencyFormat(income)).length
+        ).toBeTruthy();
+        expect(
+          wrapper.getAllByText(currencyFormat(expense)).length
+        ).toBeTruthy();
+      });
+    });
+
+    describe("user presses on a transaction", () => {
+      it.todo("shows transaction form with transaction values");
+      describe("user presses delete button", () => {
+        it.todo(
+          "shows transaction list for the correct month and deleted transaction is missing"
+        );
+      });
+    });
+
+    describe("database has transactions prev month", () => {
+      let transactionsPrevMonth;
+
+      beforeEach(async () => {
+        const currentTransactions = await mockTable("transactions").toArray();
+
+        transactionsPrevMonth = repeat(transactionMock, 4).map(
+          (transaction, idx) => ({
+            ...transaction,
+            date: startOfMonth()
+              .minus({ months: 1 })
+              .plus({ days: idx })
+              .toSeconds(),
+          })
+        );
+
+        mockTable("transactions").set([
+          ...currentTransactions,
+          ...transactionsPrevMonth,
+        ]);
       });
 
-      it("shows transactions list for selected month", async () => {
+      it("shows transactions list for current month", async () => {
         await runUserActions();
 
         // Avoid missing act() warning
         await waitFor(() => {});
 
-        await expectTransactionsInList(transactionsPrevMonth);
+        await expectTransactionsInList(transactionsThisMonth);
 
-        // Make sure it does not show transactions from current month
-        transactionsThisMonth.forEach((transaction) => {
+        // Make sure it does not show transactions from previous month
+        transactionsPrevMonth.forEach((transaction) => {
           expect(
             wrapper.queryByText(transaction.comment, { exact: false })
           ).toBe(null);
         });
       });
 
-      describe("user presses new transactions button", () => {
+      describe("user selects past month", () => {
+        // Select previous month
         userAction(async () => {
-          await pressNewTransanctionButton();
+          const previousMonthDate = DateTime.local()
+            .startOf("month")
+            .minus({ months: 1 });
+
+          await selectMonth(previousMonthDate);
+        });
+
+        it("shows transactions list for selected month", async () => {
+          await runUserActions();
 
           // Avoid missing act() warning
           await waitFor(() => {});
+
+          await expectTransactionsInList(transactionsPrevMonth);
+
+          // Make sure it does not show transactions from current month
+          transactionsThisMonth.forEach((transaction) => {
+            expect(
+              wrapper.queryByText(transaction.comment, { exact: false })
+            ).toBe(null);
+          });
         });
 
-        it("default date in transactions form is the last day of selected month", async () => {
-          await runUserActions();
+        describe("user presses new transactions button", () => {
+          userAction(async () => {
+            await pressNewTransanctionButton();
 
-          // Find that the date input has the correct default value
-          await wrapper.findByDisplayValue(
-            DateTime.local()
-              .minus({ months: 1 })
-              .endOf("month")
-              .toFormat("yyyy-MM-dd HH:mm")
-          );
+            // Avoid missing act() warning
+            await waitFor(() => {});
+          });
+
+          it("default date in transactions form is the last day of selected month", async () => {
+            await runUserActions();
+
+            // Find that the date input has the correct default value
+            await wrapper.findByDisplayValue(
+              DateTime.local()
+                .minus({ months: 1 })
+                .endOf("month")
+                .toFormat("yyyy-MM-dd HH:mm")
+            );
+          });
         });
       });
     });
