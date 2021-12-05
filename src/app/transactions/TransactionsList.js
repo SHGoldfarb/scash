@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
-import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo } from "react";
+import { useLocation, Link, useHistory } from "react-router-dom";
 import clsx from "clsx";
 import {
   by,
@@ -19,6 +19,7 @@ import {
   currencyFormat,
   transactionsPathName,
   transactionsTotals,
+  parseSearchParams,
 } from "utils";
 import { DelayedCircularProgress } from "components";
 import { useReadData } from "hooks";
@@ -68,23 +69,26 @@ const Root = styled("div")(({ theme }) => ({
 
 export const dateFormat = "MMMM yyyy";
 
+// TODO: make this component more atomic
 const TransactionsList = () => {
-  const [selectedMonth, setSelectedMonth] = useState(() => DateTime.local());
+  const location = useLocation();
+  const history = useHistory();
+  const { month, year } = parseSearchParams(location.search);
+
+  const selectedMonth =
+    month && year ? DateTime.fromObject({ month, year }) : DateTime.local();
+
+  const setSelectedMonth = (date) =>
+    history.push(
+      makePath(transactionsPathName, {
+        params: {
+          month: date.month,
+          year: date.year,
+        },
+      })
+    );
 
   const { loading, data: transactions = [] } = useReadData("transactions");
-
-  const filteredTransactions = useMemo(
-    () =>
-      transactions
-        .filter(
-          makeIsTransactionInMonthYear({
-            month: selectedMonth.month,
-            year: selectedMonth.year,
-          })
-        )
-        .sort(by("date")),
-    [transactions, selectedMonth]
-  );
 
   const { loading: accountsLoading, data: accounts = [] } = useReadData(
     "accounts"
@@ -98,6 +102,19 @@ const TransactionsList = () => {
     loading: incomeCategoriesLoading,
     data: incomeCategories = [],
   } = useReadData("incomeCategories");
+
+  const filteredTransactions = useMemo(
+    () =>
+      transactions
+        .filter(
+          makeIsTransactionInMonthYear({
+            month: selectedMonth.month,
+            year: selectedMonth.year,
+          })
+        )
+        .sort(by("date")),
+    [transactions, selectedMonth]
+  );
 
   const accountsHash = useMemo(
     () =>

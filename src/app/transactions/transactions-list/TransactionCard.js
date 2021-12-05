@@ -4,8 +4,13 @@ import { Divider, ListItem, ListItemButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import isPropValid from "@emotion/is-prop-valid";
 import { DateTime } from "luxon";
-import { useReadData, useWriteData } from "hooks";
-import { currencyFormat } from "utils";
+import {
+  currencyFormat,
+  editPathName,
+  makePath,
+  transactionsPathName,
+} from "utils";
+import { Link } from "react-router-dom";
 
 const TransactionColumn = styled("div", {
   shouldForwardProp: (prop) => isPropValid(prop),
@@ -18,9 +23,6 @@ const TransactionColumn = styled("div", {
 }));
 
 const TransactionCard = ({ transaction }) => {
-  const { remove } = useWriteData("transactions");
-  const { update } = useReadData("transactions");
-
   const date = DateTime.fromSeconds(transaction.date);
 
   return (
@@ -28,13 +30,13 @@ const TransactionCard = ({ transaction }) => {
       <Divider />
       <ListItem>
         <ListItemButton
+          component={Link}
           sx={{ padding: 0 }}
-          onClick={async () => {
-            await remove(transaction.id);
-            update((transactions) =>
-              transactions.filter(({ id }) => id !== transaction.id)
-            );
-          }}
+          to={makePath(transactionsPathName, editPathName, {
+            params: {
+              id: transaction.id,
+            },
+          })}
         >
           <TransactionColumn width="10">
             <Typography color="textPrimary">
@@ -46,7 +48,7 @@ const TransactionCard = ({ transaction }) => {
             <Typography color="textPrimary">{transaction.comment}</Typography>
             <Typography color="textSecondary" variant="caption">
               {transaction.account?.name || transaction.originAccount?.name}
-              {" > "}
+              {transaction.type === "income" ? " < " : " > "}
               {transaction.category?.name ||
                 transaction.destinationAccount?.name}
             </Typography>
