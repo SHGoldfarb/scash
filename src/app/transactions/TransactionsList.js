@@ -1,4 +1,11 @@
-import { AppBar, Button, TextField, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  List,
+  TextField,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo, useState } from "react";
@@ -177,11 +184,13 @@ const TransactionsList = () => {
       incomeCategoriesLoading ? (
         <DelayedCircularProgress />
       ) : (
-        transactionsWithRelationships
-          .reduce((reversed, transaction) => [transaction, ...reversed], [])
-          .map((transaction) => (
-            <TransactionCard transaction={transaction} key={transaction.id} />
-          ))
+        <List>
+          {transactionsWithRelationships
+            .reduce((reversed, transaction) => [transaction, ...reversed], [])
+            .map((transaction) => (
+              <TransactionCard transaction={transaction} key={transaction.id} />
+            ))}
+        </List>
       )}
     </Root>
   );
