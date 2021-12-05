@@ -5,6 +5,7 @@ import { styled } from "@mui/material/styles";
 import isPropValid from "@emotion/is-prop-valid";
 import { DateTime } from "luxon";
 import { useReadData, useWriteData } from "hooks";
+import { currencyFormat } from "utils";
 
 const TransactionColumn = styled("div", {
   shouldForwardProp: (prop) => isPropValid(prop),
@@ -35,7 +36,7 @@ const TransactionCard = ({ transaction }) => {
             );
           }}
         >
-          <TransactionColumn width="15">
+          <TransactionColumn width="10">
             <Typography color="textPrimary">
               {`${date.day}`.padStart(2, "0")}
             </Typography>
@@ -43,14 +44,23 @@ const TransactionCard = ({ transaction }) => {
           </TransactionColumn>
           <TransactionColumn autoWidth>
             <Typography color="textPrimary">{transaction.comment}</Typography>
-            <Typography color="textPrimary">
-              {transaction.account?.name || transaction.originAccount?.name} -{" "}
+            <Typography color="textPrimary" variant="caption">
+              {transaction.account?.name || transaction.originAccount?.name}
+              {" > "}
               {transaction.category?.name ||
                 transaction.destinationAccount?.name}
             </Typography>
           </TransactionColumn>
           <TransactionColumn width="15">
-            <Typography color="textPrimary">{transaction.amount}</Typography>
+            <Typography
+              color={
+                (transaction.type === "expense" && "error.light") ||
+                (transaction.type === "income" && "success.light") ||
+                "textPrimary"
+              }
+            >
+              {currencyFormat(transaction.amount)}
+            </Typography>
           </TransactionColumn>
         </ListItemButton>
       </ListItem>

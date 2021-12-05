@@ -58,9 +58,13 @@ describe("App", () => {
 
   const expectTransactionInList = async (transaction) => {
     // comment
-    await wrapper.findByText(transaction.comment, { exact: false });
+    await wrapper.findByText(transaction.comment);
     // amount
-    await wrapper.findByText(`${transaction.amount}`, { exact: false });
+    await waitFor(() => {
+      expect(
+        wrapper.getAllByText(currencyFormat(transaction.amount)).length
+      ).toBeTruthy();
+    });
     // date
     await waitFor(() => {
       expect(
@@ -187,8 +191,14 @@ describe("App", () => {
 
       await runUserActions();
 
-      await wrapper.findByText(`${currencyFormat(income)}`);
-      await wrapper.findByText(`${currencyFormat(expense)}`);
+      await waitFor(() => {
+        expect(
+          wrapper.getAllByText(currencyFormat(income)).length
+        ).toBeTruthy();
+        expect(
+          wrapper.getAllByText(currencyFormat(expense)).length
+        ).toBeTruthy();
+      });
     });
 
     const selectMonth = async (date) => {
@@ -625,10 +635,12 @@ describe("App", () => {
 
           // Look for new transaction attributes
           // comment
-          await wrapper.findByText(newTransaction.comment, { exact: false });
+          await wrapper.findByText(newTransaction.comment);
           // amount
-          await wrapper.findByText(`${newTransaction.amount}`, {
-            exact: false,
+          await waitFor(() => {
+            expect(
+              wrapper.getAllByText(currencyFormat(newTransaction.amount)).length
+            ).toBeTruthy();
           });
           // TODO: date
           // await wrapper.findByText(
