@@ -44,7 +44,7 @@ const TransactionCard = ({ transaction }) => {
           </TransactionColumn>
           <TransactionColumn autoWidth>
             <Typography color="textPrimary">{transaction.comment}</Typography>
-            <Typography color="textPrimary" variant="caption">
+            <Typography color="textSecondary" variant="caption">
               {transaction.account?.name || transaction.originAccount?.name}
               {" > "}
               {transaction.category?.name ||
