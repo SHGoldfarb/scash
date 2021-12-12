@@ -68,7 +68,13 @@ const DeleteButton = () => {
 };
 
 const TransactionsForm = () => {
-  const { register, handleSubmit, errors, control, watch } = useForm();
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm();
   const { id } = useCurrentTransaction();
 
   // TODO: default value for transaction type should only be defined in one place
@@ -76,15 +82,15 @@ const TransactionsForm = () => {
 
   return (
     <>
-      <TypeField inputRef={register} />
+      <TypeField register={register} />
       <DateField control={control} />
       <AmountField errors={errors} register={register} />
       <AccountsFields
         isTransfer={transactionType === "transfer"}
         register={register}
       />
-      <CategoryField inputRef={register} transactionType={transactionType} />
-      <CommentField inputRef={register} />
+      <CategoryField register={register} transactionType={transactionType} />
+      <CommentField register={register} />
       <SaveButton
         handleSubmit={handleSubmit}
         transactionType={transactionType}

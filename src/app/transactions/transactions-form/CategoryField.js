@@ -1,10 +1,10 @@
 import React from "react";
-import { string } from "prop-types";
+import { func, string } from "prop-types";
 import { TextField } from "@mui/material";
 import { DelayedCircularProgress } from "components";
 import { useFormCategories } from "./hooks";
 
-const CategoryField = ({ transactionType, ...props }) => {
+const CategoryField = ({ transactionType, register }) => {
   const { activeCategories, loading } = useFormCategories(transactionType);
 
   if (transactionType === "transfer") {
@@ -17,17 +17,21 @@ const CategoryField = ({ transactionType, ...props }) => {
 
   const defaultCategoryId = activeCategories[0]?.id;
 
+  const { name, ref, onBlur, onChange } = register("categoryId");
+
   return (
     <TextField
       select
       SelectProps={{ native: true }}
       label="Category"
       variant="filled"
-      name="categoryId"
       id="transaction-category"
       fullWidth
       defaultValue={defaultCategoryId}
-      {...props}
+      name={name}
+      inputRef={ref}
+      onBlur={onBlur}
+      onChange={onChange}
     >
       {activeCategories.map((category) => (
         <option value={category.id} key={category.id}>
@@ -40,6 +44,7 @@ const CategoryField = ({ transactionType, ...props }) => {
 
 CategoryField.propTypes = {
   transactionType: string.isRequired,
+  register: func.isRequired,
 };
 
 export default CategoryField;

@@ -1,9 +1,10 @@
-import React, { forwardRef } from "react";
+import React from "react";
 import { Controller } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { DateTime } from "luxon";
 import { MobileDateTimePicker } from "@mui/lab";
 import { TextField } from "@mui/material";
+import { shape } from "prop-types";
 import { parseSearchParams } from "../../../utils";
 
 const useDefaultDate = () => {
@@ -32,13 +33,15 @@ const useDefaultDate = () => {
 
 const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
-const DateField = (props) => {
+const DateField = ({ control }) => {
   const defaultDate = useDefaultDate();
   return (
     <Controller
-      as={forwardRef((pickerProps, ref) => (
+      render={({ field: { ref, ...pickerProps } }) => (
         <MobileDateTimePicker
           {...pickerProps}
+          label="Date"
+          inputFormat={dateDisplayFormat}
           renderInput={(textFieldProps) => (
             <TextField
               fullWidth
@@ -48,16 +51,18 @@ const DateField = (props) => {
             />
           )}
         />
-      ))}
-      label="Date"
+      )}
       name="date"
-      inputFormat={dateDisplayFormat}
       defaultValue={defaultDate}
       id="transaction-date"
       ampm={false}
-      {...props}
+      control={control}
     />
   );
+};
+
+DateField.propTypes = {
+  control: shape().isRequired,
 };
 
 export default DateField;

@@ -15,6 +15,10 @@ const AccountsFields = ({ isTransfer, register }) => {
     </option>
   ));
 
+  const originAccount = register("originAccountId");
+  const destinationAccount = register("destinationAccountId");
+  const account = register("accountId");
+
   return (
     (loading && <DelayedCircularProgress />) ||
     (isTransfer && (
@@ -24,11 +28,13 @@ const AccountsFields = ({ isTransfer, register }) => {
           SelectProps={{ native: true }}
           label="Origin Account"
           variant="filled"
-          name="originAccountId"
-          inputRef={register}
           id="transaction-origin-account"
           fullWidth
           defaultValue={defaultAccountId}
+          onChange={originAccount.onChange}
+          onBlur={originAccount.onBlur}
+          name={originAccount.name}
+          inputRef={originAccount.ref}
         >
           {optionsComponents}
         </TextField>
@@ -37,11 +43,13 @@ const AccountsFields = ({ isTransfer, register }) => {
           SelectProps={{ native: true }}
           label="Destination Account"
           variant="filled"
-          name="destinationAccountId"
-          inputRef={register}
           id="transaction-destination-account"
           fullWidth
           defaultValue={defaultAccountId}
+          onChange={destinationAccount.onChange}
+          onBlur={destinationAccount.onBlur}
+          name={destinationAccount.name}
+          inputRef={destinationAccount.ref}
         >
           {optionsComponents}
         </TextField>
@@ -52,11 +60,13 @@ const AccountsFields = ({ isTransfer, register }) => {
         SelectProps={{ native: true }}
         label="Account"
         variant="filled"
-        name="accountId"
-        inputRef={register}
         id="transaction-account"
         fullWidth
         defaultValue={defaultAccountId}
+        onChange={account.onChange}
+        onBlur={account.onBlur}
+        name={account.name}
+        inputRef={account.ref}
       >
         {optionsComponents}
       </TextField>
