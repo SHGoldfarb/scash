@@ -62,6 +62,7 @@ const TransactionsForm = () => {
       <SaveButton
         handleSubmit={handleSubmit}
         transactionType={transactionType}
+        transactionId={transaction?.id}
       />
       {(transaction && (
         <DeleteButton

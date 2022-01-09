@@ -1,12 +1,23 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { func, string } from "prop-types";
+import { func, number, string } from "prop-types";
 import { Button } from "@mui/material";
 import { useReadData, useWriteData } from "../../../hooks";
 import { makePath, transactionsPathName } from "../../../utils";
 import { useFormAccounts, useFormCategories } from "./hooks";
 
-const SaveButton = ({ handleSubmit, transactionType }) => {
+// TODO: put in own file
+const put = (items, itemToInsert, isEqual) => {
+  const index = items.findIndex((item) => isEqual(item, itemToInsert));
+
+  if (index === -1) {
+    return [...items, itemToInsert];
+  }
+
+  return [...items.slice(0, index), itemToInsert, ...items.slice(index + 1)];
+};
+
+const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
@@ -33,6 +44,7 @@ const SaveButton = ({ handleSubmit, transactionType }) => {
           categoryId,
         }) => {
           const newTransaction = await upsert({
+            id: transactionId,
             comment,
             amount: parseInt(amount, 10),
             date: date.toSeconds(),
@@ -44,7 +56,11 @@ const SaveButton = ({ handleSubmit, transactionType }) => {
           });
 
           update((transactions) =>
-            transactions ? [...transactions, newTransaction] : transactions
+            put(
+              transactions,
+              newTransaction,
+              ({ id: ida }, { id: idb }) => ida === idb
+            )
           );
 
           history.push(makePath(transactionsPathName));
@@ -56,9 +72,14 @@ const SaveButton = ({ handleSubmit, transactionType }) => {
   );
 };
 
+SaveButton.defaultProps = {
+  transactionId: null,
+};
+
 SaveButton.propTypes = {
   handleSubmit: func.isRequired,
   transactionType: string.isRequired,
+  transactionId: number,
 };
 
 export default SaveButton;
