@@ -3,24 +3,30 @@ import { bool, func } from "prop-types";
 import { TextField } from "@mui/material";
 import { DelayedCircularProgress } from "components";
 import { useFormAccounts } from "./hooks";
+import { useCurrentTransaction } from "../hooks";
+
+const asOptionElement = (item) => (
+  <option value={item.id} key={item.id}>
+    {item.name}
+  </option>
+);
 
 const AccountsFields = ({ isTransfer, register }) => {
-  const { activeAccounts, loading } = useFormAccounts();
+  const { activeAccounts, inactiveAccounts, loading } = useFormAccounts();
+
+  const {
+    transaction = {},
+    loading: transactionLoading,
+  } = useCurrentTransaction();
 
   const defaultAccountId = activeAccounts[0]?.id;
-
-  const optionsComponents = activeAccounts.map((account) => (
-    <option value={account.id} key={account.id}>
-      {account.name}
-    </option>
-  ));
 
   const originAccount = register("originAccountId");
   const destinationAccount = register("destinationAccountId");
   const account = register("accountId");
 
   return (
-    (loading && <DelayedCircularProgress />) ||
+    ((loading || transactionLoading) && <DelayedCircularProgress />) ||
     (isTransfer && (
       <>
         <TextField
@@ -36,7 +42,14 @@ const AccountsFields = ({ isTransfer, register }) => {
           name={originAccount.name}
           inputRef={originAccount.ref}
         >
-          {optionsComponents}
+          {[
+            inactiveAccounts.find(
+              ({ id }) => transaction[originAccount.name] === id
+            ),
+            ...activeAccounts,
+          ]
+            .filter((item) => !!item)
+            .map(asOptionElement)}
         </TextField>
         <TextField
           select
@@ -51,7 +64,14 @@ const AccountsFields = ({ isTransfer, register }) => {
           name={destinationAccount.name}
           inputRef={destinationAccount.ref}
         >
-          {optionsComponents}
+          {[
+            inactiveAccounts.find(
+              ({ id }) => transaction[destinationAccount.name] === id
+            ),
+            ...activeAccounts,
+          ]
+            .filter((item) => !!item)
+            .map(asOptionElement)}
         </TextField>
       </>
     )) || (
@@ -68,7 +88,12 @@ const AccountsFields = ({ isTransfer, register }) => {
         name={account.name}
         inputRef={account.ref}
       >
-        {optionsComponents}
+        {[
+          inactiveAccounts.find(({ id }) => transaction[account.name] === id),
+          ...activeAccounts,
+        ]
+          .filter((item) => !!item)
+          .map(asOptionElement)}
       </TextField>
     )
   );

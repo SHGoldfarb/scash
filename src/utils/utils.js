@@ -58,6 +58,7 @@ export const by = (getter) => {
 };
 
 export const isActive = (entity) => !entity.deactivatedAt;
+export const isInactive = (entity) => !isActive(entity);
 
 export const sample = (items) =>
   items[Math.floor(Math.random() * items.length)];

@@ -1,5 +1,5 @@
 import { useReadData } from "hooks";
-import { isActive } from "utils";
+import { isActive, isInactive } from "utils";
 
 export const useFormCategories = (transactionType) => {
   const categoriesTable =
@@ -16,6 +16,7 @@ export const useFormAccounts = () => {
   const result = useReadData("accounts");
 
   const activeAccounts = (result.data || []).filter(isActive);
+  const inactiveAccounts = (result.data || []).filter(isInactive);
 
-  return { activeAccounts, ...result };
+  return { activeAccounts, inactiveAccounts, ...result };
 };

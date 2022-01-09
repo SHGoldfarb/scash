@@ -8,7 +8,7 @@ const DelayedCircularProgress = (props) => {
   useEffect(() => {
     let unmounted = false;
     (async () => {
-      await waitms(100);
+      await waitms(500);
 
       if (!unmounted) {
         setShow(true);

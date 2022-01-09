@@ -1,71 +1,18 @@
-import React, { useMemo } from "react";
-import { Button } from "@mui/material";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation, useHistory } from "react-router-dom";
-import { makePath, parseSearchParams, transactionsPathName } from "utils";
-import { useReadData, useWriteData } from "hooks";
 import { DateTime } from "luxon";
+import { DelayedCircularProgress } from "components";
 import {
   AccountsFields,
   AmountField,
   CategoryField,
   CommentField,
   DateField,
+  DeleteButton,
   SaveButton,
   TypeField,
 } from "./transactions-form";
-
-// TODO: move to own file
-const useCurrentTransaction = () => {
-  const location = useLocation();
-
-  const { id } = parseSearchParams(location.search);
-
-  const { loading, data: transactions = [] } = useReadData("transactions");
-
-  const intId = id ? parseInt(id, 10) : null;
-
-  const transaction = useMemo(
-    () => transactions.find(({ id: tid }) => tid === intId),
-    [intId, transactions]
-  );
-
-  if (!id) return {};
-
-  return { loading, ...transaction };
-};
-
-// TODO: move to own file
-const DeleteButton = () => {
-  const { id, date: seconds } = useCurrentTransaction();
-
-  const date = DateTime.fromSeconds(parseInt(seconds, 10));
-
-  const { remove } = useWriteData("transactions");
-  const { update } = useReadData("transactions");
-  const history = useHistory();
-  return (
-    <Button
-      onClick={async () => {
-        await remove(id);
-        update((transactions) =>
-          transactions.filter(({ id: tid }) => tid !== id)
-        );
-        history.push(
-          makePath(transactionsPathName, {
-            params: {
-              month: date.month,
-              year: date.year,
-            },
-          })
-        );
-      }}
-      color="error"
-    >
-      Delete
-    </Button>
-  );
-};
+import { useCurrentTransaction } from "./hooks";
 
 const TransactionsForm = () => {
   const {
@@ -74,8 +21,29 @@ const TransactionsForm = () => {
     control,
     watch,
     formState: { errors },
+    reset,
   } = useForm();
-  const { id } = useCurrentTransaction();
+
+  const { transaction, loading } = useCurrentTransaction();
+
+  useEffect(() => {
+    if (transaction) {
+      reset({
+        comment: transaction.comment,
+        amount: transaction.amount,
+        date: DateTime.fromSeconds(transaction.date),
+        type: transaction.type,
+        accountId: transaction.accountId,
+        originAccountId: transaction.originAccountId,
+        destinationAccountId: transaction.destinationAccountId,
+        categoryId: transaction.categoryID,
+      });
+    }
+  }, [transaction, reset]);
+
+  if (loading) {
+    return <DelayedCircularProgress />;
+  }
 
   // TODO: default value for transaction type should only be defined in one place
   const transactionType = watch("type") || "expense";
@@ -95,7 +63,13 @@ const TransactionsForm = () => {
         handleSubmit={handleSubmit}
         transactionType={transactionType}
       />
-      {id ? <DeleteButton /> : null}
+      {(transaction && (
+        <DeleteButton
+          transactionId={transaction.id}
+          transactionDate={transaction.date}
+        />
+      )) ||
+        null}
     </>
   );
 };
