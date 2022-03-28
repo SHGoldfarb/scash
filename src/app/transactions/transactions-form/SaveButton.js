@@ -47,7 +47,7 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
             id: transactionId,
             comment,
             amount: parseInt(amount, 10),
-            date: date.toSeconds(),
+            date,
             type,
             accountId: parseInt(accountId, 10),
             originAccountId: parseInt(originAccountId, 10),

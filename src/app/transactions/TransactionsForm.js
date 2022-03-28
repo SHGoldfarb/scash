@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { DateTime } from "luxon";
 import { DelayedCircularProgress } from "components";
 import {
   AccountsFields,
@@ -31,7 +30,7 @@ const TransactionsForm = () => {
       reset({
         comment: transaction.comment,
         amount: transaction.amount,
-        date: DateTime.fromSeconds(transaction.date),
+        date: transaction.date,
         type: transaction.type,
         accountId: transaction.accountId,
         originAccountId: transaction.originAccountId,

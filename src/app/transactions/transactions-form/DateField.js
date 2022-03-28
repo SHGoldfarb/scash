@@ -34,12 +34,14 @@ const useDefaultDate = () => {
 const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
 const DateField = ({ control }) => {
-  const defaultDate = useDefaultDate();
+  const defaultDate = useDefaultDate().toSeconds();
   return (
     <Controller
-      render={({ field: { ref, ...pickerProps } }) => (
+      render={({ field: { ref, value, onChange, ...pickerProps } }) => (
         <MobileDateTimePicker
           {...pickerProps}
+          onChange={(newValue) => onChange(newValue.toSeconds())}
+          value={value ? DateTime.fromSeconds(value) : null}
           label="Date"
           inputFormat={dateDisplayFormat}
           renderInput={(textFieldProps) => (

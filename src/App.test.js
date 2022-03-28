@@ -199,11 +199,131 @@ describe("App", () => {
     });
 
     describe("user presses on a transaction", () => {
-      it.todo("shows transaction form with transaction values");
-      describe("user presses delete button", () => {
-        it.todo(
-          "shows transaction list for the correct month and deleted transaction is missing"
-        );
+      let transaction;
+      beforeEach(() => {
+        [transaction] = transactionsThisMonth;
+      });
+
+      userAction(async () => {
+        fireEvent.click(await wrapper.findByText(transaction.comment));
+      });
+
+      describe("transaction account and category are in the database", () => {
+        beforeEach(() => {
+          if (transaction.accountId) {
+            mockTable("accounts").put(
+              accountMock({ id: transaction.accountId })
+            );
+          }
+          if (transaction.originAccountId) {
+            mockTable("accounts").put(
+              accountMock({ id: transaction.originAccountId })
+            );
+          }
+          if (transaction.destinationAccountId) {
+            mockTable("accounts").put(
+              accountMock({ id: transaction.destinationAccountId })
+            );
+          }
+          if (transaction.categoryId) {
+            mockTable("categories").put(
+              categoryMock({ id: transaction.categoryId })
+            );
+            mockTable("incomeCategories").put(
+              categoryMock({ id: transaction.categoryId })
+            );
+          }
+        });
+
+        describe("transaction is income or expense", () => {
+          beforeEach(() => {
+            transaction.type = ["income", "expense"][transaction.id % 2];
+          });
+
+          it("shows transaction form with transaction values", async () => {
+            // Transaction date should be different than default Date
+            transaction.date += 500;
+
+            await runUserActions();
+
+            // Correct type
+
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Type").value).toEqual(
+                transaction.type
+              );
+            });
+
+            // Correct date
+            const formattedDate = DateTime.fromSeconds(
+              transaction.date
+            ).toFormat("yyyy-MM-dd HH:mm");
+
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Date").value).toEqual(
+                formattedDate
+              );
+            });
+
+            // Correct amount
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Amount *").value).toEqual(
+                `${transaction.amount}`
+              );
+            });
+
+            // Correct account
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Account").value).toEqual(
+                `${transaction.accountId}`
+              );
+            });
+
+            // Correct category
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Category").value).toEqual(
+                `${transaction.categoryId}`
+              );
+            });
+
+            // Correct comment
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Comment").value).toEqual(
+                `${transaction.comment}`
+              );
+            });
+          });
+        });
+
+        describe("transaction is transfer", () => {
+          beforeEach(() => {
+            transaction.type = "transfer";
+          });
+
+          it("shows transaction form with correct accounts values", async () => {
+            await runUserActions();
+
+            // Correct origin account
+            await waitFor(() => {
+              expect(wrapper.getByLabelText("Origin Account").value).toEqual(
+                `${transaction.originAccountId}`
+              );
+            });
+
+            // Correct destination acccount
+            await waitFor(() => {
+              expect(
+                wrapper.getByLabelText("Destination Account").value
+              ).toEqual(`${transaction.destinationAccountId}`);
+            });
+          });
+        });
+
+        describe("user presses delete button", () => {
+          it.todo(
+            "shows transaction list for the correct month and deleted transaction is missing"
+          );
+        });
       });
     });
 
