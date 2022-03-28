@@ -320,9 +320,24 @@ describe("App", () => {
         });
 
         describe("user presses delete button", () => {
-          it.todo(
-            "shows transaction list for the correct month and deleted transaction is missing"
-          );
+          userAction(async () => {
+            fireEvent.click(await wrapper.findByText("Delete"));
+
+            // Avoid act() warning
+            await waitFor(() => {});
+          });
+
+          it("shows transaction list for the correct month and deleted transaction is missing", async () => {
+            await runUserActions();
+
+            // Test is in transactions list in the correct month
+            await wrapper.findByDisplayValue(
+              DateTime.fromSeconds(transaction.date).toFormat("MMMM yyyy")
+            );
+
+            // Test transaction is missing
+            expect(wrapper.queryByText(transaction.comment)).toBeNull();
+          });
         });
       });
     });

@@ -20,6 +20,23 @@ const put = (tableName) =>
     return safeId;
   });
 
+const remove = (tableName) =>
+  jest.fn(async (idToRemove) => {
+    if (!mockDatabase[tableName]) {
+      mockDatabase[tableName] = [];
+    }
+
+    const item = mockDatabase[tableName].filter(
+      ({ id }) => idToRemove === id
+    )[0];
+
+    mockDatabase[tableName] = mockDatabase[tableName].filter(
+      ({ id }) => id !== idToRemove
+    );
+
+    return item;
+  });
+
 const get = (tableName) =>
   jest.fn(
     async ({ id }) =>
@@ -50,6 +67,7 @@ export const mockTable = (tableName) => ({
   toArray: async () => mockDatabase[tableName] || [],
   put: put(tableName),
   get: get(tableName),
+  delete: remove(tableName),
   set: set(tableName),
   clear: clear(tableName),
   bulkAdd: bulkAdd(tableName),
