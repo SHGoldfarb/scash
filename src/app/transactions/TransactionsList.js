@@ -1,53 +1,27 @@
-import {
-  AppBar,
-  Button,
-  IconButton,
-  List,
-  TextField,
-  Toolbar,
-  Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { DateTime } from "luxon";
 import React, { useMemo } from "react";
-import { useLocation, Link, useHistory } from "react-router-dom";
 import clsx from "clsx";
+import { List, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   by,
-  editPathName,
   makeIsTransactionInMonthYear,
-  makePath,
   currencyFormat,
-  transactionsPathName,
   transactionsTotals,
-  parseSearchParams,
 } from "utils";
 import { DelayedCircularProgress } from "components";
 import { useReadData } from "hooks";
-import { MobileDatePicker } from "@mui/lab";
-import { NavigateBefore, NavigateNext } from "@mui/icons-material";
-import { TransactionCard } from "./transactions-list";
+import { TransactionCard, TransactionsAppBar } from "./transactions-list";
+import { useSelectedMonth } from "./hooks";
 
 const PREFIX = "TransactionsList";
 
 const classes = {
-  spacedChildren: `${PREFIX}-spacedChildren`,
   income: `${PREFIX}-income`,
   expense: `${PREFIX}-expense`,
   totalsDisplay: `${PREFIX}-totalsDisplay`,
-  createButton: `${PREFIX}-createButton`,
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.spacedChildren}`]: {
-    "& > *": {
-      "&:not(:last-child)": {
-        marginRight: "auto",
-      },
-    },
-  },
-
   [`& .${classes.income}`]: {
     color: theme.palette.success.light,
   },
@@ -63,32 +37,10 @@ const Root = styled("div")(({ theme }) => ({
       margin: "auto",
     },
   },
-
-  [`& .${classes.createButton}`]: {
-    minWidth: "10rem",
-  },
 }));
 
-export const dateFormat = "MMMM yyyy";
-
-// TODO: make this component more atomic
 const TransactionsList = () => {
-  const location = useLocation();
-  const history = useHistory();
-  const { month, year } = parseSearchParams(location.search);
-
-  const selectedMonth =
-    month && year ? DateTime.fromObject({ month, year }) : DateTime.local();
-
-  const setSelectedMonth = (date) =>
-    history.push(
-      makePath(transactionsPathName, {
-        params: {
-          month: date.month,
-          year: date.year,
-        },
-      })
-    );
+  const [selectedMonth] = useSelectedMonth();
 
   const { loading, data: transactions = [] } = useReadData("transactions");
 
@@ -162,44 +114,7 @@ const TransactionsList = () => {
 
   return (
     <Root>
-      <AppBar position="sticky">
-        <Toolbar classes={{ root: classes.spacedChildren }}>
-          <IconButton
-            onClick={() => setSelectedMonth(selectedMonth.plus({ months: -1 }))}
-          >
-            <NavigateBefore />
-          </IconButton>
-          <MobileDatePicker
-            openTo="year"
-            // TODO: fix this throwing console warning then opening month view
-            // views={["year", "month"]}
-            // TODO: remove the inputFormat prop once the `views` issue is resolved
-            inputFormat={dateFormat}
-            value={selectedMonth}
-            onChange={setSelectedMonth}
-            renderInput={(props) => <TextField {...props} variant="standard" />}
-          />
-
-          <IconButton
-            onClick={() => setSelectedMonth(selectedMonth.plus({ months: 1 }))}
-          >
-            <NavigateNext />
-          </IconButton>
-
-          <Button
-            component={Link}
-            to={makePath(transactionsPathName, editPathName, {
-              params: {
-                month: selectedMonth.month,
-                year: selectedMonth.year,
-              },
-            })}
-            className={classes.createButton}
-          >
-            New Transaction
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <TransactionsAppBar />
       <div className={clsx(classes.totalsDisplay)}>
         <Typography variant="body1" classes={{ root: classes.income }}>
           {currencyFormat(income)}

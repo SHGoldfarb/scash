@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { parseSearchParams } from "utils";
+import { useLocation, useHistory } from "react-router-dom";
 import { useReadData } from "hooks";
+import { DateTime } from "luxon";
+import { makePath, transactionsPathName, parseSearchParams } from "utils";
 
 export const useCurrentTransaction = () => {
   const location = useLocation();
@@ -20,4 +21,25 @@ export const useCurrentTransaction = () => {
   if (!id) return {};
 
   return { loading, transaction };
+};
+
+export const useSelectedMonth = () => {
+  const location = useLocation();
+  const history = useHistory();
+  const { month, year } = parseSearchParams(location.search);
+
+  const selectedMonth =
+    month && year ? DateTime.fromObject({ month, year }) : DateTime.local();
+
+  const setSelectedMonth = (date) =>
+    history.push(
+      makePath(transactionsPathName, {
+        params: {
+          month: date.month,
+          year: date.year,
+        },
+      })
+    );
+
+  return [selectedMonth, setSelectedMonth];
 };
