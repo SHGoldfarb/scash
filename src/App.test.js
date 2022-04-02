@@ -77,6 +77,36 @@ describe("App", () => {
     });
   };
 
+  describe("user presses next month button", () => {
+    userAction(async () => {
+      fireEvent.click(await wrapper.findByTestId("NavigateNextIcon"));
+    });
+
+    it("shows next month in month selector", async () => {
+      await runUserActions();
+
+      const nextMonthDate = DateTime.local().plus({ months: 1 });
+      await wrapper.findByDisplayValue(
+        `${nextMonthDate.monthLong} ${nextMonthDate.year}`
+      );
+    });
+  });
+
+  describe("user presses previous month button", () => {
+    userAction(async () => {
+      fireEvent.click(await wrapper.findByTestId("NavigateBeforeIcon"));
+    });
+
+    it("shows previous month in month selector", async () => {
+      await runUserActions();
+
+      const prevMonthDate = DateTime.local().plus({ months: -1 });
+      await wrapper.findByDisplayValue(
+        `${prevMonthDate.monthLong} ${prevMonthDate.year}`
+      );
+    });
+  });
+
   describe("database has a single transaction and single account", () => {
     let transaction;
     let account;

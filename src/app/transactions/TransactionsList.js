@@ -1,6 +1,7 @@
 import {
   AppBar,
   Button,
+  IconButton,
   List,
   TextField,
   Toolbar,
@@ -24,6 +25,7 @@ import {
 import { DelayedCircularProgress } from "components";
 import { useReadData } from "hooks";
 import { MobileDatePicker } from "@mui/lab";
+import { NavigateBefore, NavigateNext } from "@mui/icons-material";
 import { TransactionCard } from "./transactions-list";
 
 const PREFIX = "TransactionsList";
@@ -162,6 +164,11 @@ const TransactionsList = () => {
     <Root>
       <AppBar position="sticky">
         <Toolbar classes={{ root: classes.spacedChildren }}>
+          <IconButton
+            onClick={() => setSelectedMonth(selectedMonth.plus({ months: -1 }))}
+          >
+            <NavigateBefore />
+          </IconButton>
           <MobileDatePicker
             openTo="year"
             // TODO: fix this throwing console warning then opening month view
@@ -172,6 +179,12 @@ const TransactionsList = () => {
             onChange={setSelectedMonth}
             renderInput={(props) => <TextField {...props} variant="standard" />}
           />
+
+          <IconButton
+            onClick={() => setSelectedMonth(selectedMonth.plus({ months: 1 }))}
+          >
+            <NavigateNext />
+          </IconButton>
 
           <Button
             component={Link}
