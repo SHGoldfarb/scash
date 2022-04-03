@@ -38,7 +38,7 @@ const TransactionCard = ({ transaction }) => {
             },
           })}
         >
-          <TransactionColumn width="10">
+          <TransactionColumn width="10" sx={{ textAlign: "center" }}>
             <Typography color="textPrimary">
               {`${date.day}`.padStart(2, "0")}
             </Typography>
@@ -49,11 +49,20 @@ const TransactionCard = ({ transaction }) => {
             <Typography color="textSecondary" variant="caption">
               {transaction.account?.name || transaction.originAccount?.name}
               {transaction.type === "income" ? " < " : " > "}
+            </Typography>
+            <Typography
+              color={
+                (transaction.type === "expense" && "error.light") ||
+                (transaction.type === "income" && "success.light") ||
+                "textSecondary"
+              }
+              variant="caption"
+            >
               {transaction.category?.name ||
                 transaction.destinationAccount?.name}
             </Typography>
           </TransactionColumn>
-          <TransactionColumn width="15">
+          <TransactionColumn>
             <Typography
               color={
                 (transaction.type === "expense" && "error.light") ||
