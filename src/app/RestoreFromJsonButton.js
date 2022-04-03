@@ -1,7 +1,5 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { read, utils } from "xlsx";
-import { DateTime } from "luxon";
 import { asyncReduce } from "utils";
 import { useReadData, useWriteData } from "hooks";
 import { getAll, upsert, bulkAdd } from "../database";
@@ -81,62 +79,46 @@ const makeRowsHandler = async () => {
   const transactions = [];
 
   const handleRow = async (row) => {
-    const type =
-      (row["Income/Expense"] === "Transfer-Out" && "transfer") ||
-      (row["Income/Expense"] === "Expense" && "expense") ||
-      (row["Income/Expense"] === "Income" && "income");
-
     // Create accounts
-    if (!accountsHash[row.Account]) {
-      await addAccount(row.Account);
+    if (row.type !== "transfer" && !accountsHash[row.account]) {
+      await addAccount(row.account);
     }
 
-    if (type === "transfer" && !accountsHash[row.Category]) {
-      await addAccount(row.Category);
+    if (row.type === "transfer") {
+      if (!accountsHash[row.originAccount]) {
+        await addAccount(row.originAccount);
+      }
+
+      if (!accountsHash[row.destinationAccount]) {
+        await addAccount(row.destinationAccount);
+      }
     }
 
-    // Create categories
-    let categoryName = row.Category;
-    if (row.Subcategory) {
-      categoryName = `${row.Category}: ${row.Subcategory}`;
+    if (row.type === "expense" && !categoriesHash[row.category]) {
+      await addCategory(row.category);
     }
 
-    if (type === "expense" && !categoriesHash[categoryName]) {
-      await addCategory(categoryName);
-    }
-
-    if (type === "income" && !incomeCategoriesHash[categoryName]) {
-      await addIncomeCategory(categoryName);
+    if (row.type === "income" && !incomeCategoriesHash[row.category]) {
+      await addIncomeCategory(row.category);
     }
 
     // Create transaction
 
-    const dateTime = DateTime.fromSeconds(
-      // In hours
-      (row.Date * 24 -
-        // Minus 70 years
-        70 * 365 * 24 -
-        // Minus 18 days
-        18 * 24 -
-        // Minus 21 hours
-        21) *
-        // In seconds
-        60 *
-        60
-    );
-
     const transaction = {
-      amount: row.Amount,
-      comment: row.Note || "",
-      date: dateTime.toSeconds(),
-      type,
-      accountId: type !== "transfer" && accountsHash[row.Account].id,
-      originAccountId: type === "transfer" && accountsHash[row.Account].id,
+      amount: row.amount,
+      comment: row.comment || "",
+      date: row.date,
+      type: row.type,
+      accountId:
+        (row.type !== "transfer" && accountsHash[row.account].id) || null,
+      originAccountId:
+        (row.type === "transfer" && accountsHash[row.originAccount].id) || null,
       destinationAccountId:
-        type === "transfer" && accountsHash[row.Category].id,
+        (row.type === "transfer" && accountsHash[row.destinationAccount].id) ||
+        null,
       categoryId:
-        (type === "income" && incomeCategoriesHash[categoryName].id) ||
-        (type === "expense" && categoriesHash[categoryName].id) ||
+        (row.type === "income" && incomeCategoriesHash[row.category].id) ||
+        (row.type === "expense" && categoriesHash[row.category].id) ||
         null,
     };
 
@@ -154,7 +136,7 @@ const readFile = (file) =>
     reader.onload = (e) => {
       resolve(e.target.result);
     };
-    reader.readAsArrayBuffer(file);
+    reader.readAsText(file);
   });
 
 const handleFileSelect = async (event) => {
@@ -165,20 +147,16 @@ const handleFileSelect = async (event) => {
     return;
   }
 
-  const data = read(await readFile(file));
-
-  const sheet1 = data.Sheets[data.SheetNames[0]];
-
-  const jsonData = utils.sheet_to_json(sheet1);
+  const data = JSON.parse(await readFile(file));
 
   const [handleRow, commitTransactions] = await makeRowsHandler();
 
-  await asyncReduce(jsonData.map((row) => () => handleRow(row)));
+  await asyncReduce(data.map((row) => () => handleRow(row)));
 
   await commitTransactions();
 };
 
-const RestoreFromExcelButton = () => {
+const RestoreFromJsonButton = () => {
   const { clear: clearAccounts } = useWriteData("accounts");
   const { clear: clearCategories } = useWriteData("categories");
   const { clear: clearIncomeCategories } = useWriteData("categories");
@@ -190,7 +168,7 @@ const RestoreFromExcelButton = () => {
   const { refetch: refetchTransactions } = useReadData("transactions");
   return (
     <Button component="label">
-      Upload Excel File
+      Upload JSON File
       <input
         type="file"
         hidden
@@ -210,4 +188,4 @@ const RestoreFromExcelButton = () => {
   );
 };
 
-export default RestoreFromExcelButton;
+export default RestoreFromJsonButton;

@@ -8,9 +8,10 @@ import {
   BottomMenu,
   Categories,
   Commands,
+  ExcelToJsonButton,
   IncomeCategories,
   PageContainer,
-  RestoreFromExcelButton,
+  RestoreFromJsonButton,
   ScashThemeProvider,
   Transactions,
 } from "./app";
@@ -32,7 +33,8 @@ const App = () => {
                     <Accounts />
                     <Categories />
                     <IncomeCategories />
-                    <RestoreFromExcelButton />
+                    <RestoreFromJsonButton />
+                    <ExcelToJsonButton />
                   </Route>
                   <Route path={makePath(transactionsPathName)}>
                     <Transactions />
