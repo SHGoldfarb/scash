@@ -7,3 +7,4 @@ export { default as IncomeCategories } from "./IncomeCategories";
 export { default as PageContainer } from "./PageContainer";
 export { default as ScashThemeProvider } from "./ScashThemeProvider";
 export { default as Transactions } from "./Transactions";
+export { default as RestoreFromExcelButton } from "./RestoreFromExcelButton";

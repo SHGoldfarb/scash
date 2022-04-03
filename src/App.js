@@ -10,6 +10,7 @@ import {
   Commands,
   IncomeCategories,
   PageContainer,
+  RestoreFromExcelButton,
   ScashThemeProvider,
   Transactions,
 } from "./app";
@@ -31,6 +32,7 @@ const App = () => {
                     <Accounts />
                     <Categories />
                     <IncomeCategories />
+                    <RestoreFromExcelButton />
                   </Route>
                   <Route path={makePath(transactionsPathName)}>
                     <Transactions />
