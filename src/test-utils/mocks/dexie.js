@@ -1,5 +1,4 @@
-import { asyncReduce, upsertById } from "utils";
-import { newId } from "./utils";
+import { asyncReduce, newId, upsertById } from "utils";
 
 let mockDatabase;
 beforeEach(() => {

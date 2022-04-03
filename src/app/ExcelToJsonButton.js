@@ -2,12 +2,15 @@ import React from "react";
 import { Button } from "@mui/material";
 import { read, utils } from "xlsx";
 import { DateTime } from "luxon";
-import { download } from "utils";
+import { download, newId } from "utils";
 
 // TODO: refactor this huge file
 
 const handleData = (data) => {
   const transactions = [];
+  const accounts = {};
+  const incomeCategories = {};
+  const categories = {};
 
   data.forEach((row) => {
     const type =
@@ -19,7 +22,45 @@ const handleData = (data) => {
       throw new Error(`Unkonwn type: ${row["Income/Expense"]}`);
     }
 
+    const isTransfer = type === "transfer";
+    const isExpense = type === "expense";
+    const isIncome = type === "income";
+
+    let categoryName = row.Category;
+    if (row.Subcategory) {
+      categoryName = `${row.Category}: ${row.Subcategory}`;
+    }
+
+    accounts[row.Account] = accounts[row.Account] || {
+      name: row.Account,
+      id: newId(),
+    };
+    if (isTransfer) {
+      accounts[row.Category] = accounts[row.Category] || {
+        name: row.Category,
+        id: newId(),
+      };
+    } else if (isExpense) {
+      categories[categoryName] = categories[categoryName] || {
+        name: categoryName,
+        id: newId(),
+      };
+    } else if (isIncome) {
+      incomeCategories[categoryName] = incomeCategories[categoryName] || {
+        name: categoryName,
+        id: newId(),
+      };
+    }
+
     // Create JSON item
+
+    const account = isTransfer ? null : accounts[row.Account];
+    const originAccount = isTransfer ? accounts[row.Account] : null;
+    const destinationAccount = isTransfer ? accounts[row.Category] : null;
+    const category =
+      (isExpense && categories[categoryName]) ||
+      (isIncome && incomeCategories[categoryName]) ||
+      null;
 
     const dateTime = DateTime.fromSeconds(
       // In hours
@@ -35,26 +76,29 @@ const handleData = (data) => {
         60
     );
 
-    let categoryName = row.Category;
-    if (row.Subcategory) {
-      categoryName = `${row.Category}: ${row.Subcategory}`;
-    }
-
     const transaction = {
       amount: row.Amount,
       comment: row.Note || "",
       date: dateTime.toSeconds(),
       type,
-      account: (type !== "transfer" && row.Account) || null,
-      originAccount: (type === "transfer" && row.Account) || null,
-      destinationAccount: (type === "transfer" && row.Category) || null,
-      category: (type !== "transfer" && categoryName) || null,
+      accountId: account?.id,
+      originAccountId: originAccount?.id,
+      destinationAccountId: destinationAccount?.id,
+      categoryId: category?.id,
     };
 
     transactions.push(transaction);
   });
 
-  download("scash_data", JSON.stringify({ transactions }));
+  download(
+    "scash_data",
+    JSON.stringify({
+      transactions,
+      accounts: Object.values(accounts),
+      categories: Object.values(categories),
+      incomeCategories: Object.values(incomeCategories),
+    })
+  );
 };
 
 const readFile = (file) =>
