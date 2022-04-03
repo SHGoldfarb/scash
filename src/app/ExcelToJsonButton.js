@@ -2,34 +2,22 @@ import React from "react";
 import { Button } from "@mui/material";
 import { read, utils } from "xlsx";
 import { DateTime } from "luxon";
+import { download } from "utils";
 
 // TODO: refactor this huge file
 
-// https://stackoverflow.com/a/18197341
-const download = (filename, text) => {
-  const element = document.createElement("a");
-  element.setAttribute(
-    "href",
-    `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
-  );
-  element.setAttribute("download", filename);
-
-  element.style.display = "none";
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-};
-
-const makeRowsHandler = () => {
+const handleData = (data) => {
   const transactions = [];
 
-  const handleRow = (row) => {
+  data.forEach((row) => {
     const type =
       (row["Income/Expense"] === "Transfer-Out" && "transfer") ||
       (row["Income/Expense"] === "Expense" && "expense") ||
       (row["Income/Expense"] === "Income" && "income");
+
+    if (!type) {
+      throw new Error(`Unkonwn type: ${row["Income/Expense"]}`);
+    }
 
     // Create JSON item
 
@@ -64,13 +52,9 @@ const makeRowsHandler = () => {
     };
 
     transactions.push(transaction);
-  };
+  });
 
-  const commitTransactions = () => {
-    download("scash_data", JSON.stringify(transactions));
-  };
-
-  return [handleRow, commitTransactions];
+  download("scash_data", JSON.stringify({ transactions }));
 };
 
 const readFile = (file) =>
@@ -96,11 +80,7 @@ const handleFileSelect = async (event) => {
 
   const jsonData = utils.sheet_to_json(sheet1);
 
-  const [handleRow, commitTransactions] = makeRowsHandler();
-
-  jsonData.forEach((row) => handleRow(row));
-
-  commitTransactions();
+  handleData(jsonData);
 };
 
 const ExcelToJsonButton = () => {

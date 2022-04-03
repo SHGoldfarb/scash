@@ -151,7 +151,7 @@ const handleFileSelect = async (event) => {
 
   const [handleRow, commitTransactions] = await makeRowsHandler();
 
-  await asyncReduce(data.map((row) => () => handleRow(row)));
+  await asyncReduce(data.transactions.map((row) => () => handleRow(row)));
 
   await commitTransactions();
 };
