@@ -9,6 +9,7 @@ import {
   Categories,
   Commands,
   ExcelToJsonButton,
+  ExportToJsonButton,
   IncomeCategories,
   PageContainer,
   RestoreFromJsonButton,
@@ -35,6 +36,7 @@ const App = () => {
                     <IncomeCategories />
                     <RestoreFromJsonButton />
                     <ExcelToJsonButton />
+                    <ExportToJsonButton />
                   </Route>
                   <Route path={makePath(transactionsPathName)}>
                     <Transactions />

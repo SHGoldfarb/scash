@@ -4,6 +4,7 @@ export { default as BottomMenu } from "./BottomMenu";
 export { default as Categories } from "./Categories";
 export { default as Commands } from "./Commands";
 export { default as ExcelToJsonButton } from "./ExcelToJsonButton";
+export { default as ExportToJsonButton } from "./ExportToJsonButton";
 export { default as IncomeCategories } from "./IncomeCategories";
 export { default as PageContainer } from "./PageContainer";
 export { default as RestoreFromJsonButton } from "./RestoreFromJsonButton";
