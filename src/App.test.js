@@ -9,7 +9,10 @@ import {
   currencyFormat,
   getTransactionsStats,
   exportToJSON,
+  luxonSecondsToExcelDays,
+  excelToJson,
 } from "utils";
+import { utils } from "xlsx";
 import App from "./App";
 import { mockTable } from "./test-utils/mocks";
 import {
@@ -846,8 +849,80 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
-    describe("user presses excel to json button and selects correct excel", () => {
-      it.todo("correctly transform excel to json");
+    describe("user converts excel to json and imports json", () => {
+      const accountName = "acc1";
+      const categoryName = "cat1";
+      const transactionComment = "comm1";
+      const transactionDate = DateTime.local();
+      const transactionAmount = 5123;
+      userAction(async () => {
+        // Due to difficulty intercepting downloaded JSON, we will only test the convert function and not the button
+        // TODO: test this properly using the UI.
+
+        // Data
+        const data = [
+          {
+            Date: luxonSecondsToExcelDays(transactionDate.toSeconds()),
+            Account: accountName,
+            Category: categoryName,
+            Note: transactionComment,
+            "Income/Expense": "Expense",
+            Amount: transactionAmount,
+          },
+        ];
+
+        const workbook = utils.book_new();
+        const dataSheet = utils.json_to_sheet(data);
+        utils.book_append_sheet(workbook, dataSheet, "sheet1");
+
+        // Convert to JSON and save
+        const jsonData = excelToJson(workbook);
+        const jsonFilename = "tmp/jsonData1.txt";
+        await writeFileAsync(jsonFilename, jsonData);
+
+        // Import
+        const input = (
+          await wrapper.findByText("Import from JSON")
+        ).querySelector("input");
+
+        const buffer = readFileSync(jsonFilename);
+        const blob = new Blob([buffer]);
+
+        fireEvent.change(input, { target: { files: [blob] } });
+      });
+
+      it("imports info correctly", async () => {
+        await runUserActions();
+
+        await wrapper.findByText(accountName);
+        await wrapper.findByText(categoryName);
+
+        fireEvent.click(wrapper.getByText("Transactions"));
+
+        // Transaction date
+        await waitFor(() => {
+          expect(
+            wrapper.getAllByText(`${transactionDate.day}`.padStart(2, "0"))
+              .length
+          ).toBeTruthy();
+        });
+
+        // Transaction amount
+        await waitFor(() => {
+          expect(
+            wrapper.getAllByText(currencyFormat(transactionAmount)).length
+          ).toBeTruthy();
+        });
+
+        // Transaction comment
+        await wrapper.findByText(transactionComment);
+
+        // Account and category
+        await wrapper.findByText(accountName, {
+          exact: false,
+        });
+        await wrapper.findByText(categoryName);
+      });
     });
 
     describe("user presses export to json button, enters clear command and then imports recently exported json", () => {
@@ -855,7 +930,7 @@ describe("App", () => {
         // Due to difficulty intercepting downloaded JSON, we will only test the export function and not the button
         // TODO: test this properly using the UI.
 
-        const jsonFilename = "tmp/jsonData.txt";
+        const jsonFilename = "tmp/jsonData2.txt";
 
         // Export
         const jsonData = await exportToJSON();

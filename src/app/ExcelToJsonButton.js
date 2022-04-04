@@ -1,105 +1,7 @@
-// TODO: refactor this huge file
-
 import React from "react";
 import { Button } from "@mui/material";
-import { read, utils } from "xlsx";
-import { DateTime } from "luxon";
-import { download, newId } from "utils";
-
-const handleData = (data) => {
-  const transactions = [];
-  const accounts = {};
-  const incomeCategories = {};
-  const categories = {};
-
-  data.forEach((row) => {
-    const type =
-      (row["Income/Expense"] === "Transfer-Out" && "transfer") ||
-      (row["Income/Expense"] === "Expense" && "expense") ||
-      (row["Income/Expense"] === "Income" && "income");
-
-    if (!type) {
-      throw new Error(`Unkonwn type: ${row["Income/Expense"]}`);
-    }
-
-    const isTransfer = type === "transfer";
-    const isExpense = type === "expense";
-    const isIncome = type === "income";
-
-    let categoryName = row.Category;
-    if (row.Subcategory) {
-      categoryName = `${row.Category}: ${row.Subcategory}`;
-    }
-
-    accounts[row.Account] = accounts[row.Account] || {
-      name: row.Account,
-      id: newId(),
-    };
-    if (isTransfer) {
-      accounts[row.Category] = accounts[row.Category] || {
-        name: row.Category,
-        id: newId(),
-      };
-    } else if (isExpense) {
-      categories[categoryName] = categories[categoryName] || {
-        name: categoryName,
-        id: newId(),
-      };
-    } else if (isIncome) {
-      incomeCategories[categoryName] = incomeCategories[categoryName] || {
-        name: categoryName,
-        id: newId(),
-      };
-    }
-
-    // Create JSON item
-
-    const account = isTransfer ? null : accounts[row.Account];
-    const originAccount = isTransfer ? accounts[row.Account] : null;
-    const destinationAccount = isTransfer ? accounts[row.Category] : null;
-    const category =
-      (isExpense && categories[categoryName]) ||
-      (isIncome && incomeCategories[categoryName]) ||
-      null;
-
-    const dateTime = DateTime.fromSeconds(
-      // In hours
-      (row.Date * 24 -
-        // Minus 70 years
-        70 * 365 * 24 -
-        // Minus 18 days
-        18 * 24 -
-        // Minus 21 hours
-        21) *
-        // In seconds
-        60 *
-        60
-    );
-
-    const transaction = {
-      amount: row.Amount,
-      comment: row.Note || "",
-      date: dateTime.toSeconds(),
-      type,
-      accountId: account?.id,
-      originAccountId: originAccount?.id,
-      destinationAccountId: destinationAccount?.id,
-      categoryId: category?.id,
-    };
-
-    transactions.push(transaction);
-  });
-
-  download(
-    "scash_converted_data",
-    JSON.stringify({
-      transactions,
-      accounts: Object.values(accounts),
-      categories: Object.values(categories),
-      incomeCategories: Object.values(incomeCategories),
-    })
-  );
-};
+import { read } from "xlsx";
+import { download, excelToJson } from "utils";
 
 const readAsArrayBuffer = (file) =>
   new Promise((resolve) => {
@@ -118,13 +20,11 @@ const handleFileSelect = async (event) => {
     return;
   }
 
-  const data = read(await readAsArrayBuffer(file));
+  const workbook = read(await readAsArrayBuffer(file));
 
-  const sheet1 = data.Sheets[data.SheetNames[0]];
+  const jsonData = excelToJson(workbook);
 
-  const jsonData = utils.sheet_to_json(sheet1);
-
-  handleData(jsonData);
+  download("scash_converted_data", jsonData);
 };
 
 const ExcelToJsonButton = () => {
