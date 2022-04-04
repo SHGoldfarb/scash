@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync, writeFile } from "fs";
+
 export const isString = (variable) => {
   return !!(typeof variable === "string" || variable instanceof String);
 };
@@ -10,6 +12,19 @@ export const isFunction = (functionToCheck) => {
     functionToCheck && {}.toString.call(functionToCheck) === "[object Function]"
   );
 };
+
+export const writeFileAsync = (filename, content) =>
+  new Promise((resolve) => {
+    const dir = filename.split("/").slice(0, -1).join("/");
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+
+    writeFile(filename, content, (err) => {
+      if (err) throw err;
+      resolve();
+    });
+  });
 
 // Errors
 
