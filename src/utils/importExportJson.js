@@ -1,7 +1,7 @@
 import { asyncReduce } from "./utils";
-import { getAll, upsert, bulkAdd } from "../database";
+import { clear, getAll, upsert, bulkAdd } from "../database";
 
-export const databaseDataToJson = async () =>
+export const exportToJSON = async () =>
   JSON.stringify({
     transactions: await getAll("transactions"),
     accounts: await getAll("accounts"),
@@ -9,7 +9,12 @@ export const databaseDataToJson = async () =>
     incomeCategories: await getAll("incomeCategories"),
   });
 
-export const importJSON = async (jsonData) => {
+export const importFromJSON = async (jsonData) => {
+  await clear("accounts");
+  await clear("categories");
+  await clear("incomeCategories");
+  await clear("transactions");
+
   const { accounts, categories, incomeCategories, transactions } = JSON.parse(
     jsonData
   );

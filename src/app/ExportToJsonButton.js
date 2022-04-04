@@ -1,12 +1,12 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { databaseDataToJson, download } from "utils";
+import { exportToJSON, download } from "utils";
 import { DateTime } from "luxon";
 
 const exportData = async () => {
   download(
     `scash_data_${DateTime.local().toFormat("yyyy-MM-dd_HH_mm")}`,
-    await databaseDataToJson()
+    await exportToJSON()
   );
 };
 
