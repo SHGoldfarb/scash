@@ -1008,7 +1008,50 @@ describe("App", () => {
     });
 
     describe("user enters clear command", () => {
-      it.todo("clears everything");
+      userAction(async () => {
+        const commandInput = await wrapper.findByLabelText("Command line");
+        fireEvent.change(commandInput, { target: { value: "clear" } });
+        fireEvent.focus(commandInput);
+        fireEvent.keyPress(commandInput, {
+          key: "Enter",
+          code: "Enter",
+          charCode: 13,
+        });
+
+        // Avoid act() warning
+        await waitFor(() => {});
+      });
+
+      it("clears everything", async () => {
+        const transaction = transactionMock({
+          date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
+        });
+        const category = categoryMock();
+        const incomeCategory = categoryMock();
+        const account = accountMock();
+
+        await mockTable("categories").set([category]);
+        await mockTable("incomeCategories").set([incomeCategory]);
+        await mockTable("accounts").set([account]);
+        await mockTable("transactions").set([transaction]);
+
+        await runUserActions();
+
+        await waitFor(() => {
+          expect(wrapper.queryByText(category.name)).toBeNull();
+        });
+
+        expect(wrapper.queryByText(incomeCategory.name)).toBeNull();
+
+        expect(wrapper.queryByText(account.name)).toBeNull();
+
+        fireEvent.click(wrapper.getByText("Transactions"));
+
+        // Wait for transactions page to load
+        await wrapper.findByText("New Transaction");
+
+        expect(wrapper.queryByText(transaction.comment)).toBeNull();
+      });
     });
 
     describe("user enters mock seed command", () => {
