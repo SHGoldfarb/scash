@@ -1,12 +1,14 @@
 import React from "react";
 import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { DateTime } from "luxon";
+import { readFileSync } from "fs";
 import {
   repeat,
   asyncReduce,
   transactionsTotals,
   currencyFormat,
   getTransactionsStats,
+  exportToJSON,
 } from "utils";
 import App from "./App";
 import { mockTable } from "./test-utils/mocks";
@@ -16,6 +18,7 @@ import {
   accountMock,
 } from "./test-utils/mocks/entities";
 import { makeEventsPoint } from "./test-utils";
+import { writeFileAsync } from "./lib";
 
 jest.mock("dexie", () => {
   return function Dexie() {
@@ -847,13 +850,16 @@ describe("App", () => {
       it.todo("correctly transform excel to json");
     });
 
-    // WIP
     describe("user presses export to json button, enters clear command and then imports recently exported json", () => {
       userAction(async () => {
-        // Export
-        fireEvent.click(await wrapper.findByText("Export to JSON"));
+        // Due to difficulty intercepting downloaded JSON, we will only test the export function and not the button
+        // TODO: test this properly using the UI.
 
-        // Capture the JSON somehow
+        const jsonFilename = "tmp/jsonData.txt";
+
+        // Export
+        const jsonData = await exportToJSON();
+        await writeFileAsync(jsonFilename, jsonData);
 
         // Clear
         const commandInput = await wrapper.findByLabelText("Command line");
@@ -865,17 +871,120 @@ describe("App", () => {
           charCode: 13,
         });
 
+        // Wait for clear command to finish
+        expect(wrapper.getAllByTestId("DeleteIcon").length).toBeGreaterThan(0);
+        await waitFor(() => {
+          expect(wrapper.queryByTestId("DeleteIcon")).toBeNull();
+        });
+
         // Import
+        const input = (
+          await wrapper.findByText("Import from JSON")
+        ).querySelector("input");
+
+        const buffer = readFileSync(jsonFilename);
+        const blob = new Blob([buffer]);
+
+        fireEvent.change(input, { target: { files: [blob] } });
       });
 
-      it.skip("correctly exports info", async () => {
+      it("correctly exports info", async () => {
+        const incomeTransaction = transactionMock({
+          category: categoryMock(),
+          account: accountMock(),
+          type: "income",
+          date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
+        });
+        incomeTransaction.categoryId = incomeTransaction.category.id;
+        incomeTransaction.accountId = incomeTransaction.account.id;
+
+        const expenseTransaction = transactionMock({
+          category: categoryMock({ deactivatedAt: DateTime.local() }), // Test closed category
+          account: accountMock({ deactivatedAt: DateTime.local() }), // Test closed account
+          type: "expense",
+          date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
+        });
+        expenseTransaction.categoryId = expenseTransaction.category.id;
+        expenseTransaction.accountId = expenseTransaction.account.id;
+
+        const transferTransaction = transactionMock({
+          originAccount: accountMock(),
+          destinationAccount: accountMock(),
+          type: "transfer",
+          date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
+        });
+
+        transferTransaction.originAccountId =
+          transferTransaction.originAccount.id;
+        transferTransaction.destinationAccountId =
+          transferTransaction.destinationAccount.id;
+
+        await mockTable("incomeCategories").set([incomeTransaction.category]);
+        await mockTable("categories").set([expenseTransaction.category]);
+        await mockTable("accounts").set([
+          incomeTransaction.account,
+          expenseTransaction.account,
+          transferTransaction.originAccount,
+          transferTransaction.destinationAccount,
+        ]);
+        await mockTable("transactions").set([
+          incomeTransaction,
+          expenseTransaction,
+          transferTransaction,
+        ]);
+
         await runUserActions();
-        // Transaction date, amount, comment
-        // Account and category for expense
-        // Category for income
-        // Accounts for transfer
+
+        // Wait for refetches to finish
+        await wrapper.findByText(incomeTransaction.category.name);
+
         // Closed account
+        expect(wrapper.queryByText(expenseTransaction.account.name)).toBeNull();
+
         // Closed category
+        expect(
+          wrapper.queryByText(expenseTransaction.category.name)
+        ).toBeNull();
+
+        fireEvent.click(wrapper.getByText("Transactions"));
+
+        // Transaction date
+        await waitFor(() => {
+          expect(
+            wrapper.getAllByText(
+              `${DateTime.fromSeconds(incomeTransaction.date).day}`.padStart(
+                2,
+                "0"
+              )
+            ).length
+          ).toBeTruthy();
+        });
+
+        // Transaction amount
+        await waitFor(() => {
+          expect(
+            wrapper.getAllByText(currencyFormat(incomeTransaction.amount))
+              .length
+          ).toBeTruthy();
+        });
+
+        // Transaction comment
+        await wrapper.findByText(incomeTransaction.comment);
+
+        // Account and category for income
+        await wrapper.findByText(incomeTransaction.account.name, {
+          exact: false,
+        });
+        await wrapper.findByText(incomeTransaction.category.name);
+
+        // Category for expense
+        await wrapper.findByText(expenseTransaction.category.name);
+
+        // Accounts for transfer
+        await wrapper.findByText(transferTransaction.originAccount.name, {
+          exact: false,
+        });
+        await wrapper.findByText(transferTransaction.destinationAccount.name);
       });
     });
 
