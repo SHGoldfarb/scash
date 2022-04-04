@@ -3,7 +3,7 @@ import {
   oneOfOrNull,
   throwError,
   throwInvalidEntityError,
-} from "utils";
+} from "../lib";
 
 export const validTransactionTypes = ["income", "expense", "transfer"];
 

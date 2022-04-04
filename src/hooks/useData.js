@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useCache } from "../contexts";
 import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
-import { isFunction } from "../utils/utils";
+import { isFunction } from "../lib";
 
 export const useReadData = (tableName, options = {}) => {
   const key = JSON.stringify({ tableName, options });

@@ -1,11 +1,7 @@
+import { isFunction } from "../lib";
+
 export const isEnterKey = (ev) =>
   ev.keyCode === 13 || ev.code === "Enter" || ev.key === "Enter";
-
-export const isFunction = (functionToCheck) => {
-  return (
-    functionToCheck && {}.toString.call(functionToCheck) === "[object Function]"
-  );
-};
 
 export const upsertBy = (attrName, array, item) => {
   let inserted;
@@ -43,10 +39,6 @@ const formatter = new Intl.NumberFormat("en-US", {
 
 export const currencyFormat = (amount) => {
   return formatter.format(amount).slice(0, -3);
-};
-
-export const isString = (variable) => {
-  return !!(typeof variable === "string" || variable instanceof String);
 };
 
 export const by = (getter) => {
@@ -117,9 +109,6 @@ export const getTransactionsStats = (transactions) =>
     },
     { accountAmounts: {} }
   );
-
-export const oneOfOrNull = (options) => (choice) =>
-  options.includes(choice) ? choice : null;
 
 // https://stackoverflow.com/a/18197341
 export const download = (filename, text) => {

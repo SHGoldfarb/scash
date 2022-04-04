@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { node } from "prop-types";
-import { isFunction } from "../utils/utils";
+import { isFunction } from "../lib";
 
 const DataCacheValueContext = createContext({});
 const DataCacheSetterContext = createContext(() => {});

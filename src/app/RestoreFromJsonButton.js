@@ -1,75 +1,9 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { asyncReduce } from "utils";
 import { useReadData, useWriteData } from "hooks";
-import { upsert, bulkAdd } from "../database";
+import { importJSON } from "utils";
 
-// TODO: refactor this huge file
-
-const makeImportHandlers = () => {
-  const accountsHash = {};
-  const categoriesHash = {};
-  const incomeCategoriesHash = {};
-
-  const handleAccounts = (accounts) =>
-    asyncReduce(
-      accounts.map((account) => async () => {
-        accountsHash[account.id] = await upsert("accounts", {
-          ...account,
-          id: undefined,
-        });
-      })
-    );
-
-  const handleCategories = (categories) =>
-    asyncReduce(
-      categories.map((category) => async () => {
-        categoriesHash[category.id] = await upsert("categories", {
-          ...category,
-          id: undefined,
-        });
-      })
-    );
-
-  const handleIncomeCategories = (incomeCategories) =>
-    asyncReduce(
-      incomeCategories.map((incomeCategory) => async () => {
-        incomeCategoriesHash[incomeCategory.id] = await upsert(
-          "incomeCategories",
-          {
-            ...incomeCategory,
-            id: undefined,
-          }
-        );
-      })
-    );
-
-  const handleTransactions = (transactions) => {
-    return bulkAdd(
-      "transactions",
-      transactions.map((transaction) => ({
-        ...transaction,
-        id: undefined,
-        accountId: accountsHash[transaction.accountId],
-        originAccountId: accountsHash[transaction.originAccountId],
-        destinationAccountId: accountsHash[transaction.destinationAccountId],
-        categoryId:
-          transaction.type === "income"
-            ? incomeCategoriesHash[transaction.categoryId]
-            : categoriesHash[transaction.categoryId],
-      }))
-    );
-  };
-
-  return {
-    handleAccounts,
-    handleCategories,
-    handleIncomeCategories,
-    handleTransactions,
-  };
-};
-
-const readFile = (file) =>
+const readAsText = (file) =>
   new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -86,34 +20,24 @@ const handleFileSelect = async (event) => {
     return;
   }
 
-  const data = JSON.parse(await readFile(file));
+  const data = await readAsText(file);
 
-  const {
-    handleAccounts,
-    handleCategories,
-    handleIncomeCategories,
-    handleTransactions,
-  } = makeImportHandlers();
-
-  await handleAccounts(data.accounts);
-  await handleCategories(data.categories);
-  await handleIncomeCategories(data.incomeCategories);
-  await handleTransactions(data.transactions);
+  await importJSON(data);
 };
 
 const RestoreFromJsonButton = () => {
   const { clear: clearAccounts } = useWriteData("accounts");
   const { clear: clearCategories } = useWriteData("categories");
-  const { clear: clearIncomeCategories } = useWriteData("categories");
+  const { clear: clearIncomeCategories } = useWriteData("incomeCategories");
   const { clear: clearTransactions } = useWriteData("transactions");
 
   const { refetch: refetchAccounts } = useReadData("accounts");
   const { refetch: refetchCategories } = useReadData("categories");
-  const { refetch: refetchIncomeCategories } = useReadData("categories");
+  const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
   const { refetch: refetchTransactions } = useReadData("transactions");
   return (
     <Button component="label">
-      Upload JSON File
+      Import from JSON
       <input
         type="file"
         hidden

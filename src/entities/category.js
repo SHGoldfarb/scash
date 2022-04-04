@@ -1,4 +1,4 @@
-import { throwError } from "utils";
+import { throwError } from "../lib";
 
 export const validCategory = (data) => ({
   name:

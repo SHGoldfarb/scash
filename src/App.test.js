@@ -843,6 +843,42 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    describe("user presses excel to json button and selects correct excel", () => {
+      it.todo("correctly transform excel to json");
+    });
+
+    // WIP
+    describe("user presses export to json button, enters clear command and then imports recently exported json", () => {
+      userAction(async () => {
+        // Export
+        fireEvent.click(await wrapper.findByText("Export to JSON"));
+
+        // Capture the JSON somehow
+
+        // Clear
+        const commandInput = await wrapper.findByLabelText("Command line");
+        fireEvent.change(commandInput, { target: { value: "clear" } });
+        fireEvent.focus(commandInput);
+        fireEvent.keyPress(commandInput, {
+          key: "Enter",
+          code: "Enter",
+          charCode: 13,
+        });
+
+        // Import
+      });
+
+      it.skip("correctly exports info", async () => {
+        await runUserActions();
+        // Transaction date, amount, comment
+        // Account and category for expense
+        // Category for income
+        // Accounts for transfer
+        // Closed account
+        // Closed category
+      });
+    });
+
     describe("there is an account with a noncero amount", () => {
       beforeEach(async () => {
         mockTable("accounts").set([accountMock()]);
@@ -860,6 +896,10 @@ describe("App", () => {
           wrapper.baseElement.querySelector("[aria-label='delete']").disabled
         ).toBeTruthy();
       });
+    });
+
+    describe("user enters clear command", () => {
+      it.todo("clears everything");
     });
 
     describe("user enters mock seed command", () => {

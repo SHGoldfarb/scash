@@ -1,10 +1,10 @@
+// TODO: refactor this huge file
+
 import React from "react";
 import { Button } from "@mui/material";
 import { read, utils } from "xlsx";
 import { DateTime } from "luxon";
 import { download, newId } from "utils";
-
-// TODO: refactor this huge file
 
 const handleData = (data) => {
   const transactions = [];
@@ -91,7 +91,7 @@ const handleData = (data) => {
   });
 
   download(
-    "scash_data",
+    "scash_converted_data",
     JSON.stringify({
       transactions,
       accounts: Object.values(accounts),
@@ -101,7 +101,7 @@ const handleData = (data) => {
   );
 };
 
-const readFile = (file) =>
+const readAsArrayBuffer = (file) =>
   new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -118,7 +118,7 @@ const handleFileSelect = async (event) => {
     return;
   }
 
-  const data = read(await readFile(file));
+  const data = read(await readAsArrayBuffer(file));
 
   const sheet1 = data.Sheets[data.SheetNames[0]];
 

@@ -1,18 +1,12 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { download } from "utils";
+import { databaseDataToJson, download } from "utils";
 import { DateTime } from "luxon";
-import { getAll } from "../database";
 
 const exportData = async () => {
   download(
     `scash_data_${DateTime.local().toFormat("yyyy-MM-dd_HH_mm")}`,
-    JSON.stringify({
-      transactions: await getAll("transactions"),
-      accounts: await getAll("accounts"),
-      categories: await getAll("categories"),
-      incomeCategories: await getAll("incomeCategories"),
-    })
+    await databaseDataToJson()
   );
 };
 

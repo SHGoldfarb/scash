@@ -1,4 +1,4 @@
-import { isString } from "./utils";
+import { isString } from "../lib";
 
 export const transactionsPathName = "transactions";
 export const settingsPathName = "settings";
