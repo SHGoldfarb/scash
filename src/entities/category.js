@@ -7,5 +7,5 @@ export const validCategory = (data) => ({
       TypeError,
       `Category must have a name: ${JSON.stringify(data, null, 2)}`
     ),
-  deactivatedAt: data.deactivatedAt || null,
+  closedAt: data.closedAt || null,
 });

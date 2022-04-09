@@ -1,5 +1,5 @@
 import { useReadData } from "hooks";
-import { isActive, isInactive } from "utils";
+import { isOpen, isClosed } from "utils";
 
 export const useFormCategories = (transactionType) => {
   const categoriesTable =
@@ -7,7 +7,7 @@ export const useFormCategories = (transactionType) => {
 
   const result = useReadData(categoriesTable);
 
-  const activeCategories = (result.data || []).filter(isActive);
+  const activeCategories = (result.data || []).filter(isOpen);
 
   return { activeCategories, ...result };
 };
@@ -15,8 +15,8 @@ export const useFormCategories = (transactionType) => {
 export const useFormAccounts = () => {
   const result = useReadData("accounts");
 
-  const activeAccounts = (result.data || []).filter(isActive);
-  const inactiveAccounts = (result.data || []).filter(isInactive);
+  const activeAccounts = (result.data || []).filter(isOpen);
+  const inactiveAccounts = (result.data || []).filter(isClosed);
 
   return { activeAccounts, inactiveAccounts, ...result };
 };

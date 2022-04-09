@@ -34,7 +34,7 @@ const Accounts = () => {
   const deleteAccount = async (accountToDelete) => {
     const returnedAccount = await upsert({
       ...accountToDelete,
-      deactivatedAt: DateTime.local().toSeconds(),
+      closedAt: DateTime.local().toSeconds(),
     });
     update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
@@ -44,7 +44,7 @@ const Accounts = () => {
     update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
 
-  const activeAccounts = accounts.filter((account) => !account.deactivatedAt);
+  const activeAccounts = accounts.filter((account) => !account.closedAt);
 
   const { accountAmounts } = useMemo(() => getTransactionsStats(transactions), [
     transactions,

@@ -14,7 +14,7 @@ const IncomeCategories = () => {
   const deleteCategory = async (categoryToDelete) => {
     const returnedCategory = await upsert({
       ...categoryToDelete,
-      deactivatedAt: DateTime.local().toSeconds(),
+      closedAt: DateTime.local().toSeconds(),
     });
     update((currentCategories) =>
       upsertById(currentCategories, returnedCategory)
@@ -29,7 +29,7 @@ const IncomeCategories = () => {
   };
 
   const activeCategories = incomeCategories.filter(
-    (category) => !category.deactivatedAt
+    (category) => !category.closedAt
   );
 
   return (

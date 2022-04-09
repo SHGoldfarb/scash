@@ -76,7 +76,7 @@ const useCommands = () => {
         .map((name, idx) =>
           accountMock({
             name,
-            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+            closedAt: idx % 4 ? DateTime.local().toSeconds() : null,
           })
         )
         .map((item) => noId(item))
@@ -90,7 +90,7 @@ const useCommands = () => {
         .map((name, idx) =>
           categoryMock({
             name,
-            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+            closedAt: idx % 4 ? DateTime.local().toSeconds() : null,
           })
         )
         .map((item) => noId(item))
@@ -104,7 +104,7 @@ const useCommands = () => {
         .map((name, idx) =>
           categoryMock({
             name,
-            deactivatedAt: idx % 4 ? DateTime.local().toSeconds() : null,
+            closedAt: idx % 4 ? DateTime.local().toSeconds() : null,
           })
         )
         .map((item) => noId(item))

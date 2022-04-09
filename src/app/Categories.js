@@ -12,7 +12,7 @@ const Categories = () => {
   const deleteCategory = async (categoryToDelete) => {
     const returnedCategory = await upsert({
       ...categoryToDelete,
-      deactivatedAt: DateTime.local().toSeconds(),
+      closedAt: DateTime.local().toSeconds(),
     });
     update((currentCategories) =>
       upsertById(currentCategories, returnedCategory)
@@ -26,9 +26,7 @@ const Categories = () => {
     );
   };
 
-  const activeCategories = categories.filter(
-    (category) => !category.deactivatedAt
-  );
+  const activeCategories = categories.filter((category) => !category.closedAt);
 
   return (
     <>

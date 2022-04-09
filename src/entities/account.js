@@ -7,5 +7,5 @@ export const validAccount = (data) => ({
       TypeError,
       `Account must have a name: ${JSON.stringify(data, null, 2)}`
     ),
-  deactivatedAt: data.deactivatedAt || null,
+  closedAt: data.closedAt || null,
 });

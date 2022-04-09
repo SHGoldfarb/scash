@@ -49,8 +49,8 @@ export const by = (getter) => {
   return (a, b) => (a[getter] < b[getter] ? -1 : 1);
 };
 
-export const isActive = (entity) => !entity.deactivatedAt;
-export const isInactive = (entity) => !isActive(entity);
+export const isOpen = (entity) => !entity.closedAt;
+export const isClosed = (entity) => !isOpen(entity);
 
 export const sample = (items) =>
   items[Math.floor(Math.random() * items.length)];
