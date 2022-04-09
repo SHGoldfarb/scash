@@ -7,16 +7,16 @@ export const useFormCategories = (transactionType) => {
 
   const result = useReadData(categoriesTable);
 
-  const activeCategories = (result.data || []).filter(isOpen);
+  const openCategories = (result.data || []).filter(isOpen);
 
-  return { activeCategories, ...result };
+  return { openCategories, ...result };
 };
 
 export const useFormAccounts = () => {
   const result = useReadData("accounts");
 
-  const activeAccounts = (result.data || []).filter(isOpen);
-  const inactiveAccounts = (result.data || []).filter(isClosed);
+  const openAccounts = (result.data || []).filter(isOpen);
+  const closedAccounts = (result.data || []).filter(isClosed);
 
-  return { activeAccounts, inactiveAccounts, ...result };
+  return { openAccounts, closedAccounts, ...result };
 };

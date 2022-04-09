@@ -28,7 +28,7 @@ const IncomeCategories = () => {
     );
   };
 
-  const activeCategories = incomeCategories.filter(
+  const openCategories = incomeCategories.filter(
     (category) => !category.closedAt
   );
 
@@ -42,7 +42,7 @@ const IncomeCategories = () => {
         <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={activeCategories.map((category) => ({
+          source={openCategories.map((category) => ({
             ...category,
             label: category.name,
           }))}

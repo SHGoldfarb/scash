@@ -21,16 +21,16 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
-  const { activeCategories } = useFormCategories(transactionType);
-  const { activeAccounts } = useFormAccounts();
+  const { openCategories } = useFormCategories(transactionType);
+  const { openAccounts } = useFormAccounts();
 
-  const defaultAccountId = activeAccounts[0]?.id;
+  const defaultAccountId = openAccounts[0]?.id;
 
   return (
     <Button
       disabled={
-        !activeAccounts.length ||
-        (transactionType !== "transfer" && !activeCategories.length)
+        !openAccounts.length ||
+        (transactionType !== "transfer" && !openCategories.length)
       }
       onClick={handleSubmit(
         async ({

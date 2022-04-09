@@ -12,14 +12,14 @@ const asOptionElement = (item) => (
 );
 
 const AccountsFields = ({ isTransfer, register }) => {
-  const { activeAccounts, inactiveAccounts, loading } = useFormAccounts();
+  const { openAccounts, closedAccounts, loading } = useFormAccounts();
 
   const {
     transaction = {},
     loading: transactionLoading,
   } = useCurrentTransaction();
 
-  const defaultAccountId = activeAccounts[0]?.id;
+  const defaultAccountId = openAccounts[0]?.id;
 
   const originAccount = register("originAccountId");
   const destinationAccount = register("destinationAccountId");
@@ -43,10 +43,10 @@ const AccountsFields = ({ isTransfer, register }) => {
           inputRef={originAccount.ref}
         >
           {[
-            inactiveAccounts.find(
+            closedAccounts.find(
               ({ id }) => transaction[originAccount.name] === id
             ),
-            ...activeAccounts,
+            ...openAccounts,
           ]
             .filter((item) => !!item)
             .map(asOptionElement)}
@@ -65,10 +65,10 @@ const AccountsFields = ({ isTransfer, register }) => {
           inputRef={destinationAccount.ref}
         >
           {[
-            inactiveAccounts.find(
+            closedAccounts.find(
               ({ id }) => transaction[destinationAccount.name] === id
             ),
-            ...activeAccounts,
+            ...openAccounts,
           ]
             .filter((item) => !!item)
             .map(asOptionElement)}
@@ -89,8 +89,8 @@ const AccountsFields = ({ isTransfer, register }) => {
         inputRef={account.ref}
       >
         {[
-          inactiveAccounts.find(({ id }) => transaction[account.name] === id),
-          ...activeAccounts,
+          closedAccounts.find(({ id }) => transaction[account.name] === id),
+          ...openAccounts,
         ]
           .filter((item) => !!item)
           .map(asOptionElement)}

@@ -26,7 +26,7 @@ const Categories = () => {
     );
   };
 
-  const activeCategories = categories.filter((category) => !category.closedAt);
+  const openCategories = categories.filter((category) => !category.closedAt);
 
   return (
     <>
@@ -38,7 +38,7 @@ const Categories = () => {
         <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={activeCategories.map((category) => ({
+          source={openCategories.map((category) => ({
             ...category,
             label: category.name,
           }))}

@@ -44,7 +44,7 @@ const Accounts = () => {
     update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
 
-  const activeAccounts = accounts.filter((account) => !account.closedAt);
+  const openAccounts = accounts.filter((account) => !account.closedAt);
 
   const { accountAmounts } = useMemo(() => getTransactionsStats(transactions), [
     transactions,
@@ -59,7 +59,7 @@ const Accounts = () => {
         <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={activeAccounts.map((account) => {
+          source={openAccounts.map((account) => {
             const amount = accountAmounts[account.id] || 0;
 
             return {
