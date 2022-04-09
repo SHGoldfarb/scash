@@ -73,13 +73,12 @@ const Accounts = () => {
                   {currencyFormat(amount)}
                 </span>
               ),
+              onUpdate: (label) =>
+                upsertAccount({ id: account.id, name: label }),
+              onRemove: () => deleteAccount(account),
             };
           })}
-          onUpdate={(account) =>
-            upsertAccount({ id: account.id, name: account.label })
-          }
           onAdd={(account) => upsertAccount({ name: account.label })}
-          onRemove={deleteAccount}
         />
       )}
     </Root>

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { bool, func, string } from "prop-types";
 import { Done } from "@mui/icons-material";
-import { IconButton, TextField } from "@mui/material";
+import { IconButton, ListItemSecondaryAction, TextField } from "@mui/material";
 
-const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
+const EditingField = ({ value, onConfirm, autoFocus }) => {
   const [inputValue, setInputValue] = useState(null);
 
   const shownValue = inputValue === null ? value : inputValue;
@@ -16,7 +16,7 @@ const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
         onChange={(ev) => setInputValue(ev.target.value)}
         inputProps={{ autoFocus }}
       />
-      {renderConfirmButton(
+      <ListItemSecondaryAction>
         <IconButton
           data-testid="save"
           aria-label="save"
@@ -28,20 +28,18 @@ const EditingField = ({ value, onConfirm, renderConfirmButton, autoFocus }) => {
         >
           <Done color="primary" />
         </IconButton>
-      )}
+      </ListItemSecondaryAction>
     </div>
   );
 };
 
 EditingField.defaultProps = {
-  renderConfirmButton: (children) => children,
   autoFocus: false,
 };
 
 EditingField.propTypes = {
   value: string.isRequired,
   onConfirm: func.isRequired,
-  renderConfirmButton: func,
   autoFocus: bool,
 };
 

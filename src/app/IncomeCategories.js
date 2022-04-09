@@ -45,12 +45,11 @@ const IncomeCategories = () => {
           source={openCategories.map((category) => ({
             ...category,
             label: category.name,
+            onUpdate: (label) =>
+              upsertCategory({ id: category.id, name: label }),
+            onRemove: () => deleteCategory(category),
           }))}
-          onUpdate={(category) =>
-            upsertCategory({ id: category.id, name: category.label })
-          }
           onAdd={(category) => upsertCategory({ name: category.label })}
-          onRemove={deleteCategory}
         />
       )}
     </>

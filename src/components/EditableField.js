@@ -1,7 +1,7 @@
-import React, { Fragment, useState } from "react";
-import { bool, elementType, func, node, string } from "prop-types";
+import React, { useState } from "react";
+import { bool, func, node, string } from "prop-types";
 import { Delete, Edit } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { IconButton, ListItemSecondaryAction } from "@mui/material";
 import EditingField from "./EditingField";
 
 const EditableField = ({
@@ -9,7 +9,7 @@ const EditableField = ({
   onDelete,
   onChange,
   children,
-  buttonsContainer: ButtonsContainer,
+
   autoFocus,
   disableDelete,
 }) => {
@@ -22,15 +22,12 @@ const EditableField = ({
         onChange(newName);
         setIsEditing(false);
       }}
-      renderConfirmButton={(buttonNode) => (
-        <ButtonsContainer>{buttonNode}</ButtonsContainer>
-      )}
       autoFocus={autoFocus}
     />
   ) : (
     <>
       {children || value}
-      <ButtonsContainer>
+      <ListItemSecondaryAction>
         <IconButton
           aria-label="edit"
           onClick={() => setIsEditing(true)}
@@ -47,14 +44,13 @@ const EditableField = ({
         >
           <Delete color={disableDelete ? "disabled" : "error"} />
         </IconButton>
-      </ButtonsContainer>
+      </ListItemSecondaryAction>
     </>
   );
 };
 
 EditableField.defaultProps = {
   children: null,
-  buttonsContainer: Fragment,
   autoFocus: false,
   disableDelete: false,
 };
@@ -64,7 +60,6 @@ EditableField.propTypes = {
   onDelete: func.isRequired,
   onChange: func.isRequired,
   children: node,
-  buttonsContainer: elementType,
   autoFocus: bool,
   disableDelete: bool,
 };
