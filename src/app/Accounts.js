@@ -44,8 +44,6 @@ const Accounts = () => {
     update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
 
-  const openAccounts = accounts.filter((account) => !account.closedAt);
-
   const { accountAmounts } = useMemo(() => getTransactionsStats(transactions), [
     transactions,
   ]);
@@ -59,25 +57,33 @@ const Accounts = () => {
         <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={openAccounts.map((account) => {
-            const amount = accountAmounts[account.id] || 0;
+          source={accounts
+            .map((account) => {
+              const amount = accountAmounts[account.id] || 0;
 
-            return {
-              ...account,
-              label: account.name,
-              disableDelete: amount !== 0,
-              sublabel: (
-                <span
-                  className={amount < 0 ? classes.negative : classes.positive}
-                >
-                  {currencyFormat(amount)}
-                </span>
-              ),
-              onUpdate: (label) =>
-                upsertAccount({ id: account.id, name: label }),
-              onRemove: () => deleteAccount(account),
-            };
-          })}
+              if (amount === 0 && account.closedAt) {
+                return null;
+              }
+
+              return {
+                ...account,
+                label: account.name,
+                disableDelete: amount !== 0,
+                sublabel: (
+                  <span
+                    className={amount < 0 ? classes.negative : classes.positive}
+                  >
+                    {currencyFormat(amount)}
+                  </span>
+                ),
+                onUpdate: (label) =>
+                  upsertAccount({ id: account.id, name: label }),
+                onRemove: () => deleteAccount(account),
+                locked: !!account.closedAt,
+                onUnlock: () => upsertAccount({ ...account, closedAt: null }),
+              };
+            })
+            .filter((item) => !!item)}
           onAdd={(account) => upsertAccount({ name: account.label })}
         />
       )}

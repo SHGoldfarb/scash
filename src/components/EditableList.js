@@ -17,10 +17,14 @@ const EditableList = ({ source, onAdd }) => {
             onChange={item.onUpdate}
             autoFocus
             disableDelete={item.disableDelete}
+            locked={item.locked}
+            onUnlock={item.onUnlock}
           >
             <ListItemText
               primary={item.label}
-              primaryTypographyProps={{ color: "textPrimary" }}
+              primaryTypographyProps={{
+                color: item.locked ? "textSecondary" : "textPrimary",
+              }}
               secondary={item.sublabel}
             />
           </EditableField>

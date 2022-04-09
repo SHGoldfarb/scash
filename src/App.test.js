@@ -644,33 +644,32 @@ describe("App", () => {
           });
         });
 
-        describe("when some categories are deactivated", () => {
-          let activeCategories;
-          let deactivatedCategories;
+        describe("when some categories are closed", () => {
+          let openCategories;
+          let closedCategories;
           beforeEach(async () => {
-            activeCategories = await mockTable("categories").toArray();
+            openCategories = await mockTable("categories").toArray();
 
-            deactivatedCategories = repeat(
-              () =>
-                categoryMock({ deactivatedAt: DateTime.local().toSeconds() }),
+            closedCategories = repeat(
+              () => categoryMock({ closedAt: DateTime.local().toSeconds() }),
               5
             );
 
             mockTable("categories").set([
-              ...activeCategories,
-              ...deactivatedCategories,
+              ...openCategories,
+              ...closedCategories,
             ]);
           });
 
-          it("only shows active categories", async () => {
+          it("only shows open categories", async () => {
             await runUserActions();
 
             await waitFor(() => {
-              activeCategories.forEach((category) => {
+              openCategories.forEach((category) => {
                 wrapper.getByText(category.name);
               });
 
-              deactivatedCategories.forEach((category) => {
+              closedCategories.forEach((category) => {
                 expect(wrapper.queryByText(category.name)).toBeNull();
               });
             });
@@ -849,6 +848,32 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    describe("there is a closed account with nonzero amount", () => {
+      beforeEach(async () => {
+        const account = accountMock({ closedAt: DateTime.local() });
+        await mockTable("accounts").set([account]);
+
+        const transaction = transactionMock({
+          accountId: account.id,
+          type: "income",
+        });
+
+        await mockTable("transactions").set([transaction]);
+      });
+
+      describe("user presses reopen account", () => {
+        userAction(async () => {
+          fireEvent.click(await wrapper.findByTestId("RestoreFromTrashIcon"));
+        });
+
+        it("shows as open", async () => {
+          await runUserActions();
+
+          await wrapper.findByTestId("EditIcon");
+        });
+      });
+    });
+
     describe("user converts excel to json and imports json", () => {
       const accountName = "acc1";
       const categoryName = "cat1";
@@ -963,7 +988,7 @@ describe("App", () => {
         fireEvent.change(input, { target: { files: [blob] } });
       });
 
-      it("correctly exports info", async () => {
+      it("correctly exports and imports info", async () => {
         const incomeTransaction = transactionMock({
           category: categoryMock(),
           account: accountMock(),
@@ -973,9 +998,12 @@ describe("App", () => {
         incomeTransaction.categoryId = incomeTransaction.category.id;
         incomeTransaction.accountId = incomeTransaction.account.id;
 
+        const closedAccount = accountMock({ closedAt: DateTime.local() });
+        const closedCategory = categoryMock({ closedAt: DateTime.local() });
+
         const expenseTransaction = transactionMock({
-          category: categoryMock({ deactivatedAt: DateTime.local() }), // Test closed category
-          account: accountMock({ deactivatedAt: DateTime.local() }), // Test closed account
+          category: categoryMock(),
+          account: accountMock(),
           type: "expense",
           date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
         });
@@ -995,12 +1023,16 @@ describe("App", () => {
           transferTransaction.destinationAccount.id;
 
         await mockTable("incomeCategories").set([incomeTransaction.category]);
-        await mockTable("categories").set([expenseTransaction.category]);
+        await mockTable("categories").set([
+          expenseTransaction.category,
+          closedCategory,
+        ]);
         await mockTable("accounts").set([
           incomeTransaction.account,
           expenseTransaction.account,
           transferTransaction.originAccount,
           transferTransaction.destinationAccount,
+          closedAccount,
         ]);
         await mockTable("transactions").set([
           incomeTransaction,
@@ -1014,12 +1046,10 @@ describe("App", () => {
         await wrapper.findByText(incomeTransaction.category.name);
 
         // Closed account
-        expect(wrapper.queryByText(expenseTransaction.account.name)).toBeNull();
+        expect(wrapper.queryByText(closedAccount.name)).toBeNull();
 
         // Closed category
-        expect(
-          wrapper.queryByText(expenseTransaction.category.name)
-        ).toBeNull();
+        expect(wrapper.queryByText(closedCategory.name)).toBeNull();
 
         fireEvent.click(wrapper.getByText("Transactions"));
 
@@ -1146,7 +1176,7 @@ describe("App", () => {
 
         // Shows the correct amount of list items
         await waitFor(() => {
-          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(9);
+          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(18);
         });
 
         // This is not ideal test, since we must test from the user perspective and not peek into the database
