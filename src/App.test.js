@@ -879,6 +879,23 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    it("correctly lest user create a new category", async () => {
+      await runUserActions();
+
+      // Click new category button
+      fireEvent.click(await wrapper.findByText("New Objective"));
+
+      // Input name and save
+      const name = "The name";
+      fireEvent.change(await wrapper.findByLabelText("Name"), {
+        target: { value: name },
+      });
+      fireEvent.click(wrapper.getByText("Create"));
+
+      // Test name is found
+      await wrapper.findByText(name);
+    });
+
     it("correctly lets user change name of an objective", async () => {
       const category = categoryMock();
       mockTable("categories").set([category]);

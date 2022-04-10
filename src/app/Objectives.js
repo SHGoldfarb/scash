@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { List } from "@mui/material";
 import { useReadData } from "hooks";
 import { DelayedCircularProgress } from "components";
-import { Item, ObjectiveItem } from "./objectives";
+import { Item, NewObjectiveButton, ObjectiveItem } from "./objectives";
 
 const Objectives = () => {
   const { loading: categoriesLoading, data: categories = [] } = useReadData(
@@ -48,6 +48,7 @@ const Objectives = () => {
           />
         );
       })}
+      <NewObjectiveButton />
     </List>
   );
 };
