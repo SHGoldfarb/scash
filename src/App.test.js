@@ -1144,6 +1144,9 @@ describe("App", () => {
         await runUserActions();
 
         await wrapper.findByText(accountName);
+
+        fireEvent.click(wrapper.getByText("Objectives"));
+
         await wrapper.findByText(categoryName);
 
         fireEvent.click(wrapper.getByText("Transactions"));
@@ -1411,7 +1414,7 @@ describe("App", () => {
 
         // Shows the correct amount of list items
         await waitFor(() => {
-          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(18);
+          expect(wrapper.baseElement.querySelectorAll("li").length).toBe(15);
         });
 
         // This is not ideal test, since we must test from the user perspective and not peek into the database
@@ -1424,7 +1427,7 @@ describe("App", () => {
       userAction(async () => {
         const createButton = wrapper.baseElement.querySelectorAll(
           "[aria-label='Create']"
-        )[2];
+        )[1];
 
         fireEvent.click(createButton);
       });
@@ -1502,14 +1505,16 @@ describe("App", () => {
         await runUserActions();
 
         await asyncReduce(
-          categories.map((category) => async () => {
-            await wrapper.findByText(category.name);
+          accounts.map((account) => async () => {
+            await wrapper.findByText(account.name);
           })
         );
 
+        fireEvent.click(await wrapper.findByText("Objectives"));
+
         await asyncReduce(
-          accounts.map((account) => async () => {
-            await wrapper.findByText(account.name);
+          categories.map((category) => async () => {
+            await wrapper.findByText(category.name);
           })
         );
       });

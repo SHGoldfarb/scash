@@ -1,7 +1,6 @@
 export { default as Accounts } from "./Accounts";
 export { default as Background } from "./Background";
 export { default as BottomMenu } from "./BottomMenu";
-export { default as Categories } from "./Categories";
 export { default as Commands } from "./Commands";
 export { default as ExcelToJsonButton } from "./ExcelToJsonButton";
 export { default as ExportToJsonButton } from "./ExportToJsonButton";
