@@ -1,9 +1,14 @@
 import React from "react";
 import { styled } from "@mui/material/styles";
 import { Link, useLocation } from "react-router-dom";
-import { ListAlt, Settings } from "@mui/icons-material";
+import { Category, ListAlt, Settings } from "@mui/icons-material";
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
-import { makePath, settingsPathName, transactionsPathName } from "../utils";
+import {
+  makePath,
+  settingsPathName,
+  transactionsPathName,
+  objectivesPathName,
+} from "../utils";
 
 const StyledBottomNavigation = styled(BottomNavigation)(() => ({
   bottom: 0,
@@ -17,6 +22,7 @@ const BottomMenu = () => {
   const currentLocationValue =
     (pathname.includes(transactionsPathName) && transactionsPathName) ||
     (pathname.includes(settingsPathName) && settingsPathName) ||
+    (pathname.includes(objectivesPathName) && objectivesPathName) ||
     null;
 
   return (
@@ -27,6 +33,13 @@ const BottomMenu = () => {
         component={Link}
         to={makePath(transactionsPathName)}
         value={transactionsPathName}
+      />
+      <BottomNavigationAction
+        label="Objectives"
+        icon={<Category />}
+        component={Link}
+        to={makePath(objectivesPathName)}
+        value={objectivesPathName}
       />
       <BottomNavigationAction
         label="Settings"

@@ -5,6 +5,17 @@ import { isFunction } from "../lib";
 const DataCacheValueContext = createContext({});
 const DataCacheSetterContext = createContext(() => {});
 
+export const makeSetCacheValue = (setCache, key) => (value) => {
+  if (isFunction(value)) {
+    setCache((prev) => ({
+      ...prev,
+      [key]: value(prev[key]),
+    }));
+  } else {
+    setCache((prev) => ({ ...prev, [key]: value }));
+  }
+};
+
 export const DataCacheProvider = ({ children }) => {
   const [cache, setCache] = useState({});
 
@@ -23,16 +34,9 @@ export const useCache = (key) => {
   const cache = useContext(DataCacheValueContext);
   const setCache = useContext(DataCacheSetterContext);
 
-  const set = (value) => {
-    if (isFunction(value)) {
-      setCache((prev) => ({
-        ...prev,
-        [key]: value(prev[key]),
-      }));
-    } else {
-      setCache((prev) => ({ ...prev, [key]: value }));
-    }
-  };
+  if (key === undefined) {
+    return [cache, setCache];
+  }
 
-  return [cache[key], set];
+  return [cache[key], makeSetCacheValue(setCache, key)];
 };

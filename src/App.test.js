@@ -840,6 +840,182 @@ describe("App", () => {
     });
   });
 
+  describe("user presses objectives button", () => {
+    userAction(async () => {
+      fireEvent.click(wrapper.getByText("Objectives"));
+
+      // Avoid act() warning
+      await waitFor(() => {});
+    });
+
+    it("correctly lets user change name of an objective", async () => {
+      const category = categoryMock();
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category name
+      fireEvent.click(await wrapper.findByText(category.name));
+
+      // Change category name
+      const newName = "new category name";
+      fireEvent.change(await wrapper.findByDisplayValue(category.name), {
+        target: { value: newName },
+      });
+
+      // Click save
+      fireEvent.click(wrapper.getByText("Save"));
+
+      // Test new category name is shown
+      await wrapper.findByText(newName);
+    });
+
+    it("correctly lets user add amount to objective", async () => {
+      const category = categoryMock({ assignedAmount: 1000 });
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category amount
+      fireEvent.click(
+        await wrapper.findByText(currencyFormat(category.assignedAmount))
+      );
+
+      // Input amount
+      const newAmount = 5000;
+      fireEvent.change(await wrapper.findByLabelText("Amount"), {
+        target: { value: `${newAmount}` },
+      });
+
+      // Click add
+      fireEvent.click(wrapper.getByText("Add"));
+
+      // Test new category name is shown
+      await wrapper.findByText(
+        currencyFormat(newAmount + category.assignedAmount)
+      );
+    });
+
+    it("correctly lets user substract amount from objective", async () => {
+      const category = categoryMock({ assignedAmount: 1000 });
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category amount
+      fireEvent.click(
+        await wrapper.findByText(currencyFormat(category.assignedAmount))
+      );
+
+      // Input amount
+      const newAmount = 5000;
+      fireEvent.change(await wrapper.findByLabelText("Amount"), {
+        target: { value: `${newAmount}` },
+      });
+
+      // Click add
+      fireEvent.click(wrapper.getByText("Subtract"));
+
+      // Test new category name is shown
+      await wrapper.findByText(
+        currencyFormat(-newAmount + category.assignedAmount)
+      );
+    });
+
+    it("does not let user close objective if it has a nonzero amount", async () => {
+      const category = categoryMock({ assignedAmount: 1000 });
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category name
+      fireEvent.click(await wrapper.findByText(category.name));
+
+      // Test delete button is disabled
+      expect(await wrapper.findByText("Delete")).toBeDisabled();
+    });
+
+    it("correctly lets user close objective", async () => {
+      const category = categoryMock({ assignedAmount: 0 });
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category name
+      fireEvent.click(await wrapper.findByText(category.name));
+
+      // Click on delete button
+      fireEvent.click(await wrapper.findByText("Delete"));
+
+      // Wait for category to disappear
+      await waitFor(() => {
+        expect(wrapper.queryByText(category.name)).toBeNull();
+      });
+    });
+
+    it("correctly lets user reopen objective", async () => {
+      const category = categoryMock({
+        assignedAmount: 10000,
+        closedAt: DateTime.local(),
+      });
+
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category name
+      fireEvent.click(await wrapper.findByText(category.name));
+
+      // Click on restore button
+      fireEvent.click(await wrapper.findByText("Restore"));
+
+      // Wait for dialog to close
+      await waitFor(() => {
+        expect(wrapper.queryByText("Restore")).toBeNull();
+      });
+
+      // Click again on category and test for edit name button
+      fireEvent.click(await wrapper.findByText(category.name));
+      await wrapper.findByText("Save");
+    });
+
+    it("does not show closed objective with zero amount", async () => {
+      const category = categoryMock({
+        assignedAmount: 0,
+        closedAt: DateTime.local(),
+      });
+
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Test for everything to load
+      await wrapper.findByText("Without objective");
+
+      // Test for category name not to show
+      expect(wrapper.queryByText(category.name)).toBeNull();
+    });
+
+    it("does not let add or subtract amount to closed objective", async () => {
+      const category = categoryMock({
+        assignedAmount: 10000,
+        closedAt: DateTime.local(),
+      });
+
+      mockTable("categories").set([category]);
+
+      await runUserActions();
+
+      // Click on category amount
+      fireEvent.click(
+        await wrapper.findByText(currencyFormat(category.assignedAmount))
+      );
+
+      // Test modal doesn't show up
+      expect(wrapper.queryByText("Add or Subtract Amount")).toBeNull();
+    });
+  });
+
   describe("user presses settings button", () => {
     userAction(async () => {
       fireEvent.click(wrapper.getByText("Settings"));
@@ -1022,10 +1198,15 @@ describe("App", () => {
         transferTransaction.destinationAccountId =
           transferTransaction.destinationAccount.id;
 
+        const categoryWithAssignedAmount = categoryMock({
+          assignedAmount: 1234,
+        });
+
         await mockTable("incomeCategories").set([incomeTransaction.category]);
         await mockTable("categories").set([
           expenseTransaction.category,
           closedCategory,
+          categoryWithAssignedAmount,
         ]);
         await mockTable("accounts").set([
           incomeTransaction.account,
@@ -1090,6 +1271,12 @@ describe("App", () => {
           exact: false,
         });
         await wrapper.findByText(transferTransaction.destinationAccount.name);
+
+        // Category with assigned amount
+        fireEvent.click(await wrapper.findByText("Objectives"));
+        await wrapper.findByText(
+          currencyFormat(categoryWithAssignedAmount.assignedAmount)
+        );
       });
     });
 

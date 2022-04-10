@@ -24,6 +24,10 @@ export const transactionMock = makeEntityMock((id) => ({
   categoryId: newId(),
 }));
 
-export const categoryMock = makeEntityMock((id) => ({ name: `Category${id}` }));
+export const categoryMock = makeEntityMock((id) => ({
+  name: `Category${id}`,
+  closedAt: undefined,
+  assignedAmount: 0,
+}));
 
 export const accountMock = makeEntityMock((id) => ({ name: `Account${id}` }));

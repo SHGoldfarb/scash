@@ -8,4 +8,5 @@ export const validCategory = (data) => ({
       `Category must have a name: ${JSON.stringify(data, null, 2)}`
     ),
   closedAt: data.closedAt || null,
+  assignedAmount: data.assignedAmount || 0,
 });

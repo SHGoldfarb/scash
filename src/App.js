@@ -11,13 +11,20 @@ import {
   ExcelToJsonButton,
   ExportToJsonButton,
   IncomeCategories,
+  Objectives,
   PageContainer,
   RestoreFromJsonButton,
   ScashThemeProvider,
   Transactions,
+  UniversalMemo,
 } from "./app";
 import { DataCacheProvider } from "./contexts";
-import { makePath, settingsPathName, transactionsPathName } from "./utils";
+import {
+  makePath,
+  objectivesPathName,
+  settingsPathName,
+  transactionsPathName,
+} from "./utils";
 import "./app.css";
 
 const App = () => {
@@ -26,6 +33,7 @@ const App = () => {
       <Background>
         <LocalizationProvider dateAdapter={AdapterLuxon}>
           <DataCacheProvider>
+            <UniversalMemo />
             <BrowserRouter>
               <PageContainer>
                 <Switch>
@@ -40,6 +48,9 @@ const App = () => {
                   </Route>
                   <Route path={makePath(transactionsPathName)}>
                     <Transactions />
+                  </Route>
+                  <Route path={makePath(objectivesPathName)}>
+                    <Objectives />
                   </Route>
                   <Route path={makePath()}>
                     <Redirect to={makePath(transactionsPathName)} />

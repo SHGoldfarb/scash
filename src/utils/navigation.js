@@ -3,6 +3,7 @@ import { isString } from "../lib";
 export const transactionsPathName = "transactions";
 export const settingsPathName = "settings";
 export const editPathName = "edit";
+export const objectivesPathName = "objectives";
 
 export const stringifySearchParams = (params) =>
   new URLSearchParams(params).toString();
