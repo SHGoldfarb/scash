@@ -5,7 +5,7 @@ import { DelayedCircularProgress } from "components";
 import { useFormCategories } from "./hooks";
 
 const CategoryField = ({ transactionType, register }) => {
-  const { openCategories, loading } = useFormCategories(transactionType);
+  const { availableCategories, loading } = useFormCategories(transactionType);
 
   if (transactionType === "transfer") {
     return null;
@@ -15,7 +15,7 @@ const CategoryField = ({ transactionType, register }) => {
     return <DelayedCircularProgress />;
   }
 
-  const defaultCategoryId = openCategories[0]?.id;
+  const defaultCategoryId = availableCategories[0]?.id;
 
   const { name, ref, onBlur, onChange } = register("categoryId");
 
@@ -33,7 +33,7 @@ const CategoryField = ({ transactionType, register }) => {
       onBlur={onBlur}
       onChange={onChange}
     >
-      {openCategories.map((category) => (
+      {availableCategories.map((category) => (
         <option value={category.id} key={category.id}>
           {category.name}
         </option>

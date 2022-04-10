@@ -64,6 +64,37 @@ describe("App", () => {
     fireEvent.click(await wrapper.findByText("New Transaction"));
   };
 
+  describe("there is a transaction with a closed category", () => {
+    let category;
+    let transaction;
+    beforeEach(async () => {
+      category = categoryMock({ closedAt: DateTime.local().toSeconds() });
+      transaction = transactionMock({
+        categoryId: category.id,
+        type: "expense",
+        date: DateTime.local().toSeconds(),
+      });
+
+      await mockTable("categories").set([category]);
+      await mockTable("transactions").set([transaction]);
+    });
+
+    it("correctly lets user edit the transaction while keeping the category", async () => {
+      await runUserActions();
+
+      // Click in transaction to edit
+      fireEvent.click(await wrapper.findByText(transaction.comment));
+
+      // Test category is displayed in categories dropdown
+
+      // First we test that the form has opened
+      await wrapper.findByText("Delete");
+
+      // Then we look for the category name
+      await wrapper.findByDisplayValue(category.name);
+    });
+  });
+
   const expectTransactionInList = async (transaction) => {
     // comment
     await wrapper.findByText(transaction.comment);

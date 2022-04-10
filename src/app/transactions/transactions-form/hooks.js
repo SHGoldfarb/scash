@@ -1,5 +1,6 @@
 import { useReadData } from "hooks";
 import { isOpen, isClosed } from "utils";
+import { useCurrentTransaction } from "../hooks";
 
 export const useFormCategories = (transactionType) => {
   const categoriesTable =
@@ -7,9 +8,17 @@ export const useFormCategories = (transactionType) => {
 
   const result = useReadData(categoriesTable);
 
-  const openCategories = (result.data || []).filter(isOpen);
+  const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
-  return { openCategories, ...result };
+  const availableCategories = (result.data || []).filter(
+    (category) => !category.closedAt || category.id === transaction?.categoryId
+  );
+
+  return {
+    availableCategories,
+    ...result,
+    loading: result.loading || transactionLoading,
+  };
 };
 
 export const useFormAccounts = () => {

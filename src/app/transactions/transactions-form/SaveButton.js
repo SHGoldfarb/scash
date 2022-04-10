@@ -21,7 +21,7 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
-  const { openCategories } = useFormCategories(transactionType);
+  const { availableCategories } = useFormCategories(transactionType);
   const { openAccounts } = useFormAccounts();
 
   const defaultAccountId = openAccounts[0]?.id;
@@ -30,7 +30,7 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
     <Button
       disabled={
         !openAccounts.length ||
-        (transactionType !== "transfer" && !openCategories.length)
+        (transactionType !== "transfer" && !availableCategories.length)
       }
       onClick={handleSubmit(
         async ({
