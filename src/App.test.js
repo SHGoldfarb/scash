@@ -19,6 +19,7 @@ import {
   transactionMock,
   categoryMock,
   accountMock,
+  incomeCategoryMock,
 } from "./test-utils/mocks/entities";
 import { makeEventsPoint } from "./test-utils";
 import { writeFileAsync } from "./lib";
@@ -276,35 +277,42 @@ describe("App", () => {
       });
 
       describe("transaction account and category are in the database", () => {
-        beforeEach(() => {
+        beforeEach(async () => {
+          // Decoy data
+          await mockTable("accounts").put(accountMock());
+          await mockTable("categories").put(categoryMock());
+          await mockTable("incomeCategories").put(incomeCategoryMock());
+          await mockTable("transactions").put(transactionMock());
+
+          // Transaction data
           if (transaction.accountId) {
-            mockTable("accounts").put(
+            await mockTable("accounts").put(
               accountMock({ id: transaction.accountId })
             );
           }
           if (transaction.originAccountId) {
-            mockTable("accounts").put(
+            await mockTable("accounts").put(
               accountMock({ id: transaction.originAccountId })
             );
           }
           if (transaction.destinationAccountId) {
-            mockTable("accounts").put(
+            await mockTable("accounts").put(
               accountMock({ id: transaction.destinationAccountId })
             );
           }
           if (transaction.categoryId) {
-            mockTable("categories").put(
+            await mockTable("categories").put(
               categoryMock({ id: transaction.categoryId })
             );
-            mockTable("incomeCategories").put(
-              categoryMock({ id: transaction.categoryId })
+            await mockTable("incomeCategories").put(
+              incomeCategoryMock({ id: transaction.categoryId })
             );
           }
         });
 
-        describe("transaction is income or expense", () => {
+        describe("transaction is income", () => {
           beforeEach(() => {
-            transaction.type = ["income", "expense"][transaction.id % 2];
+            transaction.type = "income";
           });
 
           it("shows transaction form with transaction values", async () => {

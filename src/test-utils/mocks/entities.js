@@ -30,4 +30,12 @@ export const categoryMock = makeEntityMock((id) => ({
   assignedAmount: 0,
 }));
 
-export const accountMock = makeEntityMock((id) => ({ name: `Account${id}` }));
+export const incomeCategoryMock = makeEntityMock((id) => ({
+  name: `IncomeCategory${id}`,
+  closedAt: undefined,
+}));
+
+export const accountMock = makeEntityMock((id) => ({
+  name: `Account${id}`,
+  closedAt: undefined,
+}));

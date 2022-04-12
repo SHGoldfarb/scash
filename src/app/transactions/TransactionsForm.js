@@ -35,12 +35,15 @@ const TransactionsForm = () => {
         accountId: transaction.accountId,
         originAccountId: transaction.originAccountId,
         destinationAccountId: transaction.destinationAccountId,
-        categoryId: transaction.categoryID,
+        categoryId: transaction.categoryId,
       });
     }
   }, [transaction, reset]);
 
-  if (loading) {
+  // Transaction exists and values are still being set
+  const stillLoading = transaction && watch("type") === undefined;
+
+  if (loading || stillLoading) {
     return <DelayedCircularProgress />;
   }
 
