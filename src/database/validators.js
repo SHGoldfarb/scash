@@ -1,14 +1,14 @@
 import {
   validTransaction,
-  validIncomeCategory,
+  validIncomeSource,
   validAccount,
-  validCategory,
+  validObjective,
 } from "../entities";
 
 const validatorsObject = {
   accounts: validAccount,
-  categories: validCategory,
-  incomeCategories: validIncomeCategory,
+  objectives: validObjective,
+  incomeSources: validIncomeSource,
   transactions: validTransaction,
 };
 

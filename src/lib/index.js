@@ -4,9 +4,6 @@ export const isString = (variable) => {
   return !!(typeof variable === "string" || variable instanceof String);
 };
 
-export const oneOfOrNull = (options) => (choice) =>
-  options.includes(choice) ? choice : null;
-
 export const isFunction = (functionToCheck) => {
   return (
     functionToCheck && {}.toString.call(functionToCheck) === "[object Function]"
@@ -45,3 +42,10 @@ export const throwErrorIfNotValid = (data, key, isValid, message) => {
 
   return null;
 };
+
+export const asyncReduce = (asyncFunctions) =>
+  asyncFunctions.reduce(
+    async (previousPromise, asyncFunction) =>
+      asyncFunction(await previousPromise),
+    Promise.resolve(null)
+  );

@@ -4,10 +4,11 @@ import { DelayedCircularProgress } from "components";
 import {
   AccountsFields,
   AmountField,
-  CategoryField,
+  IncomeSourceField,
   CommentField,
   DateField,
   DeleteButton,
+  ObjectiveField,
   SaveButton,
   TypeField,
 } from "./transactions-form";
@@ -35,7 +36,8 @@ const TransactionsForm = () => {
         accountId: transaction.accountId,
         originAccountId: transaction.originAccountId,
         destinationAccountId: transaction.destinationAccountId,
-        categoryId: transaction.categoryId,
+        objectiveId: transaction.objectiveId,
+        incomeSourceId: transaction.incomeSourceId,
       });
     }
   }, [transaction, reset]);
@@ -59,7 +61,14 @@ const TransactionsForm = () => {
         isTransfer={transactionType === "transfer"}
         register={register}
       />
-      <CategoryField register={register} transactionType={transactionType} />
+      {(transactionType === "income" && (
+        <IncomeSourceField register={register} />
+      )) ||
+        (transactionType === "expense" && (
+          <ObjectiveField register={register} />
+        )) ||
+        null}
+
       <CommentField register={register} />
       <SaveButton
         handleSubmit={handleSubmit}

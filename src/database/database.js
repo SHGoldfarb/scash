@@ -66,4 +66,16 @@ db.version(9).upgrade(async (tx) => {
   );
 });
 
+db.version(10).stores({
+  objectives: "++id",
+  incomeSources: "++id",
+});
+
+db.version(11).upgrade(async (tx) => {
+  await tx.table("categories").clear();
+  await tx.table("incomeCategories").clear();
+  await tx.table("accounts").clear();
+  await tx.table("transactions").clear();
+});
+
 export default db;

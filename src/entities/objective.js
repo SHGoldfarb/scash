@@ -1,11 +1,11 @@
 import { throwError } from "../lib";
 
-export const validCategory = (data) => ({
+export const validObjective = (data) => ({
   name:
     data.name ||
     throwError(
       TypeError,
-      `Category must have a name: ${JSON.stringify(data, null, 2)}`
+      `Objective must have a name: ${JSON.stringify(data, null, 2)}`
     ),
   closedAt: data.closedAt || null,
   assignedAmount: data.assignedAmount || 0,

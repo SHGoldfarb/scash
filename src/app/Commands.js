@@ -5,7 +5,8 @@ import React, { useState } from "react";
 import { isEnterKey, shuffle } from "utils";
 import {
   accountMock,
-  categoryMock,
+  objectiveMock,
+  incomeSourceMock,
   transactionMock,
 } from "../test-utils/mocks/entities";
 
@@ -28,7 +29,7 @@ const mockAccountNames = [
   "Portafolio Activo Agresivo BChile",
 ];
 
-const mockCategoryNames = [
+const mockObjectiveNames = [
   "Expenses",
   "Going Out",
   "Vacations",
@@ -40,7 +41,7 @@ const mockCategoryNames = [
   "Gifts",
 ];
 
-const mockIncomeCategoryNames = [
+const mockIncomeSourceNames = [
   "Salary",
   "Gift",
   "Allowance",
@@ -52,21 +53,19 @@ const noId = ({ id, ...rest }) => rest;
 
 const useCommands = () => {
   const { set: setAccounts, clear: clearAccounts } = useWriteData("accounts");
-  const {
-    set: setIncomeCategories,
-    clear: clearIncomeCategories,
-  } = useWriteData("incomeCategories");
-  const {
-    set: setExpenseCategories,
-    clear: clearExpenseCategories,
-  } = useWriteData("categories");
+  const { set: setIncomeSources, clear: clearIncomeSources } = useWriteData(
+    "incomeSources"
+  );
+  const { set: setObjectives, clear: clearObjectives } = useWriteData(
+    "objectives"
+  );
   const { set: setTransactions, clear: clearTransactions } = useWriteData(
     "transactions"
   );
 
   const { refetch: refetchAccounts } = useReadData("accounts");
-  const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
-  const { refetch: refetchExpenseCategories } = useReadData("categories");
+  const { refetch: refetchIncomeSources } = useReadData("incomeSources");
+  const { refetch: refetchObjectives } = useReadData("objectives");
   const { refetch: refetchTransactions } = useReadData("transactions");
 
   const populate = async (number) => {
@@ -85,10 +84,10 @@ const useCommands = () => {
     refetchAccounts();
 
     // Create income cats
-    const incomeCategories = await setIncomeCategories(
-      shuffle(mockIncomeCategoryNames)
+    const incomeSources = await setIncomeSources(
+      shuffle(mockIncomeSourceNames)
         .map((name, idx) =>
-          categoryMock({
+          incomeSourceMock({
             name,
             closedAt: idx % 4 ? DateTime.local().toSeconds() : null,
           })
@@ -96,13 +95,13 @@ const useCommands = () => {
         .map((item) => noId(item))
     );
 
-    refetchIncomeCategories();
+    refetchIncomeSources();
 
     // Create expense cats
-    const expenseCategories = await setExpenseCategories(
-      shuffle(mockCategoryNames)
+    const objectives = await setObjectives(
+      shuffle(mockObjectiveNames)
         .map((name, idx) =>
-          categoryMock({
+          objectiveMock({
             name,
             closedAt: idx % 4 ? DateTime.local().toSeconds() : null,
           })
@@ -110,7 +109,7 @@ const useCommands = () => {
         .map((item) => noId(item))
     );
 
-    refetchExpenseCategories();
+    refetchObjectives();
 
     // Create transactions
     let runningDate = DateTime.local();
@@ -125,12 +124,8 @@ const useCommands = () => {
           accountId: accounts[(idx + 1) % accountsLength].id,
           originAccountId: accounts[(idx * 2 + 2) % accountsLength].id,
           destinationAccountId: accounts[(idx * 3 + 3) % accountsLength].id,
-          categoryId:
-            (item.type === "income" &&
-              incomeCategories[idx % incomeCategories.length].id) ||
-            (item.type === "expense" &&
-              expenseCategories[idx % expenseCategories.length].id) ||
-            null,
+          incomeSourceId: incomeSources[idx % incomeSources.length].id,
+          objectiveId: objectives[idx % objectives.length].id,
         });
       })
     );
@@ -143,10 +138,10 @@ const useCommands = () => {
     refetchTransactions();
     await clearAccounts();
     refetchAccounts();
-    await clearIncomeCategories();
-    refetchIncomeCategories();
-    await clearExpenseCategories();
-    refetchExpenseCategories();
+    await clearIncomeSources();
+    refetchIncomeSources();
+    await clearObjectives();
+    refetchObjectives();
   };
 
   return { populate, clear };

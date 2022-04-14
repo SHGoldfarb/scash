@@ -15,12 +15,12 @@ import { upsertById } from "utils";
 const NewObjectiveModal = ({ onClose }) => {
   const [name, setName] = useState("");
 
-  const { update, loading } = useReadData("categories");
-  const { upsert } = useWriteData("categories");
+  const { update, loading } = useReadData("objectives");
+  const { upsert } = useWriteData("objectives");
 
   const handleCreate = async () => {
-    const returnedCategory = await upsert({ name });
-    update((categories) => upsertById(categories, returnedCategory));
+    const returnedObjective = await upsert({ name });
+    update((objectives) => upsertById(objectives, returnedObjective));
   };
 
   if (loading) {

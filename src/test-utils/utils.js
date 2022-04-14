@@ -1,4 +1,4 @@
-import { asyncReduce } from "utils";
+import { asyncReduce } from "../lib";
 
 export const makeEventsPoint = () => {
   let events;

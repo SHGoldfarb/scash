@@ -21,17 +21,18 @@ export const transactionMock = makeEntityMock((id) => ({
   accountId: newId(),
   originAccountId: newId(),
   destinationAccountId: newId(),
-  categoryId: newId(),
+  objectiveId: newId(),
+  incomeSourceId: newId(),
 }));
 
-export const categoryMock = makeEntityMock((id) => ({
-  name: `Category${id}`,
+export const objectiveMock = makeEntityMock((id) => ({
+  name: `Objective${id}`,
   closedAt: undefined,
   assignedAmount: 0,
 }));
 
-export const incomeCategoryMock = makeEntityMock((id) => ({
-  name: `IncomeCategory${id}`,
+export const incomeSourceMock = makeEntityMock((id) => ({
+  name: `IncomeSource${id}`,
   closedAt: undefined,
 }));
 

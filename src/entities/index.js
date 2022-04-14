@@ -1,4 +1,4 @@
 export * from "./transaction";
 export * from "./account";
-export * from "./category";
-export * from "./incomeCategory";
+export * from "./objective";
+export * from "./incomeSource";

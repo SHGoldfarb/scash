@@ -48,14 +48,14 @@ const TransactionsList = () => {
     "accounts"
   );
 
-  const { loading: categoriesLoading, data: categories = [] } = useReadData(
-    "categories"
+  const { loading: objectivesLoading, data: objectives = [] } = useReadData(
+    "objectives"
   );
 
   const {
-    loading: incomeCategoriesLoading,
-    data: incomeCategories = [],
-  } = useReadData("incomeCategories");
+    loading: incomeSourcesLoading,
+    data: incomeSources = [],
+  } = useReadData("incomeSources");
 
   const filteredTransactions = useMemo(
     () =>
@@ -79,22 +79,22 @@ const TransactionsList = () => {
     [accounts]
   );
 
-  const categoriesHash = useMemo(
+  const objectivesHash = useMemo(
     () =>
-      categories.reduce(
-        (hash, category) => ({ ...hash, [category.id]: category }),
+      objectives.reduce(
+        (hash, objective) => ({ ...hash, [objective.id]: objective }),
         {}
       ),
-    [categories]
+    [objectives]
   );
 
-  const incomeCategoriesHash = useMemo(
+  const incomeSourcesHash = useMemo(
     () =>
-      incomeCategories.reduce(
-        (hash, category) => ({ ...hash, [category.id]: category }),
+      incomeSources.reduce(
+        (hash, incomeSource) => ({ ...hash, [incomeSource.id]: incomeSource }),
         {}
       ),
-    [incomeCategories]
+    [incomeSources]
   );
 
   const transactionsWithRelationships = filteredTransactions.map(
@@ -103,10 +103,8 @@ const TransactionsList = () => {
       account: accountsHash[transaction.accountId],
       originAccount: accountsHash[transaction.originAccountId],
       destinationAccount: accountsHash[transaction.destinationAccountId],
-      category:
-        transaction.type === "expense"
-          ? categoriesHash[transaction.categoryId]
-          : incomeCategoriesHash[transaction.categoryId],
+      objective: objectivesHash[transaction.objectiveId],
+      incomeSource: incomeSourcesHash[transaction.incomeSourceId],
     })
   );
 
@@ -125,8 +123,8 @@ const TransactionsList = () => {
       </div>
       {loading ||
       accountsLoading ||
-      categoriesLoading ||
-      incomeCategoriesLoading ? (
+      objectivesLoading ||
+      incomeSourcesLoading ? (
         <DelayedCircularProgress />
       ) : (
         <List>

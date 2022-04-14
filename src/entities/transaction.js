@@ -1,9 +1,4 @@
-import {
-  isString,
-  oneOfOrNull,
-  throwError,
-  throwInvalidEntityError,
-} from "../lib";
+import { isString, throwError, throwInvalidEntityError } from "../lib";
 
 export const validTransactionTypes = ["income", "expense", "transfer"];
 
@@ -61,15 +56,28 @@ export const validTransaction = (data) => ({
           )}`
         )
       : null,
-  categoryId: oneOfOrNull(["income", "expense"])(data.type)
-    ? data.categoryId ||
-      throwError(
-        TypeError,
-        `Transaction must include a categoryId: ${JSON.stringify(
-          data,
-          null,
-          2
-        )}`
-      )
-    : null,
+  incomeSourceId:
+    data.type === "income"
+      ? data.incomeSourceId ||
+        throwError(
+          TypeError,
+          `Transaction must include a incomeSourceId: ${JSON.stringify(
+            data,
+            null,
+            2
+          )}`
+        )
+      : null,
+  objectiveId:
+    data.type === "expense"
+      ? data.objectiveId ||
+        throwError(
+          TypeError,
+          `Transaction must include an objectiveId: ${JSON.stringify(
+            data,
+            null,
+            2
+          )}`
+        )
+      : null,
 });

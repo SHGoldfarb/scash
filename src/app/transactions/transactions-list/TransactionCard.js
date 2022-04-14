@@ -58,7 +58,8 @@ const TransactionCard = ({ transaction }) => {
               }
               variant="caption"
             >
-              {transaction.category?.name ||
+              {transaction.objective?.name ||
+                transaction.incomeSource?.name ||
                 transaction.destinationAccount?.name}
             </Typography>
           </TransactionColumn>

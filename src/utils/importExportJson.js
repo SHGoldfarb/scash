@@ -1,29 +1,30 @@
 import { utils } from "xlsx";
 import { DateTime } from "luxon";
-import { newId, asyncReduce } from "./utils";
+import { asyncReduce } from "../lib";
+import { newId } from "./utils";
 import { clear, getAll, upsert, bulkAdd } from "../database";
 
 export const exportToJSON = async () =>
   JSON.stringify({
     transactions: await getAll("transactions"),
     accounts: await getAll("accounts"),
-    categories: await getAll("categories"),
-    incomeCategories: await getAll("incomeCategories"),
+    objectives: await getAll("objectives"),
+    incomeSources: await getAll("incomeSources"),
   });
 
 export const importFromJSON = async (jsonData) => {
   await clear("accounts");
-  await clear("categories");
-  await clear("incomeCategories");
+  await clear("objectives");
+  await clear("incomeSources");
   await clear("transactions");
 
-  const { accounts, categories, incomeCategories, transactions } = JSON.parse(
+  const { accounts, objectives, incomeSources, transactions } = JSON.parse(
     jsonData
   );
 
   const accountsHash = {};
-  const categoriesHash = {};
-  const incomeCategoriesHash = {};
+  const objectivesHash = {};
+  const incomeSourcesHash = {};
 
   await asyncReduce(
     accounts.map((account) => async () => {
@@ -35,23 +36,20 @@ export const importFromJSON = async (jsonData) => {
   );
 
   await asyncReduce(
-    categories.map((category) => async () => {
-      categoriesHash[category.id] = await upsert("categories", {
-        ...category,
+    objectives.map((objective) => async () => {
+      objectivesHash[objective.id] = await upsert("objectives", {
+        ...objective,
         id: undefined,
       });
     })
   );
 
   await asyncReduce(
-    incomeCategories.map((incomeCategory) => async () => {
-      incomeCategoriesHash[incomeCategory.id] = await upsert(
-        "incomeCategories",
-        {
-          ...incomeCategory,
-          id: undefined,
-        }
-      );
+    incomeSources.map((incomeSource) => async () => {
+      incomeSourcesHash[incomeSource.id] = await upsert("incomeSources", {
+        ...incomeSource,
+        id: undefined,
+      });
     })
   );
 
@@ -63,10 +61,8 @@ export const importFromJSON = async (jsonData) => {
       accountId: accountsHash[transaction.accountId],
       originAccountId: accountsHash[transaction.originAccountId],
       destinationAccountId: accountsHash[transaction.destinationAccountId],
-      categoryId:
-        transaction.type === "income"
-          ? incomeCategoriesHash[transaction.categoryId]
-          : categoriesHash[transaction.categoryId],
+      objectiveId: objectivesHash[transaction.objectiveId],
+      incomeSourceId: incomeSourcesHash[transaction.incomeSourceId],
     }))
   );
 };
@@ -94,8 +90,8 @@ export const excelToJson = (workbook) => {
 
   const transactions = [];
   const accounts = {};
-  const incomeCategories = {};
-  const categories = {};
+  const incomeSources = {};
+  const objectives = {};
 
   jsonData.forEach((row) => {
     const type =
@@ -126,12 +122,12 @@ export const excelToJson = (workbook) => {
         id: newId(),
       };
     } else if (isExpense) {
-      categories[categoryName] = categories[categoryName] || {
+      objectives[categoryName] = objectives[categoryName] || {
         name: categoryName,
         id: newId(),
       };
     } else if (isIncome) {
-      incomeCategories[categoryName] = incomeCategories[categoryName] || {
+      incomeSources[categoryName] = incomeSources[categoryName] || {
         name: categoryName,
         id: newId(),
       };
@@ -142,10 +138,8 @@ export const excelToJson = (workbook) => {
     const account = isTransfer ? null : accounts[row.Account];
     const originAccount = isTransfer ? accounts[row.Account] : null;
     const destinationAccount = isTransfer ? accounts[row.Category] : null;
-    const category =
-      (isExpense && categories[categoryName]) ||
-      (isIncome && incomeCategories[categoryName]) ||
-      null;
+    const objective = objectives[categoryName];
+    const incomeSource = incomeSources[categoryName];
 
     const dateTime = DateTime.fromSeconds(excelDaysToLuxonSeconds(row.Date));
 
@@ -157,7 +151,8 @@ export const excelToJson = (workbook) => {
       accountId: account?.id,
       originAccountId: originAccount?.id,
       destinationAccountId: destinationAccount?.id,
-      categoryId: category?.id,
+      objectiveId: objective?.id,
+      incomeSourceId: incomeSource?.id,
     };
 
     transactions.push(transaction);
@@ -166,7 +161,7 @@ export const excelToJson = (workbook) => {
   return JSON.stringify({
     transactions,
     accounts: Object.values(accounts),
-    categories: Object.values(categories),
-    incomeCategories: Object.values(incomeCategories),
+    objectives: Object.values(objectives),
+    incomeSources: Object.values(incomeSources),
   });
 };

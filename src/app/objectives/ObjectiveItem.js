@@ -6,39 +6,39 @@ import { DelayedCircularProgress } from "components";
 import { upsertById } from "utils";
 import { Item } from "./components";
 
-const ObjectiveItem = ({ categoryId, amount }) => {
-  const { dataHash: categoriesHash = {}, update, loading } = useReadData(
-    "categories"
+const ObjectiveItem = ({ objectiveId, amount }) => {
+  const { dataHash: objectivesHash = {}, update, loading } = useReadData(
+    "objectives"
   );
-  const { upsert } = useWriteData("categories");
+  const { upsert } = useWriteData("objectives");
 
-  const handleUpdate = async (newCategory) => {
-    const returnedCategory = await upsert(newCategory);
-    update((categories) => upsertById(categories, returnedCategory));
+  const handleUpdate = async (newObjective) => {
+    const returnedObjective = await upsert(newObjective);
+    update((objectives) => upsertById(objectives, returnedObjective));
   };
 
   if (loading) {
     return <DelayedCircularProgress />;
   }
 
-  const category = categoriesHash[categoryId];
+  const objective = objectivesHash[objectiveId];
 
-  if (category.closedAt && amount === 0) {
+  if (objective.closedAt && amount === 0) {
     return null;
   }
 
   return (
     <Item
-      label={category.name}
+      label={objective.name}
       amount={amount}
-      onNameChange={(newName) => handleUpdate({ ...category, name: newName })}
-      onClose={() => handleUpdate({ ...category, closedAt: DateTime.local() })}
-      onOpen={() => handleUpdate({ ...category, closedAt: undefined })}
-      closed={!!category.closedAt}
+      onNameChange={(newName) => handleUpdate({ ...objective, name: newName })}
+      onClose={() => handleUpdate({ ...objective, closedAt: DateTime.local() })}
+      onOpen={() => handleUpdate({ ...objective, closedAt: undefined })}
+      closed={!!objective.closedAt}
       onAmountChange={(amountChange) =>
         handleUpdate({
-          ...category,
-          assignedAmount: category.assignedAmount + amountChange,
+          ...objective,
+          assignedAmount: objective.assignedAmount + amountChange,
         })
       }
     />
@@ -46,7 +46,7 @@ const ObjectiveItem = ({ categoryId, amount }) => {
 };
 
 ObjectiveItem.propTypes = {
-  categoryId: number.isRequired,
+  objectiveId: number.isRequired,
   amount: number.isRequired,
 };
 

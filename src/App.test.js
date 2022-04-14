@@ -4,7 +4,6 @@ import { DateTime } from "luxon";
 import { readFileSync } from "fs";
 import {
   repeat,
-  asyncReduce,
   transactionsTotals,
   currencyFormat,
   getTransactionsStats,
@@ -17,17 +16,20 @@ import App from "./App";
 import { mockTable } from "./test-utils/mocks";
 import {
   transactionMock,
-  categoryMock,
   accountMock,
-  incomeCategoryMock,
+  incomeSourceMock,
+  objectiveMock,
 } from "./test-utils/mocks/entities";
 import { makeEventsPoint } from "./test-utils";
-import { writeFileAsync } from "./lib";
+import { asyncReduce, writeFileAsync } from "./lib";
 
 jest.mock("dexie", () => {
   return function Dexie() {
     return {
-      version: () => ({ stores: () => {}, upgrade: () => {} }),
+      version: () => ({
+        stores: () => ({ upgrade: () => {} }),
+        upgrade: () => {},
+      }),
       table: (tableName) => mockTable(tableName),
     };
   };
@@ -65,34 +67,34 @@ describe("App", () => {
     fireEvent.click(await wrapper.findByText("New Transaction"));
   };
 
-  describe("there is a transaction with a closed category", () => {
-    let category;
+  describe("there is a transaction with a closed objective", () => {
+    let objective;
     let transaction;
     beforeEach(async () => {
-      category = categoryMock({ closedAt: DateTime.local().toSeconds() });
+      objective = objectiveMock({ closedAt: DateTime.local().toSeconds() });
       transaction = transactionMock({
-        categoryId: category.id,
+        objectiveId: objective.id,
         type: "expense",
         date: DateTime.local().toSeconds(),
       });
 
-      await mockTable("categories").set([category]);
+      await mockTable("objectives").set([objective]);
       await mockTable("transactions").set([transaction]);
     });
 
-    it("correctly lets user edit the transaction while keeping the category", async () => {
+    it("correctly lets user edit the transaction while keeping the objective", async () => {
       await runUserActions();
 
       // Click in transaction to edit
       fireEvent.click(await wrapper.findByText(transaction.comment));
 
-      // Test category is displayed in categories dropdown
+      // Test objective is displayed in objectives dropdown
 
       // First we test that the form has opened
       await wrapper.findByText("Delete");
 
-      // Then we look for the category name
-      await wrapper.findByDisplayValue(category.name);
+      // Then we look for the objective name
+      await wrapper.findByDisplayValue(objective.name);
     });
   });
 
@@ -276,12 +278,12 @@ describe("App", () => {
         fireEvent.click(await wrapper.findByText(transaction.comment));
       });
 
-      describe("transaction account and category are in the database", () => {
+      describe("transaction account and objective are in the database", () => {
         beforeEach(async () => {
           // Decoy data
           await mockTable("accounts").put(accountMock());
-          await mockTable("categories").put(categoryMock());
-          await mockTable("incomeCategories").put(incomeCategoryMock());
+          await mockTable("objectives").put(objectiveMock());
+          await mockTable("incomeSources").put(incomeSourceMock());
           await mockTable("transactions").put(transactionMock());
 
           // Transaction data
@@ -300,12 +302,14 @@ describe("App", () => {
               accountMock({ id: transaction.destinationAccountId })
             );
           }
-          if (transaction.categoryId) {
-            await mockTable("categories").put(
-              categoryMock({ id: transaction.categoryId })
+          if (transaction.objectiveId) {
+            await mockTable("objectives").put(
+              objectiveMock({ id: transaction.objectiveId })
             );
-            await mockTable("incomeCategories").put(
-              incomeCategoryMock({ id: transaction.categoryId })
+          }
+          if (transaction.incomeSourceId) {
+            await mockTable("incomeSources").put(
+              incomeSourceMock({ id: transaction.incomeSourceId })
             );
           }
         });
@@ -354,10 +358,10 @@ describe("App", () => {
               );
             });
 
-            // Correct category
+            // Correct objective
             await waitFor(() => {
-              expect(wrapper.getByLabelText("Category").value).toEqual(
-                `${transaction.categoryId}`
+              expect(wrapper.getByLabelText("Income Source").value).toEqual(
+                `${transaction.incomeSourceId}`
               );
             });
 
@@ -652,10 +656,10 @@ describe("App", () => {
         ).toBeDisabled();
       });
 
-      describe("database has categories", () => {
+      describe("database has objectives", () => {
         beforeEach(async () => {
-          mockTable("categories").set(repeat(categoryMock, 5));
-          mockTable("incomeCategories").set(repeat(categoryMock, 5));
+          mockTable("objectives").set(repeat(objectiveMock, 5));
+          mockTable("incomeSources").set(repeat(objectiveMock, 5));
         });
 
         const expectToBeInTransactionsPage = async () => {
@@ -671,45 +675,45 @@ describe("App", () => {
           ).not.toBeDisabled();
         });
 
-        it("shows the expense categories", async () => {
+        it("shows the expense objectives", async () => {
           await runUserActions();
 
-          const expenseCategories = await mockTable("categories").toArray();
+          const expenseObjectives = await mockTable("objectives").toArray();
 
           await waitFor(() => {
-            expenseCategories.forEach((cat) => {
+            expenseObjectives.forEach((cat) => {
               wrapper.getByText(cat.name);
             });
           });
         });
 
-        describe("when some categories are closed", () => {
-          let openCategories;
-          let closedCategories;
+        describe("when some objectives are closed", () => {
+          let openObjectives;
+          let closedObjectives;
           beforeEach(async () => {
-            openCategories = await mockTable("categories").toArray();
+            openObjectives = await mockTable("objectives").toArray();
 
-            closedCategories = repeat(
-              () => categoryMock({ closedAt: DateTime.local().toSeconds() }),
+            closedObjectives = repeat(
+              () => objectiveMock({ closedAt: DateTime.local().toSeconds() }),
               5
             );
 
-            mockTable("categories").set([
-              ...openCategories,
-              ...closedCategories,
+            mockTable("objectives").set([
+              ...openObjectives,
+              ...closedObjectives,
             ]);
           });
 
-          it("only shows open categories", async () => {
+          it("only shows open objectives", async () => {
             await runUserActions();
 
             await waitFor(() => {
-              openCategories.forEach((category) => {
-                wrapper.getByText(category.name);
+              openObjectives.forEach((objective) => {
+                wrapper.getByText(objective.name);
               });
 
-              closedCategories.forEach((category) => {
-                expect(wrapper.queryByText(category.name)).toBeNull();
+              closedObjectives.forEach((objective) => {
+                expect(wrapper.queryByText(objective.name)).toBeNull();
               });
             });
           });
@@ -723,15 +727,15 @@ describe("App", () => {
             await waitFor(() => {});
           });
 
-          it("shows the income categories", async () => {
+          it("shows the income sources", async () => {
             await runUserActions();
 
-            const expenseCategories = await mockTable(
-              "incomeCategories"
+            const expenseObjectives = await mockTable(
+              "incomeSources"
             ).toArray();
 
             await waitFor(() => {
-              expenseCategories.forEach((cat) => {
+              expenseObjectives.forEach((cat) => {
                 wrapper.getByText(cat.name);
               });
             });
@@ -746,11 +750,11 @@ describe("App", () => {
             await waitFor(() => {});
           });
 
-          it("does not show category field", async () => {
+          it("does not show objective field", async () => {
             await runUserActions();
 
             await waitFor(() => {
-              expect(wrapper.queryByLabelText("Category")).toBeNull();
+              expect(wrapper.queryByLabelText("Objective")).toBeNull();
             });
           });
         });
@@ -887,10 +891,10 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
-    it("correctly lest user create a new category", async () => {
+    it("correctly lest user create a new objective", async () => {
       await runUserActions();
 
-      // Click new category button
+      // Click new objective button
       fireEvent.click(await wrapper.findByText("New Objective"));
 
       // Input name and save
@@ -905,36 +909,36 @@ describe("App", () => {
     });
 
     it("correctly lets user change name of an objective", async () => {
-      const category = categoryMock();
-      mockTable("categories").set([category]);
+      const objective = objectiveMock();
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category name
-      fireEvent.click(await wrapper.findByText(category.name));
+      // Click on objective name
+      fireEvent.click(await wrapper.findByText(objective.name));
 
-      // Change category name
-      const newName = "new category name";
-      fireEvent.change(await wrapper.findByDisplayValue(category.name), {
+      // Change objective name
+      const newName = "new objective name";
+      fireEvent.change(await wrapper.findByDisplayValue(objective.name), {
         target: { value: newName },
       });
 
       // Click save
       fireEvent.click(wrapper.getByText("Save"));
 
-      // Test new category name is shown
+      // Test new objective name is shown
       await wrapper.findByText(newName);
     });
 
     it("correctly lets user add amount to objective", async () => {
-      const category = categoryMock({ assignedAmount: 1000 });
-      mockTable("categories").set([category]);
+      const objective = objectiveMock({ assignedAmount: 1000 });
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category amount
+      // Click on objective amount
       fireEvent.click(
-        await wrapper.findByText(currencyFormat(category.assignedAmount))
+        await wrapper.findByText(currencyFormat(objective.assignedAmount))
       );
 
       // Input amount
@@ -946,21 +950,21 @@ describe("App", () => {
       // Click add
       fireEvent.click(wrapper.getByText("Add"));
 
-      // Test new category name is shown
+      // Test new objective name is shown
       await wrapper.findByText(
-        currencyFormat(newAmount + category.assignedAmount)
+        currencyFormat(newAmount + objective.assignedAmount)
       );
     });
 
     it("correctly lets user substract amount from objective", async () => {
-      const category = categoryMock({ assignedAmount: 1000 });
-      mockTable("categories").set([category]);
+      const objective = objectiveMock({ assignedAmount: 1000 });
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category amount
+      // Click on objective amount
       fireEvent.click(
-        await wrapper.findByText(currencyFormat(category.assignedAmount))
+        await wrapper.findByText(currencyFormat(objective.assignedAmount))
       );
 
       // Input amount
@@ -972,55 +976,55 @@ describe("App", () => {
       // Click add
       fireEvent.click(wrapper.getByText("Subtract"));
 
-      // Test new category name is shown
+      // Test new objective name is shown
       await wrapper.findByText(
-        currencyFormat(-newAmount + category.assignedAmount)
+        currencyFormat(-newAmount + objective.assignedAmount)
       );
     });
 
     it("does not let user close objective if it has a nonzero amount", async () => {
-      const category = categoryMock({ assignedAmount: 1000 });
-      mockTable("categories").set([category]);
+      const objective = objectiveMock({ assignedAmount: 1000 });
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category name
-      fireEvent.click(await wrapper.findByText(category.name));
+      // Click on objective name
+      fireEvent.click(await wrapper.findByText(objective.name));
 
       // Test delete button is disabled
       expect(await wrapper.findByText("Delete")).toBeDisabled();
     });
 
     it("correctly lets user close objective", async () => {
-      const category = categoryMock({ assignedAmount: 0 });
-      mockTable("categories").set([category]);
+      const objective = objectiveMock({ assignedAmount: 0 });
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category name
-      fireEvent.click(await wrapper.findByText(category.name));
+      // Click on objective name
+      fireEvent.click(await wrapper.findByText(objective.name));
 
       // Click on delete button
       fireEvent.click(await wrapper.findByText("Delete"));
 
-      // Wait for category to disappear
+      // Wait for objective to disappear
       await waitFor(() => {
-        expect(wrapper.queryByText(category.name)).toBeNull();
+        expect(wrapper.queryByText(objective.name)).toBeNull();
       });
     });
 
     it("correctly lets user reopen objective", async () => {
-      const category = categoryMock({
+      const objective = objectiveMock({
         assignedAmount: 10000,
         closedAt: DateTime.local(),
       });
 
-      mockTable("categories").set([category]);
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category name
-      fireEvent.click(await wrapper.findByText(category.name));
+      // Click on objective name
+      fireEvent.click(await wrapper.findByText(objective.name));
 
       // Click on restore button
       fireEvent.click(await wrapper.findByText("Restore"));
@@ -1030,41 +1034,41 @@ describe("App", () => {
         expect(wrapper.queryByText("Restore")).toBeNull();
       });
 
-      // Click again on category and test for edit name button
-      fireEvent.click(await wrapper.findByText(category.name));
+      // Click again on objective and test for edit name button
+      fireEvent.click(await wrapper.findByText(objective.name));
       await wrapper.findByText("Save");
     });
 
     it("does not show closed objective with zero amount", async () => {
-      const category = categoryMock({
+      const objective = objectiveMock({
         assignedAmount: 0,
         closedAt: DateTime.local(),
       });
 
-      mockTable("categories").set([category]);
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
       // Test for everything to load
       await wrapper.findByText("Without objective");
 
-      // Test for category name not to show
-      expect(wrapper.queryByText(category.name)).toBeNull();
+      // Test for objective name not to show
+      expect(wrapper.queryByText(objective.name)).toBeNull();
     });
 
     it("does not let add or subtract amount to closed objective", async () => {
-      const category = categoryMock({
+      const objective = objectiveMock({
         assignedAmount: 10000,
         closedAt: DateTime.local(),
       });
 
-      mockTable("categories").set([category]);
+      mockTable("objectives").set([objective]);
 
       await runUserActions();
 
-      // Click on category amount
+      // Click on objective amount
       fireEvent.click(
-        await wrapper.findByText(currencyFormat(category.assignedAmount))
+        await wrapper.findByText(currencyFormat(objective.assignedAmount))
       );
 
       // Test modal doesn't show up
@@ -1108,7 +1112,7 @@ describe("App", () => {
 
     describe("user converts excel to json and imports json", () => {
       const accountName = "acc1";
-      const categoryName = "cat1";
+      const objectiveName = "cat1";
       const transactionComment = "comm1";
       const transactionDate = DateTime.local();
       const transactionAmount = 5123;
@@ -1121,7 +1125,7 @@ describe("App", () => {
           {
             Date: luxonSecondsToExcelDays(transactionDate.toSeconds()),
             Account: accountName,
-            Category: categoryName,
+            Category: objectiveName,
             Note: transactionComment,
             "Income/Expense": "Expense",
             Amount: transactionAmount,
@@ -1155,7 +1159,7 @@ describe("App", () => {
 
         fireEvent.click(wrapper.getByText("Objectives"));
 
-        await wrapper.findByText(categoryName);
+        await wrapper.findByText(objectiveName);
 
         fireEvent.click(wrapper.getByText("Transactions"));
 
@@ -1177,11 +1181,11 @@ describe("App", () => {
         // Transaction comment
         await wrapper.findByText(transactionComment);
 
-        // Account and category
+        // Account and objective
         await wrapper.findByText(accountName, {
           exact: false,
         });
-        await wrapper.findByText(categoryName);
+        await wrapper.findByText(objectiveName);
       });
     });
 
@@ -1225,24 +1229,24 @@ describe("App", () => {
 
       it("correctly exports and imports info", async () => {
         const incomeTransaction = transactionMock({
-          category: categoryMock(),
+          incomeSource: incomeSourceMock(),
           account: accountMock(),
           type: "income",
           date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
         });
-        incomeTransaction.categoryId = incomeTransaction.category.id;
+        incomeTransaction.incomeSourceId = incomeTransaction.incomeSource.id;
         incomeTransaction.accountId = incomeTransaction.account.id;
 
         const closedAccount = accountMock({ closedAt: DateTime.local() });
-        const closedCategory = categoryMock({ closedAt: DateTime.local() });
+        const closedObjective = objectiveMock({ closedAt: DateTime.local() });
 
         const expenseTransaction = transactionMock({
-          category: categoryMock(),
+          objective: objectiveMock(),
           account: accountMock(),
           type: "expense",
           date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
         });
-        expenseTransaction.categoryId = expenseTransaction.category.id;
+        expenseTransaction.objectiveId = expenseTransaction.objective.id;
         expenseTransaction.accountId = expenseTransaction.account.id;
 
         const transferTransaction = transactionMock({
@@ -1257,15 +1261,15 @@ describe("App", () => {
         transferTransaction.destinationAccountId =
           transferTransaction.destinationAccount.id;
 
-        const categoryWithAssignedAmount = categoryMock({
+        const objectiveWithAssignedAmount = objectiveMock({
           assignedAmount: 1234,
         });
 
-        await mockTable("incomeCategories").set([incomeTransaction.category]);
-        await mockTable("categories").set([
-          expenseTransaction.category,
-          closedCategory,
-          categoryWithAssignedAmount,
+        await mockTable("incomeSources").set([incomeTransaction.incomeSource]);
+        await mockTable("objectives").set([
+          expenseTransaction.objective,
+          closedObjective,
+          objectiveWithAssignedAmount,
         ]);
         await mockTable("accounts").set([
           incomeTransaction.account,
@@ -1283,13 +1287,13 @@ describe("App", () => {
         await runUserActions();
 
         // Wait for refetches to finish
-        await wrapper.findByText(incomeTransaction.category.name);
+        await wrapper.findByText(incomeTransaction.incomeSource.name);
 
         // Closed account
         expect(wrapper.queryByText(closedAccount.name)).toBeNull();
 
-        // Closed category
-        expect(wrapper.queryByText(closedCategory.name)).toBeNull();
+        // Closed objective
+        expect(wrapper.queryByText(closedObjective.name)).toBeNull();
 
         fireEvent.click(wrapper.getByText("Transactions"));
 
@@ -1316,14 +1320,14 @@ describe("App", () => {
         // Transaction comment
         await wrapper.findByText(incomeTransaction.comment);
 
-        // Account and category for income
+        // Account and source for income
         await wrapper.findByText(incomeTransaction.account.name, {
           exact: false,
         });
-        await wrapper.findByText(incomeTransaction.category.name);
+        await wrapper.findByText(incomeTransaction.incomeSource.name);
 
-        // Category for expense
-        await wrapper.findByText(expenseTransaction.category.name);
+        // Objective for expense
+        await wrapper.findByText(expenseTransaction.objective.name);
 
         // Accounts for transfer
         await wrapper.findByText(transferTransaction.originAccount.name, {
@@ -1331,10 +1335,10 @@ describe("App", () => {
         });
         await wrapper.findByText(transferTransaction.destinationAccount.name);
 
-        // Category with assigned amount
+        // Objective with assigned amount
         fireEvent.click(await wrapper.findByText("Objectives"));
         await wrapper.findByText(
-          currencyFormat(categoryWithAssignedAmount.assignedAmount)
+          currencyFormat(objectiveWithAssignedAmount.assignedAmount)
         );
       });
     });
@@ -1377,22 +1381,22 @@ describe("App", () => {
         const transaction = transactionMock({
           date: DateTime.local().toSeconds(), // This month so it's visible on transactions page
         });
-        const category = categoryMock();
-        const incomeCategory = categoryMock();
+        const objective = objectiveMock();
+        const incomeSource = objectiveMock();
         const account = accountMock();
 
-        await mockTable("categories").set([category]);
-        await mockTable("incomeCategories").set([incomeCategory]);
+        await mockTable("objectives").set([objective]);
+        await mockTable("incomeSources").set([incomeSource]);
         await mockTable("accounts").set([account]);
         await mockTable("transactions").set([transaction]);
 
         await runUserActions();
 
         await waitFor(() => {
-          expect(wrapper.queryByText(category.name)).toBeNull();
+          expect(wrapper.queryByText(objective.name)).toBeNull();
         });
 
-        expect(wrapper.queryByText(incomeCategory.name)).toBeNull();
+        expect(wrapper.queryByText(incomeSource.name)).toBeNull();
 
         expect(wrapper.queryByText(account.name)).toBeNull();
 
@@ -1431,7 +1435,7 @@ describe("App", () => {
       });
     });
 
-    describe("user presses the new income category button", () => {
+    describe("user presses the new income source button", () => {
       userAction(async () => {
         const createButton = wrapper.baseElement.querySelectorAll(
           "[aria-label='Create']"
@@ -1439,14 +1443,14 @@ describe("App", () => {
 
         fireEvent.click(createButton);
       });
-      describe("user writes income category name and saves", () => {
-        const newIncomeCategoryName = "this is an income category";
+      describe("user writes income source name and saves", () => {
+        const newIncomeSourceName = "this is an income source";
 
         userAction(async () => {
           const nameInput = wrapper.baseElement.querySelectorAll("input")[1];
 
           fireEvent.change(nameInput, {
-            target: { value: newIncomeCategoryName },
+            target: { value: newIncomeSourceName },
           });
 
           fireEvent.click(
@@ -1454,10 +1458,10 @@ describe("App", () => {
           );
         });
 
-        it("adds the new income category to the list", async () => {
+        it("adds the new income source to the list", async () => {
           await runUserActions();
 
-          await wrapper.findByText(newIncomeCategoryName);
+          await wrapper.findByText(newIncomeSourceName);
         });
       });
     });
@@ -1498,18 +1502,18 @@ describe("App", () => {
       });
     });
 
-    describe("database has categories and accounts", () => {
-      let categories;
+    describe("database has objectives and accounts", () => {
+      let objectives;
       let accounts;
       beforeEach(async () => {
-        mockTable("categories").set(repeat(categoryMock, 4));
+        mockTable("objectives").set(repeat(objectiveMock, 4));
         mockTable("accounts").set(repeat(accountMock, 4));
 
-        categories = await mockTable("categories").toArray();
+        objectives = await mockTable("objectives").toArray();
         accounts = await mockTable("accounts").toArray();
       });
 
-      it("shows categories and accounts", async () => {
+      it("shows objectives and accounts", async () => {
         await runUserActions();
 
         await asyncReduce(
@@ -1521,8 +1525,8 @@ describe("App", () => {
         fireEvent.click(await wrapper.findByText("Objectives"));
 
         await asyncReduce(
-          categories.map((category) => async () => {
-            await wrapper.findByText(category.name);
+          objectives.map((objective) => async () => {
+            await wrapper.findByText(objective.name);
           })
         );
       });

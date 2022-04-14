@@ -5,8 +5,8 @@ import { DelayedCircularProgress } from "components";
 import { Item, NewObjectiveButton, ObjectiveItem } from "./objectives";
 
 const Objectives = () => {
-  const { loading: categoriesLoading, data: categories = [] } = useReadData(
-    "categories"
+  const { loading: objectivesLoading, data: objectives = [] } = useReadData(
+    "objectives"
   );
   const { loading: transactionsLoading, data: transactions = [] } = useReadData(
     "transactions"
@@ -15,35 +15,36 @@ const Objectives = () => {
   const amountsPerObjective = useMemo(() => {
     const amounts = { total: 0 };
     transactions.forEach((transaction) => {
-      amounts[transaction.categoryId] = amounts[transaction.categoryId] || 0;
+      amounts[transaction.objectiveId] = amounts[transaction.objectiveId] || 0;
       if (transaction.type === "expense") {
-        amounts[transaction.categoryId] -= transaction.amount;
+        amounts[transaction.objectiveId] -= transaction.amount;
       }
       if (transaction.type === "income") {
         amounts.total += transaction.amount;
       }
     });
 
-    categories.forEach((category) => {
-      amounts.total -= category.assignedAmount;
+    objectives.forEach((objective) => {
+      amounts.total -= objective.assignedAmount;
     });
     return amounts;
-  }, [transactions, categories]);
+  }, [transactions, objectives]);
 
-  if (categoriesLoading || transactionsLoading) {
+  if (objectivesLoading || transactionsLoading) {
     return <DelayedCircularProgress />;
   }
 
   return (
     <List>
       <Item label="Without objective" amount={amountsPerObjective.total} />
-      {categories.map((category) => {
+      {objectives.map((objective) => {
         return (
           <ObjectiveItem
-            key={category.id}
-            categoryId={category.id}
+            key={objective.id}
+            objectiveId={objective.id}
             amount={
-              (amountsPerObjective[category.id] || 0) + category.assignedAmount
+              (amountsPerObjective[objective.id] || 0) +
+              objective.assignedAmount
             }
           />
         );

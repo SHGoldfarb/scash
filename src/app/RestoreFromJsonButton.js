@@ -27,8 +27,8 @@ const handleFileSelect = async (event) => {
 
 const RestoreFromJsonButton = () => {
   const { refetch: refetchAccounts } = useReadData("accounts");
-  const { refetch: refetchCategories } = useReadData("categories");
-  const { refetch: refetchIncomeCategories } = useReadData("incomeCategories");
+  const { refetch: refetchObjectives } = useReadData("objectives");
+  const { refetch: refetchIncomeSources } = useReadData("incomeSources");
   const { refetch: refetchTransactions } = useReadData("transactions");
   return (
     <Button component="label">
@@ -40,8 +40,8 @@ const RestoreFromJsonButton = () => {
           await handleFileSelect(ev);
 
           refetchAccounts();
-          refetchCategories();
-          refetchIncomeCategories();
+          refetchObjectives();
+          refetchIncomeSources();
           refetchTransactions();
         }}
       />

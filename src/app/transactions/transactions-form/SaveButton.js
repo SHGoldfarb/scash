@@ -2,9 +2,14 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { func, number, string } from "prop-types";
 import { Button } from "@mui/material";
+import { DelayedCircularProgress } from "components";
 import { useReadData, useWriteData } from "../../../hooks";
 import { makePath, transactionsPathName } from "../../../utils";
-import { useFormAccounts, useFormCategories } from "./hooks";
+import {
+  useFormAccounts,
+  useFormIncomeSources,
+  useFormObjectives,
+} from "./hooks";
 
 // TODO: put in own file
 const put = (items, itemToInsert, isEqual) => {
@@ -21,8 +26,19 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
   const history = useHistory();
   const { upsert } = useWriteData("transactions");
   const { update } = useReadData("transactions");
-  const { availableCategories } = useFormCategories(transactionType);
-  const { openAccounts } = useFormAccounts();
+  const {
+    availableObjectives,
+    loading: objectivesLoading,
+  } = useFormObjectives();
+  const {
+    availableIncomeSources,
+    loading: incomeSourcesLoading,
+  } = useFormIncomeSources();
+  const { openAccounts, loading: accountsLoading } = useFormAccounts();
+
+  if (objectivesLoading || incomeSourcesLoading || accountsLoading) {
+    return <DelayedCircularProgress />;
+  }
 
   const defaultAccountId = openAccounts[0]?.id;
 
@@ -30,7 +46,8 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
     <Button
       disabled={
         !openAccounts.length ||
-        (transactionType !== "transfer" && !availableCategories.length)
+        (transactionType === "income" && !availableIncomeSources.length) ||
+        (transactionType === "expense" && !availableObjectives.length)
       }
       onClick={handleSubmit(
         async ({
@@ -41,7 +58,8 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
           accountId = defaultAccountId,
           originAccountId = defaultAccountId,
           destinationAccountId = defaultAccountId,
-          categoryId,
+          incomeSourceId,
+          objectiveId,
         }) => {
           const newTransaction = await upsert({
             id: transactionId,
@@ -52,7 +70,8 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
             accountId: parseInt(accountId, 10),
             originAccountId: parseInt(originAccountId, 10),
             destinationAccountId: parseInt(destinationAccountId, 10),
-            categoryId: parseInt(categoryId, 10),
+            incomeSourceId: parseInt(incomeSourceId, 10),
+            objectiveId: parseInt(objectiveId, 10),
           });
 
           update((transactions) =>
