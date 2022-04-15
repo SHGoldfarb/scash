@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { AppBar, Button, IconButton, TextField, Toolbar } from "@mui/material";
+import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { MobileDatePicker } from "@mui/lab";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
 import { editPathName, makePath, transactionsPathName } from "utils";
 import { useSelectedMonth } from "../hooks";
@@ -30,17 +29,7 @@ const TransactionsAppBar = () => {
         >
           <NavigateBefore />
         </IconButton>
-        <MobileDatePicker
-          openTo="year"
-          // TODO: fix this throwing console warning then opening month view
-          // views={["year", "month"]}
-          // TODO: remove the inputFormat prop once the `views` issue is resolved
-          inputFormat={dateFormat}
-          value={selectedMonth}
-          onChange={setSelectedMonth}
-          renderInput={(props) => <TextField {...props} variant="standard" />}
-        />
-
+        <Typography>{selectedMonth.toFormat(dateFormat)}</Typography>
         <IconButton
           onClick={() => setSelectedMonth(selectedMonth.plus({ months: 1 }))}
         >

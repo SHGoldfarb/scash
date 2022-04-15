@@ -126,7 +126,7 @@ describe("App", () => {
       await runUserActions();
 
       const nextMonthDate = DateTime.local().plus({ months: 1 });
-      await wrapper.findByDisplayValue(
+      await wrapper.findByText(
         `${nextMonthDate.monthLong} ${nextMonthDate.year}`
       );
     });
@@ -141,7 +141,7 @@ describe("App", () => {
       await runUserActions();
 
       const prevMonthDate = DateTime.local().plus({ months: -1 });
-      await wrapper.findByDisplayValue(
+      await wrapper.findByText(
         `${prevMonthDate.monthLong} ${prevMonthDate.year}`
       );
     });
@@ -225,35 +225,6 @@ describe("App", () => {
           await expectTransactionInList(transaction);
         })
       );
-    };
-
-    const selectMonth = async (date) => {
-      // Click on month field to open month dialog
-      const currentDate = DateTime.local();
-      const monthInput = await wrapper.findByDisplayValue(
-        `${currentDate.monthLong} ${currentDate.year}`
-      );
-
-      fireEvent.click(monthInput);
-
-      // Identify the dialog
-      const dialogWrapper = (await wrapper.findAllByRole("presentation"))[0];
-
-      // Click on the pen icon to manually input date
-      fireEvent.click(within(dialogWrapper).getByTestId("PenIcon"));
-
-      // Input new date
-      fireEvent.change(
-        within(dialogWrapper).getByDisplayValue(
-          `${currentDate.monthLong} ${currentDate.year}`
-        ),
-        {
-          target: { value: `${date.monthLong} ${date.year}` },
-        }
-      );
-
-      // Click OK
-      fireEvent.click(within(dialogWrapper).getByText("OK"));
     };
 
     it("shows total income/expense for month", async () => {
@@ -413,7 +384,7 @@ describe("App", () => {
             await runUserActions();
 
             // Test is in transactions list in the correct month
-            await wrapper.findByDisplayValue(
+            await wrapper.findByText(
               DateTime.fromSeconds(transaction.date).toFormat("MMMM yyyy")
             );
 
@@ -465,11 +436,7 @@ describe("App", () => {
       describe("user selects past month", () => {
         // Select previous month
         userAction(async () => {
-          const previousMonthDate = DateTime.local()
-            .startOf("month")
-            .minus({ months: 1 });
-
-          await selectMonth(previousMonthDate);
+          fireEvent.click(await wrapper.findByTestId("NavigateBeforeIcon"));
         });
 
         it("shows transactions list for selected month", async () => {
@@ -514,11 +481,7 @@ describe("App", () => {
     describe("user selects future month", () => {
       // Select next month
       userAction(async () => {
-        const nextMonthDate = DateTime.local()
-          .startOf("month")
-          .plus({ months: 1 });
-
-        await selectMonth(nextMonthDate);
+        fireEvent.click(await wrapper.findByTestId("NavigateNextIcon"));
       });
       describe("user presses new transactions button", () => {
         userAction(async () => {
