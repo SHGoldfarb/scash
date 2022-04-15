@@ -17,7 +17,7 @@ export const transactionMock = makeEntityMock((id) => ({
   comment: `${sample(words)} ${sample(words)}${id} ${sample(words)}`,
   date: 1604767791 + id * 60,
   amount: 5000 + id,
-  type: ["expense", "income", "transfer"][id % 3],
+  type: ["expense", "income", "transfer"][Math.round(id / 7) % 3],
   accountId: newId(),
   originAccountId: newId(),
   destinationAccountId: newId(),
