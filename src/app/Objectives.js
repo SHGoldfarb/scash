@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { List } from "@mui/material";
-import { useReadData } from "hooks";
+import { useData } from "hooks";
 import { DelayedCircularProgress } from "components";
 import { Item, NewObjectiveButton, ObjectiveItem } from "./objectives";
 
 const Objectives = () => {
-  const { loading: objectivesLoading, data: objectives = [] } = useReadData(
+  const { loading: objectivesLoading, data: objectives = [] } = useData(
     "objectives"
   );
-  const { loading: transactionsLoading, data: transactions = [] } = useReadData(
+  const { loading: transactionsLoading, data: transactions = [] } = useData(
     "transactions"
   );
 

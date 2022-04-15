@@ -1,9 +1,9 @@
-import { useReadData } from "hooks";
+import { useData } from "hooks";
 import { isOpen, isClosed } from "utils";
 import { useCurrentTransaction } from "../hooks";
 
 export const useFormIncomeSources = () => {
-  const result = useReadData("incomeSources");
+  const result = useData("incomeSources");
 
   const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
@@ -20,7 +20,7 @@ export const useFormIncomeSources = () => {
 };
 
 export const useFormObjectives = () => {
-  const result = useReadData("objectives");
+  const result = useData("objectives");
 
   const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
@@ -37,7 +37,7 @@ export const useFormObjectives = () => {
 };
 
 export const useFormAccounts = () => {
-  const result = useReadData("accounts");
+  const result = useData("accounts");
 
   const openAccounts = (result.data || []).filter(isOpen);
   const closedAccounts = (result.data || []).filter(isClosed);

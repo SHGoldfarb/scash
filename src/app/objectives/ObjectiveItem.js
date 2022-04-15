@@ -1,20 +1,17 @@
 import React from "react";
 import { number } from "prop-types";
 import { DateTime } from "luxon";
-import { useReadData, useWriteData } from "hooks";
+import { useData } from "hooks";
 import { DelayedCircularProgress } from "components";
-import { upsertById } from "utils";
 import { Item } from "./components";
 
 const ObjectiveItem = ({ objectiveId, amount }) => {
-  const { dataHash: objectivesHash = {}, update, loading } = useReadData(
+  const { dataHash: objectivesHash = {}, upsert, loading } = useData(
     "objectives"
   );
-  const { upsert } = useWriteData("objectives");
 
   const handleUpdate = async (newObjective) => {
-    const returnedObjective = await upsert(newObjective);
-    update((objectives) => upsertById(objectives, returnedObjective));
+    await upsert(newObjective);
   };
 
   if (loading) {

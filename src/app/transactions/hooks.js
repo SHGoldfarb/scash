@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { useLocation, useHistory } from "react-router-dom";
-import { useReadData } from "hooks";
+import { useData } from "hooks";
 import { makePath, transactionsPathName, parseSearchParams } from "utils";
 
 export const useCurrentTransaction = () => {
@@ -8,9 +8,7 @@ export const useCurrentTransaction = () => {
 
   const { id } = parseSearchParams(location.search);
 
-  const { loading, dataHash: transactionsHash = {} } = useReadData(
-    "transactions"
-  );
+  const { loading, dataHash: transactionsHash = {} } = useData("transactions");
 
   const intId = id ? parseInt(id, 10) : null;
 

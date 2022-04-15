@@ -2,30 +2,22 @@ import { Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import React from "react";
 import { DelayedCircularProgress, EditableList } from "../components";
-import { useReadData, useWriteData } from "../hooks";
-import { upsertById } from "../utils";
+import { useData } from "../hooks";
 
 const IncomeSources = () => {
-  const { loading, data: incomeSources = [], update } = useReadData(
+  const { loading, data: incomeSources = [], upsert } = useData(
     "incomeSources"
   );
-  const { upsert } = useWriteData("incomeSources");
 
   const deleteIncomeSource = async (incomeSourceToDelete) => {
-    const returnedIncomeSource = await upsert({
+    await upsert({
       ...incomeSourceToDelete,
       closedAt: DateTime.local().toSeconds(),
     });
-    update((currentIncomeSources) =>
-      upsertById(currentIncomeSources, returnedIncomeSource)
-    );
   };
 
   const upsertIncomeSource = async (newIncomeSource) => {
-    const returnedIncomeSource = await upsert(newIncomeSource);
-    update((currentIncomeSources) =>
-      upsertById(currentIncomeSources, returnedIncomeSource)
-    );
+    await upsert(newIncomeSource);
   };
 
   const openIncomeSources = incomeSources.filter(

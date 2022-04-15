@@ -1,55 +1,55 @@
+import { useMemo } from "react";
+import { upsertById } from "utils";
 import { useGlobalMemo } from "./useGlobalMemo";
-import { isFunction } from "../lib";
 import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
 
-export const useReadData = (tableName) => {
-  const { result, loading, update, reset } = useGlobalMemo(
-    tableName,
-    async () => {
-      const dataArray = await getAll(tableName);
-      const dataHash = {};
-      dataArray.forEach((item) => {
-        dataHash[item.id] = item;
-      });
+export const useData = (tableName) => {
+  const {
+    result: data = [],
+    loading,
+    update: updateCache,
+    reset: clearCache,
+  } = useGlobalMemo(tableName, async () => getAll(tableName));
 
-      return { dataArray, dataHash };
-    }
-  );
-
-  const updateResult = (newValue) =>
-    update((prev) => {
-      const newDataArray = isFunction(newValue)
-        ? newValue(prev?.dataArray)
-        : newValue;
-      const newDataHash = {};
-      newDataArray.forEach((item) => {
-        newDataHash[item.id] = item;
-      });
-
-      return { dataArray: newDataArray, dataHash: newDataHash };
+  const dataHash = useMemo(() => {
+    const hash = {};
+    data.forEach((item) => {
+      hash[item.id] = item;
     });
 
-  return {
-    data: result?.dataArray,
-    dataHash: result?.dataHash,
-    loading: loading || !result,
-    update: updateResult,
-    refetch: reset,
-  };
-};
+    return hash;
+  }, [data]);
 
-export const useWriteData = (tableName) => {
   return {
+    data,
+    dataHash,
+    loading: loading || !data,
+    refetch: clearCache,
     upsert: async (newData) => {
       const newId = await upsert(tableName, newData);
-      return getById(tableName, newId);
+      const newItem = await getById(tableName, newId);
+      updateCache((prevItems) => upsertById(prevItems, newItem));
+      return newItem;
     },
-    remove: (id) => remove(tableName, id),
-    clear: () => clear(tableName),
-    bulkAdd: (items) => bulkAdd(tableName, items),
+    remove: async (id) => {
+      const result = await remove(tableName, id);
+      clearCache();
+      return result;
+    },
+    clear: async () => {
+      const result = await clear(tableName);
+      clearCache();
+      return result;
+    },
+    bulkAdd: async (items) => {
+      const result = await bulkAdd(tableName, items);
+      clearCache();
+      return result;
+    },
     set: async (items) => {
       await clear(tableName);
       await bulkAdd(tableName, items);
+      clearCache();
       return getAll(tableName);
     },
   };

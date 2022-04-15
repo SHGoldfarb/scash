@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { useReadData } from "hooks";
+import { useData } from "hooks";
 import { importFromJSON } from "utils";
 
 const readAsText = (file) =>
@@ -26,10 +26,10 @@ const handleFileSelect = async (event) => {
 };
 
 const RestoreFromJsonButton = () => {
-  const { refetch: refetchAccounts } = useReadData("accounts");
-  const { refetch: refetchObjectives } = useReadData("objectives");
-  const { refetch: refetchIncomeSources } = useReadData("incomeSources");
-  const { refetch: refetchTransactions } = useReadData("transactions");
+  const { refetch: refetchAccounts } = useData("accounts");
+  const { refetch: refetchObjectives } = useData("objectives");
+  const { refetch: refetchIncomeSources } = useData("incomeSources");
+  const { refetch: refetchTransactions } = useData("transactions");
   return (
     <Button component="label">
       Import from JSON

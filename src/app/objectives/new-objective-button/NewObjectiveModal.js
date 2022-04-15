@@ -8,19 +8,16 @@ import {
   TextField,
 } from "@mui/material";
 import { func } from "prop-types";
-import { useReadData, useWriteData } from "hooks";
+import { useData } from "hooks";
 import { DelayedCircularProgress } from "components";
-import { upsertById } from "utils";
 
 const NewObjectiveModal = ({ onClose }) => {
   const [name, setName] = useState("");
 
-  const { update, loading } = useReadData("objectives");
-  const { upsert } = useWriteData("objectives");
+  const { upsert, loading } = useData("objectives");
 
   const handleCreate = async () => {
-    const returnedObjective = await upsert({ name });
-    update((objectives) => upsertById(objectives, returnedObjective));
+    await upsert({ name });
   };
 
   if (loading) {

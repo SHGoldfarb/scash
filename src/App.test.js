@@ -150,7 +150,7 @@ describe("App", () => {
   describe("database has a single transaction and single account", () => {
     let transaction;
     let account;
-    beforeEach(() => {
+    beforeEach(async () => {
       transaction = transactionMock({
         date: startOfMonth().toSeconds(),
         type: "expense",
@@ -158,8 +158,8 @@ describe("App", () => {
 
       account = accountMock({ id: transaction.accountId });
 
-      mockTable("transactions").set([transaction]);
-      mockTable("accounts").set([account]);
+      await mockTable("transactions").set([transaction]);
+      await mockTable("accounts").set([account]);
     });
 
     describe("user is in the transactions page and account name is rendered", () => {
@@ -184,6 +184,9 @@ describe("App", () => {
 
           // Click in save icon
           fireEvent.click(await wrapper.findByTestId("save"));
+
+          // Avoid act() warning
+          await waitFor(() => {});
         });
 
         describe("user goes back to transactions page", () => {
@@ -1456,6 +1459,9 @@ describe("App", () => {
           fireEvent.click(
             wrapper.baseElement.querySelector("[aria-label='save']")
           );
+
+          // Avoid act() warning
+          await waitFor(() => {});
         });
 
         it("adds the new income source to the list", async () => {
@@ -1492,6 +1498,9 @@ describe("App", () => {
           fireEvent.click(
             wrapper.baseElement.querySelector("[aria-label='save']")
           );
+
+          // Avoid act() warning
+          await waitFor(() => {});
         });
 
         it("new account name is shown", async () => {

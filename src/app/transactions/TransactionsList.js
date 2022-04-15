@@ -9,7 +9,7 @@ import {
   transactionsTotals,
 } from "utils";
 import { DelayedCircularProgress } from "components";
-import { useReadData } from "hooks";
+import { useData } from "hooks";
 import { TransactionCard, TransactionsAppBar } from "./transactions-list";
 import { useSelectedMonth } from "./hooks";
 
@@ -42,20 +42,17 @@ const Root = styled("div")(({ theme }) => ({
 const TransactionsList = () => {
   const [selectedMonth] = useSelectedMonth();
 
-  const { loading, data: transactions = [] } = useReadData("transactions");
+  const { loading, data: transactions = [] } = useData("transactions");
 
-  const { loading: accountsLoading, data: accounts = [] } = useReadData(
-    "accounts"
-  );
+  const { loading: accountsLoading, data: accounts = [] } = useData("accounts");
 
-  const { loading: objectivesLoading, data: objectives = [] } = useReadData(
+  const { loading: objectivesLoading, data: objectives = [] } = useData(
     "objectives"
   );
 
-  const {
-    loading: incomeSourcesLoading,
-    data: incomeSources = [],
-  } = useReadData("incomeSources");
+  const { loading: incomeSourcesLoading, data: incomeSources = [] } = useData(
+    "incomeSources"
+  );
 
   const filteredTransactions = useMemo(
     () =>

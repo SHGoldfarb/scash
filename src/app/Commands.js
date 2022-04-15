@@ -1,5 +1,5 @@
 import { TextField } from "@mui/material";
-import { useReadData, useWriteData } from "hooks";
+import { useData } from "hooks";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
 import { isEnterKey, shuffle } from "utils";
@@ -52,21 +52,14 @@ const mockIncomeSourceNames = [
 const noId = ({ id, ...rest }) => rest;
 
 const useCommands = () => {
-  const { set: setAccounts, clear: clearAccounts } = useWriteData("accounts");
-  const { set: setIncomeSources, clear: clearIncomeSources } = useWriteData(
+  const { set: setAccounts, clear: clearAccounts } = useData("accounts");
+  const { set: setIncomeSources, clear: clearIncomeSources } = useData(
     "incomeSources"
   );
-  const { set: setObjectives, clear: clearObjectives } = useWriteData(
-    "objectives"
-  );
-  const { set: setTransactions, clear: clearTransactions } = useWriteData(
+  const { set: setObjectives, clear: clearObjectives } = useData("objectives");
+  const { set: setTransactions, clear: clearTransactions } = useData(
     "transactions"
   );
-
-  const { refetch: refetchAccounts } = useReadData("accounts");
-  const { refetch: refetchIncomeSources } = useReadData("incomeSources");
-  const { refetch: refetchObjectives } = useReadData("objectives");
-  const { refetch: refetchTransactions } = useReadData("transactions");
 
   const populate = async (number) => {
     // Create accounts
@@ -81,8 +74,6 @@ const useCommands = () => {
         .map((item) => noId(item))
     );
 
-    refetchAccounts();
-
     // Create income cats
     const incomeSources = await setIncomeSources(
       shuffle(mockIncomeSourceNames)
@@ -95,8 +86,6 @@ const useCommands = () => {
         .map((item) => noId(item))
     );
 
-    refetchIncomeSources();
-
     // Create expense cats
     const objectives = await setObjectives(
       shuffle(mockObjectiveNames)
@@ -108,8 +97,6 @@ const useCommands = () => {
         )
         .map((item) => noId(item))
     );
-
-    refetchObjectives();
 
     // Create transactions
     let runningDate = DateTime.local();
@@ -129,19 +116,13 @@ const useCommands = () => {
         });
       })
     );
-
-    refetchTransactions();
   };
 
   const clear = async () => {
     await clearTransactions();
-    refetchTransactions();
     await clearAccounts();
-    refetchAccounts();
     await clearIncomeSources();
-    refetchIncomeSources();
     await clearObjectives();
-    refetchObjectives();
   };
 
   return { populate, clear };

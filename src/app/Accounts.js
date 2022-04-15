@@ -3,8 +3,8 @@ import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
 import { DelayedCircularProgress, EditableList } from "../components";
-import { useReadData, useWriteData } from "../hooks";
-import { currencyFormat, getTransactionsStats, upsertById } from "../utils";
+import { useData } from "../hooks";
+import { currencyFormat, getTransactionsStats } from "../utils";
 
 const PREFIX = "Accounts";
 
@@ -25,23 +25,20 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const Accounts = () => {
-  const { loading, data: accounts = [], update } = useReadData("accounts");
-  const { upsert } = useWriteData("accounts");
-  const { data: transactions = [], loading: transactionsLoading } = useReadData(
+  const { loading, data: accounts = [], upsert } = useData("accounts");
+  const { data: transactions = [], loading: transactionsLoading } = useData(
     "transactions"
   );
 
   const deleteAccount = async (accountToDelete) => {
-    const returnedAccount = await upsert({
+    await upsert({
       ...accountToDelete,
       closedAt: DateTime.local().toSeconds(),
     });
-    update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
   };
 
   const upsertAccount = async (newAccount) => {
-    const returnedAccount = await upsert(newAccount);
-    update((currentAccounts) => upsertById(currentAccounts, returnedAccount));
+    await upsert(newAccount);
   };
 
   const { accountAmounts } = useMemo(() => getTransactionsStats(transactions), [
