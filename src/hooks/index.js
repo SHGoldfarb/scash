@@ -1,2 +1,2 @@
 export * from "./useData";
-export * from "./useUniversalMemo";
+export * from "./useGlobalMemo";

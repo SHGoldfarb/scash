@@ -1,9 +1,9 @@
-import { useUniversalMemo } from "./useUniversalMemo";
+import { useGlobalMemo } from "./useGlobalMemo";
 import { isFunction } from "../lib";
 import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
 
 export const useReadData = (tableName) => {
-  const { result, loading, update, reset } = useUniversalMemo(
+  const { result, loading, update, reset } = useGlobalMemo(
     tableName,
     async () => {
       const dataArray = await getAll(tableName);

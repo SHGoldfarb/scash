@@ -15,7 +15,7 @@ import {
   RestoreFromJsonButton,
   ScashThemeProvider,
   Transactions,
-  UniversalMemo,
+  GlobalMemo,
 } from "./app";
 import { DataCacheProvider } from "./contexts";
 import {
@@ -32,7 +32,7 @@ const App = () => {
       <Background>
         <LocalizationProvider dateAdapter={AdapterLuxon}>
           <DataCacheProvider>
-            <UniversalMemo />
+            <GlobalMemo />
             <BrowserRouter>
               <PageContainer>
                 <Switch>

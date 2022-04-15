@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { makeSetCacheValue, useCache } from "../contexts";
 import { isFunction } from "../lib";
 
-export const usePerformNewUniversalMemoCalculations = () => {
+export const usePerformNewGlobalMemoCalculations = () => {
   const [cache, setCache] = useCache();
   useEffect(() => {
     const keys = Object.keys(cache).filter((key) =>
-      key.includes("universalMemo-")
+      key.includes("globalMemo-")
     );
 
     keys.forEach((key) => {
@@ -28,8 +28,8 @@ export const usePerformNewUniversalMemoCalculations = () => {
   }, [cache, setCache]);
 };
 
-export const useUniversalMemo = (key, performCalculation) => {
-  const [cache, setCache] = useCache(`universalMemo-${key}`);
+export const useGlobalMemo = (key, performCalculation) => {
+  const [cache, setCache] = useCache(`globalMemo-${key}`);
   useEffect(() => {
     if (!cache) {
       setCache((prev) => ({ ...prev, performCalculation }));

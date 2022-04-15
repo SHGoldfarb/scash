@@ -10,4 +10,4 @@ export { default as PageContainer } from "./PageContainer";
 export { default as RestoreFromJsonButton } from "./RestoreFromJsonButton";
 export { default as ScashThemeProvider } from "./ScashThemeProvider";
 export { default as Transactions } from "./Transactions";
-export { default as UniversalMemo } from "./UniversalMemo";
+export { default as GlobalMemo } from "./GlobalMemo";
