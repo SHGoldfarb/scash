@@ -1,58 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, ListItem, ListItemButton, Typography } from "@mui/material";
 import { bool, func, number, string } from "prop-types";
 import { currencyFormat } from "utils";
-import { EditAmountDialog, EditNameDialog } from "./item";
 
-const Item = ({
-  amount,
-  label,
-  closed,
-  onNameChange,
-  onClose,
-  onOpen,
-  onAmountChange,
-}) => {
-  const [amountDialogOpen, setAmountDialogOpen] = useState(false);
-  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+const Item = ({ amount, label, closed, onLabelClick, onAmountClick }) => {
   return (
     <>
-      {amountDialogOpen ? (
-        <EditAmountDialog
-          onClose={() => setAmountDialogOpen(false)}
-          open
-          onAmountChange={onAmountChange}
-        />
-      ) : null}
-
-      {nameDialogOpen ? (
-        <EditNameDialog
-          onClose={() => setNameDialogOpen(false)}
-          open
-          deleted={closed}
-          onNameChange={onNameChange}
-          onDelete={onClose}
-          onRestore={onOpen}
-          name={label}
-          canDelete={amount === 0}
-        />
-      ) : null}
       <ListItem
         secondaryAction={
           <Button
             color={amount < 0 ? "error" : "success"}
-            onClick={() =>
-              onAmountChange && !closed && setAmountDialogOpen(true)
-            }
+            onClick={onAmountClick}
           >
             {currencyFormat(amount)}
           </Button>
         }
       >
-        <ListItemButton
-          component="div"
-          onClick={() => onNameChange && setNameDialogOpen(true)}
-        >
+        <ListItemButton component="div" onClick={onLabelClick}>
           <Typography color={closed ? "textSecondary" : "textPrimary"}>
             {label}
           </Typography>
@@ -64,20 +28,16 @@ const Item = ({
 
 Item.defaultProps = {
   closed: false,
-  onNameChange: null,
-  onClose: null,
-  onOpen: null,
-  onAmountChange: null,
+  onAmountClick: () => {},
+  onLabelClick: () => {},
 };
 
 Item.propTypes = {
   amount: number.isRequired,
   label: string.isRequired,
   closed: bool,
-  onNameChange: func,
-  onClose: func,
-  onOpen: func,
-  onAmountChange: func,
+  onAmountClick: func,
+  onLabelClick: func,
 };
 
 export default Item;

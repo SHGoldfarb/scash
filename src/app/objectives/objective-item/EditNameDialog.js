@@ -18,6 +18,7 @@ const EditNameDialog = ({
   onRestore,
   name,
   canDelete,
+  onMergeClick,
 }) => {
   const [currentName, setCurrentName] = useState(null);
   return (
@@ -49,6 +50,14 @@ const EditNameDialog = ({
             />
           </DialogContent>
           <DialogActions>
+            <Button
+              onClick={async () => {
+                onClose();
+                onMergeClick();
+              }}
+            >
+              Merge
+            </Button>
             <Button
               onClick={async () => {
                 onClose();
@@ -84,6 +93,7 @@ EditNameDialog.propTypes = {
   onRestore: func.isRequired,
   name: string.isRequired,
   canDelete: bool.isRequired,
+  onMergeClick: func.isRequired,
 };
 
 export default EditNameDialog;

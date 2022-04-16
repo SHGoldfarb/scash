@@ -8,9 +8,14 @@ import {
   TextField,
 } from "@mui/material";
 import { bool, func } from "prop-types";
+import { isEnterKey } from "utils";
 
 const EditAmountDialog = ({ open, onClose, onAmountChange }) => {
   const [currentAmount, setCurrentAmount] = useState("");
+  const handleAdd = () => {
+    onAmountChange(parseInt(currentAmount, 10));
+    onClose();
+  };
   return (
     <Dialog onClose={onClose} open={open}>
       <DialogTitle>Add or Subtract Amount</DialogTitle>
@@ -21,6 +26,11 @@ const EditAmountDialog = ({ open, onClose, onAmountChange }) => {
           type="number"
           inputProps={{ autoFocus: true }}
           onChange={(ev) => setCurrentAmount(ev.target.value)}
+          onKeyPress={(ev) => {
+            if (isEnterKey(ev)) {
+              handleAdd();
+            }
+          }}
         />
       </DialogContent>
       <DialogActions>
@@ -33,13 +43,7 @@ const EditAmountDialog = ({ open, onClose, onAmountChange }) => {
         >
           Subtract
         </Button>
-        <Button
-          onClick={() => {
-            onAmountChange(parseInt(currentAmount, 10));
-            onClose();
-          }}
-          color="success"
-        >
+        <Button onClick={handleAdd} color="success">
           Add
         </Button>
       </DialogActions>

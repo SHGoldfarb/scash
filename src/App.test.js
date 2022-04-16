@@ -10,6 +10,7 @@ import {
   exportToJSON,
   luxonSecondsToExcelDays,
   excelToJson,
+  newId,
 } from "utils";
 import { utils } from "xlsx";
 import App from "./App";
@@ -855,6 +856,48 @@ describe("App", () => {
 
       // Avoid act() warning
       await waitFor(() => {});
+    });
+
+    it("correctly lets user merge objectives", async () => {
+      const objective1 = objectiveMock({ assignedAmount: newId() * 1000 });
+      const objective2 = objectiveMock({ assignedAmount: newId() * 1000 });
+
+      const transaction1 = transactionMock({
+        type: "expense",
+        objectiveId: objective1.id,
+      });
+      const transaction2 = transactionMock({
+        type: "expense",
+        objectiveId: objective2.id,
+      });
+
+      await mockTable("objectives").set([objective1, objective2]);
+      await mockTable("transactions").set([transaction1, transaction2]);
+
+      await runUserActions();
+
+      // Merge objective1 into objective2
+      fireEvent.click(await wrapper.findByText(objective1.name));
+      fireEvent.click(await wrapper.findByText("Merge"));
+      fireEvent.mouseDown(await wrapper.findByLabelText("Merge into"));
+      await waitFor(() => {
+        expect(wrapper.getAllByText(objective2.name).length).toEqual(2);
+      });
+      fireEvent.click(wrapper.getAllByText(objective2.name)[1]);
+      fireEvent.click(wrapper.getByText("Save"));
+
+      // Test result
+      await waitFor(() => {
+        expect(wrapper.queryByText(objective1.name)).toBeNull();
+        wrapper.getByText(
+          currencyFormat(
+            objective1.assignedAmount +
+              objective2.assignedAmount -
+              transaction1.amount -
+              transaction2.amount
+          )
+        );
+      });
     });
 
     it("correctly lest user create a new objective", async () => {

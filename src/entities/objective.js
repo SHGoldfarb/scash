@@ -10,3 +10,5 @@ export const validObjective = (data) => ({
   closedAt: data.closedAt || null,
   assignedAmount: data.assignedAmount || 0,
 });
+
+export const isObjectiveClosed = (objective) => !!objective.closedAt;
