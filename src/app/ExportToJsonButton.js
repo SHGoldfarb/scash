@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 
 const exportData = async () => {
   download(
-    `scash_data_${DateTime.local().toFormat("yyyy-MM-dd_HH_mm")}`,
+    `scash_data_${DateTime.local().toFormat("yyyy-MM-dd_HH_mm_ss")}`,
     await exportToJSON()
   );
 };

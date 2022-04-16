@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@mui/material";
 import { read } from "xlsx";
 import { download, excelToJson } from "utils";
+import { DateTime } from "luxon";
 
 const readAsArrayBuffer = (file) =>
   new Promise((resolve) => {
@@ -24,7 +25,10 @@ const handleFileSelect = async (event) => {
 
   const jsonData = excelToJson(workbook);
 
-  download("scash_converted_data", jsonData);
+  download(
+    `scash_converted_data_${DateTime.local().toFormat("yyyy-MM-dd_HH_mm_ss")}`,
+    jsonData
+  );
 };
 
 const ExcelToJsonButton = () => {
