@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import { editPathName, makePath, transactionsPathName } from "utils";
-import { TransactionsForm, TransactionsList } from "./transactions";
+import { TransactionsForm, MonthTransactionsList } from "./transactions";
 
 const Transactions = () => {
   return (
@@ -10,7 +10,7 @@ const Transactions = () => {
         <TransactionsForm />
       </Route>
       <Route path={makePath(transactionsPathName)}>
-        <TransactionsList />
+        <MonthTransactionsList />
       </Route>
     </Switch>
   );
