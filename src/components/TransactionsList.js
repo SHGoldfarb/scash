@@ -1,44 +1,36 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { List } from "@mui/material";
-import { DelayedCircularProgress } from "components";
-import { useData } from "hooks";
 import { arrayOf, shape } from "prop-types";
-import { TransactionCard } from "./transactions-list";
+import { DateTime } from "luxon";
+import { by } from "utils";
+import { reversed } from "lib";
+import { TransactionsDateCard } from "./transactions-list";
 
 const TransactionsList = ({ transactions }) => {
-  const { loading: accountsLoading, dataHash: accountsHash = {} } = useData(
-    "accounts"
-  );
+  const transactionsByDate = useMemo(() => {
+    const dates = {};
+    transactions.sort(by("date")).forEach((transaction) => {
+      const date = DateTime.fromSeconds(transaction.date).toFormat(
+        "yyyy-MM-dd"
+      );
+      if (!dates[date]) {
+        dates[date] = [];
+      }
 
-  const { loading: objectivesLoading, dataHash: objectivesHash = {} } = useData(
-    "objectives"
-  );
+      dates[date].push(transaction);
+    });
 
-  const {
-    loading: incomeSourcesLoading,
-    dataHash: incomeSourcesHash = {},
-  } = useData("incomeSources");
-
-  const transactionsWithRelationships = transactions.map((transaction) => ({
-    ...transaction,
-    account: accountsHash[transaction.accountId],
-    originAccount: accountsHash[transaction.originAccountId],
-    destinationAccount: accountsHash[transaction.destinationAccountId],
-    objective: objectivesHash[transaction.objectiveId],
-    incomeSource: incomeSourcesHash[transaction.incomeSourceId],
-  }));
-
-  if (accountsLoading || objectivesLoading || incomeSourcesLoading) {
-    return <DelayedCircularProgress />;
-  }
+    return dates;
+  }, [transactions]);
 
   return (
     <List>
-      {transactionsWithRelationships
-        .reduce((reversed, transaction) => [transaction, ...reversed], [])
-        .map((transaction) => (
-          <TransactionCard transaction={transaction} key={transaction.id} />
-        ))}
+      {reversed(Object.keys(transactionsByDate).sort()).map((date) => (
+        <TransactionsDateCard
+          sortedTransactions={transactionsByDate[date]}
+          key={date}
+        />
+      ))}
     </List>
   );
 };

@@ -5,11 +5,13 @@ import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
 
 export const useData = (tableName) => {
   const {
-    result: data = [],
+    result,
     loading,
     update: updateCache,
     reset: clearCache,
   } = useGlobalMemo(tableName, async () => getAll(tableName));
+
+  const data = useMemo(() => result || [], [result]);
 
   const dataHash = useMemo(() => {
     const hash = {};
@@ -23,7 +25,7 @@ export const useData = (tableName) => {
   return {
     data,
     dataHash,
-    loading: loading || !data,
+    loading: loading || !result,
     refetch: clearCache,
     upsert: async (newData) => {
       const newId = await upsert(tableName, newData);
@@ -32,19 +34,19 @@ export const useData = (tableName) => {
       return newItem;
     },
     remove: async (id) => {
-      const result = await remove(tableName, id);
+      const res = await remove(tableName, id);
       clearCache();
-      return result;
+      return res;
     },
     clear: async () => {
-      const result = await clear(tableName);
+      const res = await clear(tableName);
       clearCache();
-      return result;
+      return res;
     },
     bulkAdd: async (items) => {
-      const result = await bulkAdd(tableName, items);
+      const res = await bulkAdd(tableName, items);
       clearCache();
-      return result;
+      return res;
     },
     set: async (items) => {
       await clear(tableName);

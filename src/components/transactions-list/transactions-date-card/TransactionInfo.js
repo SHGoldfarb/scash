@@ -3,7 +3,6 @@ import { number, shape, string } from "prop-types";
 import { Divider, ListItem, ListItemButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import isPropValid from "@emotion/is-prop-valid";
-import { DateTime } from "luxon";
 import {
   currencyFormat,
   editPathName,
@@ -11,19 +10,44 @@ import {
   transactionsPathName,
 } from "utils";
 import { Link } from "react-router-dom";
+import { useData } from "hooks";
+import { DelayedCircularProgress } from "components";
 
 const TransactionColumn = styled("div", {
   shouldForwardProp: (prop) => isPropValid(prop),
-})(({ theme, width, autoWidth }) => ({
+})(({ theme, autoWidth }) => ({
   padding: theme.spacing(),
-  width: width ? `${width}%` : "auto",
+  width: "auto",
   flexGrow: 0,
   flexShrink: autoWidth ? 1 : 0,
   margin: autoWidth ? "0 auto 0 0 " : "none",
 }));
 
-const TransactionCard = ({ transaction }) => {
-  const date = DateTime.fromSeconds(transaction.date);
+const TransactionInfo = ({ transaction }) => {
+  const { loading: accountsLoading, dataHash: accountsHash = {} } = useData(
+    "accounts"
+  );
+
+  const { loading: objectivesLoading, dataHash: objectivesHash = {} } = useData(
+    "objectives"
+  );
+
+  const {
+    loading: incomeSourcesLoading,
+    dataHash: incomeSourcesHash = {},
+  } = useData("incomeSources");
+
+  const loading = accountsLoading || objectivesLoading || incomeSourcesLoading;
+
+  if (loading) {
+    return <DelayedCircularProgress />;
+  }
+
+  const account = accountsHash[transaction.accountId];
+  const originAccount = accountsHash[transaction.originAccountId];
+  const destinationAccount = accountsHash[transaction.destinationAccountId];
+  const objective = objectivesHash[transaction.objectiveId];
+  const incomeSource = incomeSourcesHash[transaction.incomeSourceId];
 
   return (
     <>
@@ -38,16 +62,10 @@ const TransactionCard = ({ transaction }) => {
             },
           })}
         >
-          <TransactionColumn width="10" sx={{ textAlign: "center" }}>
-            <Typography color="textPrimary">
-              {`${date.day}`.padStart(2, "0")}
-            </Typography>
-            <Typography color="textPrimary">{date.weekdayShort}</Typography>
-          </TransactionColumn>
           <TransactionColumn autoWidth>
             <Typography color="textPrimary">{transaction.comment}</Typography>
             <Typography color="textSecondary" variant="caption">
-              {transaction.account?.name || transaction.originAccount?.name}
+              {account?.name || originAccount?.name}
               {transaction.type === "income" ? " < " : " > "}
             </Typography>
             <Typography
@@ -58,9 +76,9 @@ const TransactionCard = ({ transaction }) => {
               }
               variant="caption"
             >
-              {transaction.objective?.name ||
-                transaction.incomeSource?.name ||
-                transaction.destinationAccount?.name}
+              {objective?.name ||
+                incomeSource?.name ||
+                destinationAccount?.name}
             </Typography>
           </TransactionColumn>
           <TransactionColumn>
@@ -80,7 +98,7 @@ const TransactionCard = ({ transaction }) => {
   );
 };
 
-TransactionCard.propTypes = {
+TransactionInfo.propTypes = {
   transaction: shape({
     id: number.isRequired,
     comment: string.isRequired,
@@ -88,4 +106,4 @@ TransactionCard.propTypes = {
   }).isRequired,
 };
 
-export default TransactionCard;
+export default TransactionInfo;

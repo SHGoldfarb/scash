@@ -109,13 +109,9 @@ describe("App", () => {
       ).toBeTruthy();
     });
     // date
-    await waitFor(() => {
-      expect(
-        wrapper.getAllByText(
-          `${DateTime.fromSeconds(transaction.date).day}`.padStart(2, "0")
-        ).length
-      ).toBeTruthy();
-    });
+    await wrapper.findByText(
+      DateTime.fromSeconds(transaction.date).toFormat("ccc dd")
+    );
   };
 
   describe("user presses next month button", () => {
@@ -1173,12 +1169,7 @@ describe("App", () => {
         fireEvent.click(wrapper.getByText("Transactions"));
 
         // Transaction date
-        await waitFor(() => {
-          expect(
-            wrapper.getAllByText(`${transactionDate.day}`.padStart(2, "0"))
-              .length
-          ).toBeTruthy();
-        });
+        await wrapper.findByText(transactionDate.toFormat("ccc dd"));
 
         // Transaction amount
         await waitFor(() => {
@@ -1307,16 +1298,9 @@ describe("App", () => {
         fireEvent.click(wrapper.getByText("Transactions"));
 
         // Transaction date
-        await waitFor(() => {
-          expect(
-            wrapper.getAllByText(
-              `${DateTime.fromSeconds(incomeTransaction.date).day}`.padStart(
-                2,
-                "0"
-              )
-            ).length
-          ).toBeTruthy();
-        });
+        await wrapper.findByText(
+          DateTime.fromSeconds(incomeTransaction.date).toFormat("ccc dd")
+        );
 
         // Transaction amount
         await waitFor(() => {

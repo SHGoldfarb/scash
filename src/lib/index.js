@@ -43,9 +43,14 @@ export const throwErrorIfNotValid = (data, key, isValid, message) => {
   return null;
 };
 
+// ---
+
 export const asyncReduce = (asyncFunctions) =>
   asyncFunctions.reduce(
     async (previousPromise, asyncFunction) =>
       asyncFunction(await previousPromise),
     Promise.resolve(null)
   );
+
+export const reversed = (array) =>
+  array.reduce((reversedArray, item) => [item, ...reversedArray], []);

@@ -34,9 +34,16 @@ export const currencyFormat = (amount) => {
   return formatter.format(amount).slice(0, -3);
 };
 
-export const by = (getter) => {
+export const by = (getter, { reversed = false } = {}) => {
   if (isFunction(getter)) {
+    if (reversed) {
+      return (a, b) => (getter(a) > getter(b) ? -1 : 1);
+    }
     return (a, b) => (getter(a) < getter(b) ? -1 : 1);
+  }
+
+  if (reversed) {
+    return (a, b) => (a[getter] > b[getter] ? -1 : 1);
   }
 
   return (a, b) => (a[getter] < b[getter] ? -1 : 1);
