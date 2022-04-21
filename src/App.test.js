@@ -518,6 +518,18 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    describe("user presses back button", () => {
+      userAction(async () => {
+        fireEvent.click(await wrapper.findByText("Back"));
+      });
+
+      it("goes back to previous view", async () => {
+        await runUserActions();
+
+        await wrapper.findByText(DateTime.local().toFormat("MMMM yyyy"));
+      });
+    });
+
     const selectTransactionTypeInForm = (type) => {
       fireEvent.change(wrapper.getByLabelText("Type"), {
         target: { value: type },

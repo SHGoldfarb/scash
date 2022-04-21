@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DelayedCircularProgress } from "components";
+import { Button } from "@mui/material";
+import { useHistory } from "react-router-dom";
 import {
   AccountsFields,
   AmountField,
@@ -15,6 +17,8 @@ import {
 import { useCurrentTransaction } from "./hooks";
 
 const TransactionsForm = () => {
+  const history = useHistory();
+
   const {
     register,
     handleSubmit,
@@ -70,12 +74,19 @@ const TransactionsForm = () => {
         null}
 
       <CommentField register={register} />
+      <Button
+        onClick={() => {
+          history.goBack();
+        }}
+      >
+        Back
+      </Button>
+      {(transaction && <DeleteButton transactionId={transaction.id} />) || null}
       <SaveButton
         handleSubmit={handleSubmit}
         transactionType={transactionType}
         transactionId={transaction?.id}
       />
-      {(transaction && <DeleteButton transactionId={transaction.id} />) || null}
     </>
   );
 };

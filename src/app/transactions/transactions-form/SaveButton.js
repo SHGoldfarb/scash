@@ -31,6 +31,8 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
 
   return (
     <Button
+      sx={{ margin: 1 }}
+      variant="contained"
       disabled={
         !openAccounts.length ||
         (transactionType === "income" && !availableIncomeSources.length) ||
