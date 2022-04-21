@@ -32,7 +32,9 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.totalsDisplay}`]: {
     display: "flex",
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
+    paddingTop: theme.spacing(2),
+    paddingBottom: 0,
     "& > *": {
       margin: "auto",
     },

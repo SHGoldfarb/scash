@@ -15,8 +15,7 @@ import { DelayedCircularProgress } from "components";
 
 const TransactionColumn = styled("div", {
   shouldForwardProp: (prop) => isPropValid(prop),
-})(({ theme, autoWidth }) => ({
-  padding: theme.spacing(),
+})(({ autoWidth }) => ({
   width: "auto",
   flexGrow: 0,
   flexShrink: autoWidth ? 1 : 0,
@@ -52,7 +51,7 @@ const TransactionInfo = ({ transaction }) => {
   return (
     <>
       <Divider />
-      <ListItem>
+      <ListItem sx={{ px: 0 }}>
         <ListItemButton
           component={Link}
           sx={{ padding: 0 }}

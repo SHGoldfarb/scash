@@ -3,7 +3,12 @@ import { Link } from "react-router-dom";
 import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
-import { editPathName, makePath, transactionsPathName } from "utils";
+import {
+  editPathName,
+  makePath,
+  transactionsPathName,
+  TRANSACTIONS_APPBAR_HEIGHT_PX,
+} from "utils";
 import { useSelectedMonth } from "../hooks";
 
 const dateFormat = "MMMM yyyy";
@@ -17,6 +22,9 @@ const TransactionsAppBar = () => {
     <AppBar position="sticky">
       <Toolbar
         sx={{
+          minHeight: `${TRANSACTIONS_APPBAR_HEIGHT_PX}px`,
+          height: `${TRANSACTIONS_APPBAR_HEIGHT_PX}px`,
+          padding: 0,
           "& > *": {
             "&:not(:last-child)": {
               marginRight: "auto",

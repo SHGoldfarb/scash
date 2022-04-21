@@ -132,3 +132,5 @@ export const newId = () => {
   currentId += 1;
   return currentId;
 };
+
+export const TRANSACTIONS_APPBAR_HEIGHT_PX = 40;

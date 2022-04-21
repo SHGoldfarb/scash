@@ -1,6 +1,7 @@
 import React from "react";
 import { styled } from "@mui/material/styles";
 import { node } from "prop-types";
+import { TRANSACTIONS_APPBAR_HEIGHT_PX } from "utils";
 
 const PREFIX = "PageContainer";
 
@@ -9,7 +10,9 @@ const classes = {
 };
 
 const Root = styled("div")({
-  [`& .${classes.bottomNavigationBarHeight}`]: { height: "56px" },
+  [`& .${classes.bottomNavigationBarHeight}`]: {
+    height: `${TRANSACTIONS_APPBAR_HEIGHT_PX}px`,
+  },
 });
 
 const PageContainer = ({ children }) => {

@@ -381,9 +381,13 @@ describe("App", () => {
             await runUserActions();
 
             // Test is in transactions list in the correct month
-            await wrapper.findByText(
-              DateTime.fromSeconds(transaction.date).toFormat("MMMM yyyy")
-            );
+            await waitFor(() => {
+              expect(
+                wrapper.getAllByText(
+                  DateTime.fromSeconds(transaction.date).toFormat("MMMM yyyy")
+                ).length
+              ).toBeGreaterThan(0);
+            });
 
             // Test transaction is missing
             expect(wrapper.queryByText(transaction.comment)).toBeNull();
