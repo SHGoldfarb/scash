@@ -377,7 +377,7 @@ describe("App", () => {
             await waitFor(() => {});
           });
 
-          it("shows transaction list for the correct month and deleted transaction is missing", async () => {
+          it("shows previous page and deleted transaction is missing", async () => {
             await runUserActions();
 
             // Test is in transactions list in the correct month
@@ -803,7 +803,7 @@ describe("App", () => {
       });
     });
 
-    describe("user enters transaction fields", () => {
+    describe("user enters transaction fields and saves", () => {
       const newTransaction = transactionMock();
       newTransaction.type = "transfer";
 
@@ -823,7 +823,7 @@ describe("App", () => {
           mockTable("accounts").set([accountMock()]);
         });
 
-        it("displays new transaction", async () => {
+        it("goes back to correct view and displays new transaction", async () => {
           await runUserActions();
 
           // First ensure we went back to the transactions list by looking for the new transaction button

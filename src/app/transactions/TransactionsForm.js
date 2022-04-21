@@ -75,13 +75,7 @@ const TransactionsForm = () => {
         transactionType={transactionType}
         transactionId={transaction?.id}
       />
-      {(transaction && (
-        <DeleteButton
-          transactionId={transaction.id}
-          transactionDate={transaction.date}
-        />
-      )) ||
-        null}
+      {(transaction && <DeleteButton transactionId={transaction.id} />) || null}
     </>
   );
 };

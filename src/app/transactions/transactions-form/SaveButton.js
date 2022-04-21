@@ -4,7 +4,6 @@ import { func, number, string } from "prop-types";
 import { Button } from "@mui/material";
 import { DelayedCircularProgress } from "components";
 import { useData } from "../../../hooks";
-import { makePath, transactionsPathName } from "../../../utils";
 import {
   useFormAccounts,
   useFormIncomeSources,
@@ -62,7 +61,7 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
             objectiveId: parseInt(objectiveId, 10),
           });
 
-          history.push(makePath(transactionsPathName));
+          history.goBack();
         }
       )}
     >
