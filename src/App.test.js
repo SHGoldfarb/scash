@@ -1053,6 +1053,46 @@ describe("App", () => {
       // Test modal doesn't show up
       expect(wrapper.queryByText("Add or Subtract Amount")).toBeNull();
     });
+
+    describe("user goes to an objective view", () => {
+      let objective;
+      userAction(async () => {
+        fireEvent.click(await wrapper.findByText(objective.name));
+      });
+
+      describe("user changes transactions list page", () => {
+        userAction(async () => {
+          fireEvent.click(await wrapper.findByTestId("NavigateBeforeIcon"));
+        });
+
+        describe("user presses back button", () => {
+          userAction(async () => {
+            fireEvent.click(await wrapper.findByText("Back"));
+          });
+
+          it("sends the user to the objectives view", async () => {
+            objective = objectiveMock();
+
+            const transactions = [...Array(50)].map((_, i) =>
+              transactionMock({
+                date: DateTime.local()
+                  .minus({ days: i + 1 })
+                  .toSeconds(),
+                type: "expense",
+                objectiveId: objective.id,
+              })
+            );
+
+            await mockTable("objectives").set([objective]);
+            await mockTable("transactions").set(transactions);
+
+            await await runUserActions();
+
+            await wrapper.findByText("Without objective");
+          });
+        });
+      });
+    });
   });
 
   describe("user presses settings button", () => {

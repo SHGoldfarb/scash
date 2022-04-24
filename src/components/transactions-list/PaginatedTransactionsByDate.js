@@ -16,7 +16,7 @@ const usePagination = ({
 
   const {
     params: { [urlParamsKey]: currentPageIndexUrl },
-    push,
+    replace,
   } = useUrlParams();
 
   const currentPageIndex = withUrlParams
@@ -24,7 +24,8 @@ const usePagination = ({
     : currentPageIndexState;
 
   const setCurrentPageIndex = withUrlParams
-    ? (getNewIndex) => push({ [urlParamsKey]: getNewIndex(currentPageIndex) })
+    ? (getNewIndex) =>
+        replace({ [urlParamsKey]: getNewIndex(currentPageIndex) })
     : setCurrentPageIndexState;
 
   const pagesAmount = Math.ceil(items.length / size);
