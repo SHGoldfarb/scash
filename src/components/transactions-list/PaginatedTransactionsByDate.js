@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Typography } from "@mui/material";
-import { shape, arrayOf, number } from "prop-types";
+import { shape, arrayOf, string } from "prop-types";
 import { useUrlParams } from "hooks";
 import { TransactionsDateCards } from "./components";
 import { PagesNavigation } from "./paginated-transactions-by-date";
+import { MAX_DATES_PER_PAGE } from "./utils";
 
 const usePagination = ({
   items,
@@ -74,7 +75,7 @@ const PaginatedTransactionsByDate = ({ transactionsByDate, sortedDates }) => {
 
 PaginatedTransactionsByDate.propTypes = {
   transactionsByDate: shape().isRequired,
-  sortedDates: arrayOf(number).isRequired,
+  sortedDates: arrayOf(string).isRequired,
 };
 
 export default PaginatedTransactionsByDate;
