@@ -1,1 +1,1 @@
-export { default as TransactionsDateCard } from "./TransactionsDateCard";
+export { default as PaginatedTransactionsByDate } from "./PaginatedTransactionsByDate";

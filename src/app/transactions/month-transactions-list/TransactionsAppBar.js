@@ -1,14 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
+import { Button, IconButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
-import {
-  editPathName,
-  makePath,
-  transactionsPathName,
-  TRANSACTIONS_APPBAR_HEIGHT_PX,
-} from "utils";
+import { editPathName, makePath, transactionsPathName } from "utils";
+import { AppBar } from "components";
 import { useSelectedMonth } from "../hooks";
 
 const dateFormat = "MMMM yyyy";
@@ -19,43 +15,30 @@ const TransactionsAppBar = () => {
   const [selectedMonth, setSelectedMonth] = useSelectedMonth();
 
   return (
-    <AppBar position="sticky">
-      <Toolbar
-        sx={{
-          minHeight: `${TRANSACTIONS_APPBAR_HEIGHT_PX}px`,
-          height: `${TRANSACTIONS_APPBAR_HEIGHT_PX}px`,
-          padding: 0,
-          "& > *": {
-            "&:not(:last-child)": {
-              marginRight: "auto",
-            },
-          },
-        }}
+    <AppBar>
+      <IconButton
+        onClick={() => setSelectedMonth(selectedMonth.plus({ months: -1 }))}
       >
-        <IconButton
-          onClick={() => setSelectedMonth(selectedMonth.plus({ months: -1 }))}
-        >
-          <NavigateBefore />
-        </IconButton>
-        <Typography>{selectedMonth.toFormat(dateFormat)}</Typography>
-        <IconButton
-          onClick={() => setSelectedMonth(selectedMonth.plus({ months: 1 }))}
-        >
-          <NavigateNext />
-        </IconButton>
+        <NavigateBefore />
+      </IconButton>
+      <Typography>{selectedMonth.toFormat(dateFormat)}</Typography>
+      <IconButton
+        onClick={() => setSelectedMonth(selectedMonth.plus({ months: 1 }))}
+      >
+        <NavigateNext />
+      </IconButton>
 
-        <StyledButton
-          component={Link}
-          to={makePath(transactionsPathName, editPathName, {
-            params: {
-              month: selectedMonth.month,
-              year: selectedMonth.year,
-            },
-          })}
-        >
-          New Transaction
-        </StyledButton>
-      </Toolbar>
+      <StyledButton
+        component={Link}
+        to={makePath(transactionsPathName, editPathName, {
+          params: {
+            month: selectedMonth.month,
+            year: selectedMonth.year,
+          },
+        })}
+      >
+        New Transaction
+      </StyledButton>
     </AppBar>
   );
 };

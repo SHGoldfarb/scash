@@ -19,7 +19,7 @@ const DelayedCircularProgress = (props) => {
     };
   }, []);
 
-  return show ? <CircularProgress {...props} /> : null;
+  return show ? <CircularProgress sx={{ margin: "auto" }} {...props} /> : null;
 };
 
 export default DelayedCircularProgress;

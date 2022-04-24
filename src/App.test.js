@@ -870,6 +870,23 @@ describe("App", () => {
       await waitFor(() => {});
     });
 
+    it("shows objective transactions in objective view", async () => {
+      const objective = objectiveMock();
+      const transaction = transactionMock({
+        type: "expense",
+        objectiveId: objective.id,
+      });
+
+      await mockTable("objectives").set([objective]);
+      await mockTable("transactions").set([transaction]);
+
+      await runUserActions();
+
+      fireEvent.click(await wrapper.findByText(objective.name));
+
+      await wrapper.findByText(transaction.comment);
+    });
+
     it("correctly lets user merge objectives", async () => {
       const objective1 = objectiveMock({ assignedAmount: newId() * 1000 });
       const objective2 = objectiveMock({ assignedAmount: newId() * 1000 });
@@ -890,13 +907,10 @@ describe("App", () => {
 
       // Merge objective1 into objective2
       fireEvent.click(await wrapper.findByText(objective1.name));
-      fireEvent.click(await wrapper.findByText("Merge"));
+      fireEvent.click(await wrapper.findByTestId("EditIcon"));
       fireEvent.mouseDown(await wrapper.findByLabelText("Merge into"));
-      await waitFor(() => {
-        expect(wrapper.getAllByText(objective2.name).length).toEqual(2);
-      });
-      fireEvent.click(wrapper.getAllByText(objective2.name)[1]);
-      fireEvent.click(wrapper.getByText("Save"));
+      fireEvent.click(await wrapper.getByText(objective2.name));
+      fireEvent.click(wrapper.getByText("Save Merge"));
 
       // Test result
       await waitFor(() => {
@@ -937,6 +951,7 @@ describe("App", () => {
 
       // Click on objective name
       fireEvent.click(await wrapper.findByText(objective.name));
+      fireEvent.click(await wrapper.findByTestId("EditIcon"));
 
       // Change objective name
       const newName = "new objective name";
@@ -945,7 +960,7 @@ describe("App", () => {
       });
 
       // Click save
-      fireEvent.click(wrapper.getByText("Save"));
+      fireEvent.click(wrapper.getByText("Save Name"));
 
       // Test new objective name is shown
       await wrapper.findByText(newName);
@@ -1001,63 +1016,6 @@ describe("App", () => {
       await wrapper.findByText(
         currencyFormat(-newAmount + objective.assignedAmount)
       );
-    });
-
-    it("does not let user close objective if it has a nonzero amount", async () => {
-      const objective = objectiveMock({ assignedAmount: 1000 });
-      mockTable("objectives").set([objective]);
-
-      await runUserActions();
-
-      // Click on objective name
-      fireEvent.click(await wrapper.findByText(objective.name));
-
-      // Test delete button is disabled
-      expect(await wrapper.findByText("Delete")).toBeDisabled();
-    });
-
-    it("correctly lets user close objective", async () => {
-      const objective = objectiveMock({ assignedAmount: 0 });
-      mockTable("objectives").set([objective]);
-
-      await runUserActions();
-
-      // Click on objective name
-      fireEvent.click(await wrapper.findByText(objective.name));
-
-      // Click on delete button
-      fireEvent.click(await wrapper.findByText("Delete"));
-
-      // Wait for objective to disappear
-      await waitFor(() => {
-        expect(wrapper.queryByText(objective.name)).toBeNull();
-      });
-    });
-
-    it("correctly lets user reopen objective", async () => {
-      const objective = objectiveMock({
-        assignedAmount: 10000,
-        closedAt: DateTime.local(),
-      });
-
-      mockTable("objectives").set([objective]);
-
-      await runUserActions();
-
-      // Click on objective name
-      fireEvent.click(await wrapper.findByText(objective.name));
-
-      // Click on restore button
-      fireEvent.click(await wrapper.findByText("Restore"));
-
-      // Wait for dialog to close
-      await waitFor(() => {
-        expect(wrapper.queryByText("Restore")).toBeNull();
-      });
-
-      // Click again on objective and test for edit name button
-      fireEvent.click(await wrapper.findByText(objective.name));
-      await wrapper.findByText("Save");
     });
 
     it("does not show closed objective with zero amount", async () => {

@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
-import { List } from "@mui/material";
-import { arrayOf, shape } from "prop-types";
+import { shape, bool, arrayOf } from "prop-types";
 import { DateTime } from "luxon";
 import { by } from "utils";
 import { reversed } from "lib";
-import { TransactionsDateCard } from "./transactions-list";
+import { PaginatedTransactionsByDate } from "./transactions-list";
+import { TransactionsDateCards } from "./transactions-list/components";
+import { MAX_DATES_PER_PAGE } from "./transactions-list/utils";
 
-const TransactionsList = ({ transactions }) => {
+const TransactionsList = ({ transactions, paginated }) => {
   const transactionsByDate = useMemo(() => {
     const dates = {};
     transactions.sort(by("date")).forEach((transaction) => {
@@ -23,20 +24,33 @@ const TransactionsList = ({ transactions }) => {
     return dates;
   }, [transactions]);
 
-  return (
-    <List>
-      {reversed(Object.keys(transactionsByDate).sort()).map((date) => (
-        <TransactionsDateCard
-          sortedTransactions={transactionsByDate[date]}
-          key={date}
-        />
-      ))}
-    </List>
+  const dates = useMemo(
+    () => reversed(Object.keys(transactionsByDate).sort()),
+    [transactionsByDate]
   );
+
+  const shouldPaginate = paginated && dates.length > MAX_DATES_PER_PAGE;
+
+  return shouldPaginate ? (
+    <PaginatedTransactionsByDate
+      transactionsByDate={transactionsByDate}
+      sortedDates={dates}
+    />
+  ) : (
+    <TransactionsDateCards
+      dates={dates}
+      getSortedTransactions={(date) => transactionsByDate[date]}
+    />
+  );
+};
+
+TransactionsList.defaultProps = {
+  paginated: false,
 };
 
 TransactionsList.propTypes = {
   transactions: arrayOf(shape()).isRequired,
+  paginated: bool,
 };
 
 export default TransactionsList;

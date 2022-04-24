@@ -1,17 +1,39 @@
 import { useMemo } from "react";
 import { upsertById } from "utils";
 import { useGlobalMemo } from "./useGlobalMemo";
-import { getAll, getById, remove, upsert, clear, bulkAdd } from "../database";
+import {
+  getAll,
+  getById,
+  remove,
+  upsert,
+  clear,
+  bulkAdd,
+  bulkGet,
+} from "../database";
+
+const withHandleStateUpdate = (updateFunction) => async (
+  updateParam,
+  { lazyStateUpdate = false } = {}
+) => {
+  const { result, updateState } = await updateFunction(updateParam);
+
+  if (lazyStateUpdate) {
+    return { result, updateState };
+  }
+
+  updateState();
+  return result;
+};
 
 export const useData = (tableName) => {
   const {
-    result,
+    result: memoizedData,
     loading,
     update: updateCache,
     reset: clearCache,
   } = useGlobalMemo(tableName, async () => getAll(tableName));
 
-  const data = useMemo(() => result || [], [result]);
+  const data = useMemo(() => memoizedData || [], [memoizedData]);
 
   const dataHash = useMemo(() => {
     const hash = {};
@@ -25,34 +47,48 @@ export const useData = (tableName) => {
   return {
     data,
     dataHash,
-    loading: loading || !result,
+    loading: loading || !memoizedData,
     refetch: clearCache,
-    upsert: async (newData) => {
+    upsert: withHandleStateUpdate(async (newData) => {
       const newId = await upsert(tableName, newData);
       const newItem = await getById(tableName, newId);
-      updateCache((prevItems) => upsertById(prevItems, newItem));
-      return newItem;
-    },
-    remove: async (id) => {
-      const res = await remove(tableName, id);
-      clearCache();
-      return res;
-    },
-    clear: async () => {
-      const res = await clear(tableName);
-      clearCache();
-      return res;
-    },
-    bulkAdd: async (items) => {
-      const res = await bulkAdd(tableName, items);
-      clearCache();
-      return res;
-    },
-    set: async (items) => {
+
+      return {
+        result: newItem,
+        updateState: () =>
+          updateCache((prevItems) => upsertById(prevItems, newItem)),
+      };
+    }),
+    remove: withHandleStateUpdate(async (id) => {
+      return {
+        result: await remove(tableName, id),
+        updateState: () =>
+          updateCache((prevItems) =>
+            prevItems.filter((item) => item.id !== id)
+          ),
+      };
+    }),
+    clear: withHandleStateUpdate(async () => {
+      return {
+        result: await clear(tableName),
+        updateState: () => updateCache([]),
+      };
+    }),
+    bulkAdd: withHandleStateUpdate(async (items) => {
+      const keys = await bulkAdd(tableName, items, { allKeys: true });
+      const newItems = await bulkGet(tableName, keys);
+
+      return {
+        result: newItems,
+        updateState: () =>
+          updateCache((prevItems) => [...prevItems, ...newItems]),
+      };
+    }),
+    set: withHandleStateUpdate(async (items) => {
       await clear(tableName);
-      await bulkAdd(tableName, items);
-      clearCache();
-      return getAll(tableName);
-    },
+      const keys = await bulkAdd(tableName, items, { allKeys: true });
+      const newItems = await bulkGet(tableName, keys);
+      return { result: newItems, updateState: () => updateCache(newItems) };
+    }),
   };
 };

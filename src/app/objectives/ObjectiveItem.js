@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import { number } from "prop-types";
-import { DateTime } from "luxon";
+import { useHistory } from "react-router-dom";
 import { useData } from "hooks";
 import { DelayedCircularProgress } from "components";
-import { Dialog } from "@mui/material";
+import { makePath, objectivePathName } from "utils";
 import { Item } from "./components";
-import {
-  EditAmountDialog,
-  EditNameDialog,
-  MergeDialogContent,
-} from "./objective-item";
+import { EditAmountDialog } from "./objective-item";
 
 const ObjectiveItem = ({ objectiveId, amount }) => {
   const [amountDialogOpen, setAmountDialogOpen] = useState(false);
-  const [nameDialogOpen, setNameDialogOpen] = useState(false);
-  const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
 
   const { dataHash: objectivesHash = {}, upsert, loading } = useData(
     "objectives"
   );
+
+  const history = useHistory();
 
   const handleUpdate = async (newObjective) => {
     await upsert(newObjective);
@@ -49,34 +45,17 @@ const ObjectiveItem = ({ objectiveId, amount }) => {
         />
       ) : null}
 
-      {nameDialogOpen ? (
-        <EditNameDialog
-          onClose={() => setNameDialogOpen(false)}
-          open
-          deleted={!!objective.closedAt}
-          onNameChange={(newName) =>
-            handleUpdate({ ...objective, name: newName })
-          }
-          onDelete={() =>
-            handleUpdate({ ...objective, closedAt: DateTime.local() })
-          }
-          onRestore={() => handleUpdate({ ...objective, closedAt: undefined })}
-          name={objective.name}
-          canDelete={amount === 0}
-          onMergeClick={() => setMergeDialogOpen(true)}
-        />
-      ) : null}
-      <Dialog open={mergeDialogOpen} onClose={() => setMergeDialogOpen(false)}>
-        <MergeDialogContent
-          objectiveId={objectiveId}
-          onClose={() => setMergeDialogOpen(false)}
-        />
-      </Dialog>
       <Item
         label={objective.name}
         amount={amount}
         onAmountClick={() => !objective.closedAt && setAmountDialogOpen(true)}
-        onLabelClick={() => setNameDialogOpen(true)}
+        onLabelClick={() => {
+          history.push(
+            makePath(objectivePathName, {
+              params: { id: objective.id },
+            })
+          );
+        }}
         closed={!!objective.closedAt}
       />
     </>

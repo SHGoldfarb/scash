@@ -16,10 +16,12 @@ import {
   ScashThemeProvider,
   Transactions,
   GlobalMemo,
+  ObjectiveView,
 } from "./app";
 import { DataCacheProvider } from "./contexts";
 import {
   makePath,
+  objectivePathName,
   objectivesPathName,
   settingsPathName,
   transactionsPathName,
@@ -49,6 +51,9 @@ const App = () => {
                   </Route>
                   <Route path={makePath(objectivesPathName)}>
                     <Objectives />
+                  </Route>
+                  <Route path={makePath(objectivePathName)}>
+                    <ObjectiveView />
                   </Route>
                   <Route path={makePath()}>
                     <Redirect to={makePath(transactionsPathName)} />

@@ -59,8 +59,19 @@ const clear = (tableName) =>
 
 const bulkAdd = (tableName) =>
   jest.fn(async (items) => {
-    await asyncReduce(items.map((item) => () => put(tableName)(item)));
-    return null;
+    const ids = [];
+    await asyncReduce(
+      items.map((item) => async () => {
+        const id = await put(tableName)(item);
+        ids.push(id);
+      })
+    );
+    return ids;
+  });
+
+const bulkGet = (tableName) =>
+  jest.fn(async (keys) => {
+    return mockDatabase[tableName].filter(({ id }) => keys.includes(id));
   });
 
 export const mockTable = (tableName) => ({
@@ -71,4 +82,5 @@ export const mockTable = (tableName) => ({
   set: set(tableName),
   clear: clear(tableName),
   bulkAdd: bulkAdd(tableName),
+  bulkGet: bulkGet(tableName),
 });

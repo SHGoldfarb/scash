@@ -8,7 +8,8 @@
     "react/jsx-props-no-spreading": "off" ,
     "react/jsx-wrap-multilines": "off",
     "react/jsx-closing-tag-location": "off",
-    "react/jsx-one-expression-per-line": "off"
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-indent": "off"
   },
   "overrides": [
     {

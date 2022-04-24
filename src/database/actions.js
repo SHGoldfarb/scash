@@ -14,5 +14,11 @@ export const remove = (tableName, id) => db.table(tableName).delete(id);
 
 export const clear = (tableName) => db.table(tableName).clear();
 
-export const bulkAdd = (tableName, items) =>
-  db.table(tableName).bulkAdd(items.map((item) => validators(tableName)(item)));
+export const bulkAdd = (tableName, items, options) =>
+  db.table(tableName).bulkAdd(
+    items.map((item) => validators(tableName)(item)),
+    options
+  );
+
+export const bulkGet = async (tableName, ids) =>
+  (await db.table(tableName).bulkGet(ids)).map(validators(tableName));

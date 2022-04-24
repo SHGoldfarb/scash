@@ -4,6 +4,7 @@ export const transactionsPathName = "transactions";
 export const settingsPathName = "settings";
 export const editPathName = "edit";
 export const objectivesPathName = "objectives";
+export const objectivePathName = "objective";
 
 export const stringifySearchParams = (params) =>
   new URLSearchParams(params).toString();

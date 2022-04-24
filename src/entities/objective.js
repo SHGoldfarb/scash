@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { throwError } from "../lib";
 
 export const validObjective = (data) => ({
@@ -12,3 +13,15 @@ export const validObjective = (data) => ({
 });
 
 export const isObjectiveClosed = (objective) => !!objective.closedAt;
+
+export const isObjectiveOpen = (objective) => !isObjectiveClosed(objective);
+
+export const closeObjective = (objective) => ({
+  ...objective,
+  closedAt: DateTime.local().toSeconds(),
+});
+
+export const restoreObjective = (objective) => ({
+  ...objective,
+  closedAt: null,
+});
