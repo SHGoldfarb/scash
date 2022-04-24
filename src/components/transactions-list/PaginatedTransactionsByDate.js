@@ -4,7 +4,7 @@ import { shape, arrayOf, string } from "prop-types";
 import { useUrlParams } from "hooks";
 import { TransactionsDateCards } from "./components";
 import { PagesNavigation } from "./paginated-transactions-by-date";
-import { MAX_DATES_PER_PAGE } from "./utils";
+import { MAX_DATES_PER_PAGE, PAGE_INFO_HEIGHT_PX } from "./utils";
 
 const usePagination = ({
   items,
@@ -66,6 +66,7 @@ const PaginatedTransactionsByDate = ({ transactionsByDate, sortedDates }) => {
           }/${totalPages}`}</Typography>
         }
       />
+      <div style={{ height: `${PAGE_INFO_HEIGHT_PX}px` }} />
       <TransactionsDateCards
         dates={pageItems}
         getSortedTransactions={(date) => transactionsByDate[date]}

@@ -9,7 +9,12 @@ const Item = ({ amount, label, closed, onLabelClick, onAmountClick }) => {
       <ListItem
         secondaryAction={
           <Button
-            color={amount < 0 ? "error" : "success"}
+            sx={{
+              color: (theme) =>
+                amount < 0
+                  ? theme.palette.error.light
+                  : theme.palette.success.light,
+            }}
             onClick={onAmountClick}
           >
             {currencyFormat(amount)}

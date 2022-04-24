@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { Link, useLocation } from "react-router-dom";
 import { Category, ListAlt, Settings } from "@mui/icons-material";
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { BOTTOM_NAVIGATION_BAR_HEIGHT_PX } from "../constants";
 import {
   makePath,
   settingsPathName,
@@ -14,6 +15,7 @@ const StyledBottomNavigation = styled(BottomNavigation)(() => ({
   bottom: 0,
   position: "fixed",
   width: "100%",
+  height: `${BOTTOM_NAVIGATION_BAR_HEIGHT_PX}px`,
 }));
 
 const BottomMenu = () => {
