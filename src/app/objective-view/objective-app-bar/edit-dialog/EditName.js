@@ -12,7 +12,7 @@ const EditName = ({ onEdit }) => {
     return <DelayedCircularProgress />;
   }
 
-  const value = currentName || objective.name;
+  const value = currentName === null ? objective.name : currentName;
 
   return (
     <>
