@@ -1,5 +1,6 @@
 import { useData } from "hooks";
-import { isOpen, isClosed } from "utils";
+import { useMemo } from "react";
+import { isOpen, isClosed, by } from "utils";
 import { useCurrentTransaction } from "../hooks";
 
 export const useFormIncomeSources = () => {
@@ -7,7 +8,12 @@ export const useFormIncomeSources = () => {
 
   const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
-  const availableIncomeSources = (result.data || []).filter(
+  const sortedIncomeSources = useMemo(
+    () => (result.data || []).sort(by("name")),
+    [result.data]
+  );
+
+  const availableIncomeSources = sortedIncomeSources.filter(
     (incomeSource) =>
       !incomeSource.closedAt || incomeSource.id === transaction?.incomeSourceId
   );
@@ -16,15 +22,20 @@ export const useFormIncomeSources = () => {
     availableIncomeSources,
     ...result,
     loading: result.loading || transactionLoading,
+    data: sortedIncomeSources,
   };
 };
 
 export const useFormObjectives = () => {
   const result = useData("objectives");
 
+  const sortedObjectives = useMemo(() => (result.data || []).sort(by("name")), [
+    result.data,
+  ]);
+
   const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
-  const availableObjectives = (result.data || []).filter(
+  const availableObjectives = sortedObjectives.filter(
     (objective) =>
       !objective.closedAt || objective.id === transaction?.objectiveId
   );
@@ -33,14 +44,19 @@ export const useFormObjectives = () => {
     availableObjectives,
     ...result,
     loading: result.loading || transactionLoading,
+    data: sortedObjectives,
   };
 };
 
 export const useFormAccounts = () => {
   const result = useData("accounts");
 
-  const openAccounts = (result.data || []).filter(isOpen);
-  const closedAccounts = (result.data || []).filter(isClosed);
+  const sortedAccounts = useMemo(() => (result.data || []).sort(by("name")), [
+    result.data,
+  ]);
 
-  return { openAccounts, closedAccounts, ...result };
+  const openAccounts = sortedAccounts.filter(isOpen);
+  const closedAccounts = sortedAccounts.filter(isClosed);
+
+  return { openAccounts, closedAccounts, ...result, data: sortedAccounts };
 };

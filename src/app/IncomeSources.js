@@ -1,6 +1,7 @@
 import { Typography } from "@mui/material";
 import { DateTime } from "luxon";
-import React from "react";
+import React, { useMemo } from "react";
+import { by } from "utils";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useData } from "../hooks";
 
@@ -20,8 +21,12 @@ const IncomeSources = () => {
     await upsert(newIncomeSource);
   };
 
-  const openIncomeSources = incomeSources.filter(
-    (incomeSource) => !incomeSource.closedAt
+  const openIncomeSources = useMemo(
+    () =>
+      incomeSources
+        .filter((incomeSource) => !incomeSource.closedAt)
+        .sort(by("name")),
+    [incomeSources]
   );
 
   return (

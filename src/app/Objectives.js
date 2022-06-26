@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { List } from "@mui/material";
 import { useData } from "hooks";
 import { DelayedCircularProgress } from "components";
+import { by } from "utils";
 import { Item, NewObjectiveButton, ObjectiveItem } from "./objectives";
 
 const Objectives = () => {
@@ -30,6 +31,10 @@ const Objectives = () => {
     return amounts;
   }, [transactions, objectives]);
 
+  const sortedObjectives = useMemo(() => objectives.sort(by("name")), [
+    objectives,
+  ]);
+
   if (objectivesLoading || transactionsLoading) {
     return <DelayedCircularProgress />;
   }
@@ -37,7 +42,7 @@ const Objectives = () => {
   return (
     <List>
       <Item label="Without objective" amount={amountsPerObjective.total} />
-      {objectives.map((objective) => {
+      {sortedObjectives.map((objective) => {
         return (
           <ObjectiveItem
             key={objective.id}

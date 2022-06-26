@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
+import { by, isClosed, isOpen } from "utils";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useData } from "../hooks";
 import { currencyFormat, getTransactionsStats } from "../utils";
@@ -30,6 +31,12 @@ const Accounts = () => {
     "transactions"
   );
 
+  const sortedAccounts = useMemo(() => accounts.sort(by("name")), [accounts]);
+
+  const openAccounts = sortedAccounts.filter(isOpen);
+
+  const closedAccounts = sortedAccounts.filter(isClosed);
+
   const deleteAccount = async (accountToDelete) => {
     await upsert({
       ...accountToDelete,
@@ -54,7 +61,7 @@ const Accounts = () => {
         <DelayedCircularProgress />
       ) : (
         <EditableList
-          source={accounts
+          source={[...openAccounts, ...closedAccounts]
             .map((account) => {
               const amount = accountAmounts[account.id] || 0;
 
