@@ -10,7 +10,7 @@ import { MAX_DATES_PER_PAGE } from "./transactions-list/utils";
 const TransactionsList = ({ transactions, paginated }) => {
   const transactionsByDate = useMemo(() => {
     const dates = {};
-    transactions.sort(by("date")).forEach((transaction) => {
+    transactions.sort(by("date", { reversed: true })).forEach((transaction) => {
       const date = DateTime.fromSeconds(transaction.date).toFormat(
         "yyyy-MM-dd"
       );
