@@ -239,6 +239,33 @@ describe("App", () => {
       });
     });
 
+    describe("user presses on a date", () => {
+      let date;
+      beforeEach(() => {
+        [{ date }] = transactionsThisMonth;
+      });
+
+      userAction(async () => {
+        fireEvent.click(
+          await wrapper.findByText(
+            DateTime.fromSeconds(date).toFormat("ccc dd")
+          )
+        );
+      });
+
+      it("redirects to form with correct date value", async () => {
+        await runUserActions();
+
+        const formattedDate = `${DateTime.fromSeconds(date).toFormat(
+          "yyyy-MM-dd"
+        )} ${DateTime.local().toFormat("HH:mm")}`;
+
+        await waitFor(() => {
+          expect(wrapper.getByLabelText("Date").value).toEqual(formattedDate);
+        });
+      });
+    });
+
     describe("user presses on a transaction", () => {
       let transaction;
       beforeEach(() => {

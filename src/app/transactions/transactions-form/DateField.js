@@ -10,9 +10,20 @@ import { parseSearchParams } from "../../../utils";
 const useDefaultDate = () => {
   const location = useLocation();
 
-  const { month, year } = parseSearchParams(location.search);
+  const { month, year, day } = parseSearchParams(location.search);
 
-  const currentDate = DateTime.local();
+  const currentDate = DateTime.now();
+
+  if (month && year && day) {
+    return DateTime.fromObject({
+      year,
+      month,
+      day,
+      hour: currentDate.hour,
+      minute: currentDate.minute,
+      second: currentDate.second,
+    });
+  }
 
   if (`${currentDate.month}` === month && `${currentDate.year}` === year) {
     // selected month is today's month
