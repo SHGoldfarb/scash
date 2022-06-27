@@ -52,10 +52,18 @@ const Accounts = () => {
     transactions,
   ]);
 
+  const total = Object.values(accountAmounts).reduce((a, b) => a + b, 0);
+
   return (
     <Root>
       <Typography variant="h5" color="textPrimary">
         Accounts
+      </Typography>
+      <Typography
+        variant="h6"
+        className={total < 0 ? classes.negative : classes.positive}
+      >
+        {currencyFormat(total)}
       </Typography>
       {loading || transactionsLoading ? (
         <DelayedCircularProgress />

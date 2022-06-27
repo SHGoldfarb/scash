@@ -1574,6 +1574,18 @@ describe("App", () => {
             );
           });
         });
+
+        it("shows the total assets", async () => {
+          await runUserActions();
+
+          const { accountAmounts } = getTransactionsStats(transactions);
+
+          wrapper.getByText(
+            `${currencyFormat(
+              Object.values(accountAmounts).reduce((a, b) => a + b, 0)
+            )}`
+          );
+        });
       });
     });
     describe("user presses transactions button", () => {
