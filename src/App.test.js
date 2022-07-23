@@ -626,24 +626,14 @@ describe("App", () => {
         // Enter incomesource
         const incomeSourceDiv = wrapper.getAllByLabelText("Income Source")[0];
         fireEvent.mouseDown(incomeSourceDiv);
-        const incomeSourceInput = incomeSourceDiv.nextSibling;
-        fireEvent.change(incomeSourceInput, {
-          target: {
-            value: wrapper.getByText(incomeSourceName).dataset.value,
-          },
-        });
+        fireEvent.click(wrapper.getByText(incomeSourceName));
       }
 
       if (objectiveName) {
         // Enter objective
         const objectiveDiv = wrapper.getAllByLabelText("Objective")[0];
         fireEvent.mouseDown(objectiveDiv);
-        const objectiveInput = objectiveDiv.nextSibling;
-        fireEvent.change(objectiveInput, {
-          target: {
-            value: wrapper.getByText(objectiveName).dataset.value,
-          },
-        });
+        fireEvent.click(wrapper.getByText(objectiveName));
       }
 
       // Enter date
