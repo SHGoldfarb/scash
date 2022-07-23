@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { MenuItem } from "@mui/material";
 import { TextField } from "components";
-import { useFormContext } from "react-hook-form";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "type";
 
 const TypeField = () => {
-  const { register, watch } = useFormContext();
-  const { name, onChange, onBlur, ref } = register("type");
+  const {
+    values: { type },
+    setField,
+  } = useTransactionFormContext();
   const [open, setOpen] = useState(false);
 
-  const transactionDate = watch("date");
-  const value = watch("type");
-
   useEffect(() => {
-    if (transactionDate && !value) {
+    if (!type) {
       setOpen(true);
     }
-  }, [transactionDate, value]);
+  }, [type]);
 
   return (
     <TextField
@@ -25,10 +26,8 @@ const TypeField = () => {
       name={name}
       id={`transaction-${name}`}
       fullWidth
-      defaultValue=""
-      onChange={onChange}
-      onBlur={onBlur}
-      inputRef={ref}
+      value={type || ""}
+      onChange={(e) => setField(name)(e.target.value)}
       SelectProps={{
         open,
         onClose: () => {

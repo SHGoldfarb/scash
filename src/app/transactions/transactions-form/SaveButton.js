@@ -2,7 +2,6 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { Button } from "@mui/material";
 import { DelayedCircularProgress } from "components";
-import { useFormContext } from "react-hook-form";
 import { useData } from "../../../hooks";
 import {
   useFormAccounts,
@@ -11,6 +10,7 @@ import {
 } from "./hooks";
 import { transactionTypes } from "../../../entities";
 import { useCurrentTransaction } from "../hooks";
+import { useTransactionFormContext } from "../contexts";
 
 const SaveButton = () => {
   const history = useHistory();
@@ -24,7 +24,7 @@ const SaveButton = () => {
     loading: incomeSourcesLoading,
   } = useFormIncomeSources();
   const { openAccounts, loading: accountsLoading } = useFormAccounts();
-  const { watch, handleSubmit } = useFormContext();
+  const { values } = useTransactionFormContext();
   const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
   if (
@@ -36,6 +36,7 @@ const SaveButton = () => {
     return <DelayedCircularProgress />;
   }
 
+  // TODO: remove defaults
   const defaultAccountId = openAccounts[0]?.id;
 
   return (
@@ -44,13 +45,14 @@ const SaveButton = () => {
       variant="contained"
       disabled={
         !openAccounts.length ||
-        (watch("type") === transactionTypes.income &&
+        (values.type === transactionTypes.income &&
           !availableIncomeSources.length) ||
-        (watch("type") === transactionTypes.expense &&
-          !availableObjectives.length)
+        (values.type === transactionTypes.expense &&
+          !availableObjectives.length) ||
+        !values.type
       }
-      onClick={handleSubmit(
-        async ({
+      onClick={async () => {
+        const {
           comment,
           amount,
           date,
@@ -60,23 +62,23 @@ const SaveButton = () => {
           destinationAccountId = defaultAccountId,
           incomeSourceId,
           objectiveId,
-        }) => {
-          await upsert({
-            id: transaction?.id,
-            comment,
-            amount: parseInt(amount, 10),
-            date,
-            type,
-            accountId: parseInt(accountId, 10),
-            originAccountId: parseInt(originAccountId, 10),
-            destinationAccountId: parseInt(destinationAccountId, 10),
-            incomeSourceId: parseInt(incomeSourceId, 10),
-            objectiveId: parseInt(objectiveId, 10),
-          });
+        } = values;
 
-          history.goBack();
-        }
-      )}
+        await upsert({
+          id: transaction?.id,
+          comment,
+          amount: parseInt(amount, 10),
+          date,
+          type,
+          accountId: parseInt(accountId, 10),
+          originAccountId: parseInt(originAccountId, 10),
+          destinationAccountId: parseInt(destinationAccountId, 10),
+          incomeSourceId: parseInt(incomeSourceId, 10),
+          objectiveId: parseInt(objectiveId, 10),
+        });
+
+        history.goBack();
+      }}
     >
       Save
     </Button>

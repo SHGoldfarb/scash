@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "@testing-library/react";
 import { DateTime } from "luxon";
 import { readFileSync } from "fs";
 import {
@@ -23,6 +23,7 @@ import {
 } from "./test-utils/mocks/entities";
 import { makeEventsPoint } from "./test-utils";
 import { asyncReduce, writeFileAsync } from "./lib";
+import { transactionTypes } from "./entities";
 
 jest.mock("dexie", () => {
   return function Dexie() {
@@ -73,14 +74,17 @@ describe("App", () => {
     let transaction;
     beforeEach(async () => {
       objective = objectiveMock({ closedAt: DateTime.local().toSeconds() });
+      const account = accountMock();
       transaction = transactionMock({
         objectiveId: objective.id,
         type: "expense",
         date: DateTime.local().toSeconds(),
+        accountId: account.id,
       });
 
       await mockTable("objectives").set([objective]);
       await mockTable("transactions").set([transaction]);
+      await mockTable("accounts").set([account]);
     });
 
     it("correctly lets user edit the transaction while keeping the objective", async () => {
@@ -95,7 +99,7 @@ describe("App", () => {
       await wrapper.findByText("Delete");
 
       // Then we look for the objective name
-      await wrapper.findByDisplayValue(objective.name);
+      await wrapper.findByText(objective.name);
     });
   });
 
@@ -326,7 +330,7 @@ describe("App", () => {
             // Correct type
 
             await waitFor(() => {
-              expect(wrapper.getByLabelText("Type").value).toEqual(
+              expect(wrapper.getByLabelText("Type").nextSibling.value).toEqual(
                 transaction.type
               );
             });
@@ -351,16 +355,16 @@ describe("App", () => {
 
             // Correct account
             await waitFor(() => {
-              expect(wrapper.getByLabelText("Account").value).toEqual(
-                `${transaction.accountId}`
-              );
+              expect(
+                wrapper.getByLabelText("Account").nextSibling.value
+              ).toEqual(`${transaction.accountId}`);
             });
 
             // Correct objective
             await waitFor(() => {
-              expect(wrapper.getByLabelText("Income Source").value).toEqual(
-                `${transaction.incomeSourceId}`
-              );
+              expect(
+                wrapper.getByLabelText("Income Source").nextSibling.value
+              ).toEqual(`${transaction.incomeSourceId}`);
             });
 
             // Correct comment
@@ -382,15 +386,15 @@ describe("App", () => {
 
             // Correct origin account
             await waitFor(() => {
-              expect(wrapper.getByLabelText("Origin Account").value).toEqual(
-                `${transaction.originAccountId}`
-              );
+              expect(
+                wrapper.getByLabelText("Origin Account").nextSibling.value
+              ).toEqual(`${transaction.originAccountId}`);
             });
 
             // Correct destination acccount
             await waitFor(() => {
               expect(
-                wrapper.getByLabelText("Destination Account").value
+                wrapper.getByLabelText("Destination Account").nextSibling.value
               ).toEqual(`${transaction.destinationAccountId}`);
             });
           });
@@ -558,7 +562,7 @@ describe("App", () => {
     });
 
     const selectTransactionTypeInForm = (type) => {
-      fireEvent.change(wrapper.getByLabelText("Type"), {
+      fireEvent.change(wrapper.getAllByLabelText("Type")[0].nextSibling, {
         target: { value: type },
       });
     };
@@ -568,6 +572,8 @@ describe("App", () => {
       accountName,
       originAccountName,
       destinationAccountName,
+      incomeSourceName,
+      objectiveName,
       amount,
       comment,
     } = {}) => {
@@ -583,32 +589,59 @@ describe("App", () => {
 
       if (accountName) {
         // Enter account
-        fireEvent.change(wrapper.getByLabelText("Account"), {
-          target: { value: wrapper.getByText(accountName).value },
+        fireEvent.change(wrapper.getAllByLabelText("Account")[0].nextSibling, {
+          target: { value: wrapper.getByText(accountName).dataset.value },
         });
       }
 
       if (originAccountName) {
         // Enter account
-        const originAccountInput = wrapper.getByLabelText("Origin Account");
+        const originAccountDiv = wrapper.getAllByLabelText("Origin Account")[0];
+        fireEvent.mouseDown(originAccountDiv);
+        const originAccountInput = originAccountDiv.nextSibling;
         fireEvent.change(originAccountInput, {
           target: {
-            value: within(originAccountInput).getByText(originAccountName)
-              .value,
+            value: wrapper.getAllByText(originAccountName)[0].dataset.value,
           },
         });
       }
 
       if (destinationAccountName) {
         // Enter account
-        const destinationAccountInput = wrapper.getByLabelText(
+        const destinationAccountDiv = wrapper.getAllByLabelText(
           "Destination Account"
-        );
+        )[0];
+        fireEvent.mouseDown(destinationAccountDiv);
+        const destinationAccountInput = destinationAccountDiv.nextSibling;
         fireEvent.change(destinationAccountInput, {
           target: {
-            value: within(destinationAccountInput).getByText(
-              destinationAccountName
-            ).value,
+            value: wrapper.getAllByText(destinationAccountName)[0][
+              "data-value"
+            ],
+          },
+        });
+      }
+
+      if (incomeSourceName) {
+        // Enter incomesource
+        const incomeSourceDiv = wrapper.getAllByLabelText("Income Source")[0];
+        fireEvent.mouseDown(incomeSourceDiv);
+        const incomeSourceInput = incomeSourceDiv.nextSibling;
+        fireEvent.change(incomeSourceInput, {
+          target: {
+            value: wrapper.getByText(incomeSourceName).dataset.value,
+          },
+        });
+      }
+
+      if (objectiveName) {
+        // Enter objective
+        const objectiveDiv = wrapper.getAllByLabelText("Objective")[0];
+        fireEvent.mouseDown(objectiveDiv);
+        const objectiveInput = objectiveDiv.nextSibling;
+        fireEvent.change(objectiveInput, {
+          target: {
+            value: wrapper.getByText(objectiveName).dataset.value,
           },
         });
       }
@@ -673,170 +706,202 @@ describe("App", () => {
           await wrapper.findByText("New Transaction");
         };
 
-        it("shows the save button as enabled", async () => {
-          await runUserActions();
-
-          expect(
-            (await wrapper.findByText("Save")).closest("button")
-          ).not.toBeDisabled();
-        });
-
-        it("shows the expense objectives", async () => {
-          await runUserActions();
-
-          const expenseObjectives = await mockTable("objectives").toArray();
-
-          await waitFor(() => {
-            expenseObjectives.forEach((cat) => {
-              wrapper.getByText(cat.name);
-            });
+        describe("user selects expense", () => {
+          userAction(async () => {
+            fireEvent.change(
+              (await wrapper.findAllByLabelText("Type"))[0].nextSibling,
+              {
+                target: { value: transactionTypes.expense },
+              }
+            );
           });
-        });
 
-        describe("when some objectives are closed", () => {
-          let openObjectives;
-          let closedObjectives;
-          beforeEach(async () => {
-            openObjectives = await mockTable("objectives").toArray();
+          it("shows the save button as enabled", async () => {
+            await runUserActions();
 
-            closedObjectives = repeat(
-              () => objectiveMock({ closedAt: DateTime.local().toSeconds() }),
-              5
+            expect(
+              (await wrapper.findByText("Save")).closest("button")
+            ).not.toBeDisabled();
+          });
+
+          it("shows the expense objectives", async () => {
+            await runUserActions();
+
+            const expenseObjectives = await mockTable("objectives").toArray();
+
+            // Open options
+            fireEvent.mouseDown(
+              (await wrapper.findAllByLabelText("Objective"))[0]
             );
 
-            mockTable("objectives").set([
-              ...openObjectives,
-              ...closedObjectives,
-            ]);
-          });
-
-          it("only shows open objectives", async () => {
-            await runUserActions();
-
             await waitFor(() => {
-              openObjectives.forEach((objective) => {
+              expenseObjectives.forEach((objective) => {
                 wrapper.getByText(objective.name);
               });
+            });
+          });
 
-              closedObjectives.forEach((objective) => {
-                expect(wrapper.queryByText(objective.name)).toBeNull();
+          describe("when some objectives are closed", () => {
+            let openObjectives;
+            let closedObjectives;
+            beforeEach(async () => {
+              openObjectives = await mockTable("objectives").toArray();
+
+              closedObjectives = repeat(
+                () => objectiveMock({ closedAt: DateTime.local().toSeconds() }),
+                5
+              );
+
+              mockTable("objectives").set([
+                ...openObjectives,
+                ...closedObjectives,
+              ]);
+            });
+
+            it("only shows open objectives", async () => {
+              await runUserActions();
+
+              // Open options
+              fireEvent.mouseDown(
+                (await wrapper.findAllByLabelText("Objective"))[0]
+              );
+
+              await waitFor(() => {
+                openObjectives.forEach((objective) => {
+                  wrapper.getByText(objective.name);
+                });
+
+                closedObjectives.forEach((objective) => {
+                  expect(wrapper.queryByText(objective.name)).toBeNull();
+                });
               });
             });
           });
-        });
 
-        describe("user selects income transaction", () => {
-          userAction(async () => {
-            selectTransactionTypeInForm("income");
+          describe("user selects income transaction", () => {
+            userAction(async () => {
+              selectTransactionTypeInForm("income");
 
-            // Avoid act() warning
-            await waitFor(() => {});
-          });
+              // Avoid act() warning
+              await waitFor(() => {});
+            });
 
-          it("shows the income sources", async () => {
-            await runUserActions();
+            it("shows the income sources", async () => {
+              await runUserActions();
 
-            const expenseObjectives = await mockTable(
-              "incomeSources"
-            ).toArray();
+              const expenseObjectives = await mockTable(
+                "incomeSources"
+              ).toArray();
 
-            await waitFor(() => {
-              expenseObjectives.forEach((cat) => {
-                wrapper.getByText(cat.name);
+              // Open options
+              fireEvent.mouseDown(
+                wrapper.getAllByLabelText("Income Source")[0]
+              );
+
+              await waitFor(() => {
+                expenseObjectives.forEach((cat) => {
+                  wrapper.getByText(cat.name);
+                });
               });
             });
           });
-        });
 
-        describe("user selects transfer transaction", () => {
-          userAction(async () => {
-            selectTransactionTypeInForm("transfer");
+          describe("user selects transfer transaction", () => {
+            userAction(async () => {
+              selectTransactionTypeInForm("transfer");
 
-            // Avoid act() warning
-            await waitFor(() => {});
-          });
-
-          it("does not show objective field", async () => {
-            await runUserActions();
-
-            await waitFor(() => {
-              expect(wrapper.queryByLabelText("Objective")).toBeNull();
-            });
-          });
-        });
-
-        describe("user creates an income transaction", () => {
-          let selectedAccount;
-          userAction(async () => {
-            [selectedAccount] = accounts;
-
-            await createTransactionInForm({
-              accountName: selectedAccount.name,
-              type: "income",
+              // Avoid act() warning
+              await waitFor(() => {});
             });
 
-            // Avoid act() warning
-            await waitFor(() => {});
-          });
+            it("does not show objective field", async () => {
+              await runUserActions();
 
-          it("correctly assosiates transaction to account", async () => {
-            await runUserActions();
-
-            // Test the account was associated by looking for it in the transactions page
-            // First make sure we are in transactions page
-            await expectToBeInTransactionsPage();
-
-            await wrapper.findByText(selectedAccount.name, { exact: false });
-          });
-        });
-
-        describe("user creates an expense transaction", () => {
-          let selectedAccount;
-          userAction(async () => {
-            [selectedAccount] = accounts;
-
-            await createTransactionInForm({
-              accountName: selectedAccount.name,
-              type: "expense",
+              await waitFor(() => {
+                expect(wrapper.queryByLabelText("Objective")).toBeNull();
+              });
             });
           });
 
-          it("correctly assosiates transaction to account", async () => {
-            await runUserActions();
+          describe("user creates an income transaction", () => {
+            let selectedAccount;
+            userAction(async () => {
+              [selectedAccount] = accounts;
+              const [selectedIncomeSource] = await mockTable(
+                "incomeSources"
+              ).toArray();
 
-            // Test the account was associated by looking for it in the transactions page
-            // First make sure we are in transactions page
-            await expectToBeInTransactionsPage();
+              await createTransactionInForm({
+                accountName: selectedAccount.name,
+                type: "income",
+                incomeSourceName: selectedIncomeSource.name,
+              });
 
-            await wrapper.findByText(selectedAccount.name, { exact: false });
-          });
-        });
-
-        describe("user creates a transfer transaction", () => {
-          let originAccount;
-          let destinationAccount;
-          userAction(async () => {
-            [originAccount, destinationAccount] = accounts;
-
-            await createTransactionInForm({
-              originAccountName: originAccount.name,
-              destinationAccountName: destinationAccount.name,
-              type: "transfer",
+              // Avoid act() warning
+              await waitFor(() => {});
             });
 
-            // Avoid missing act() warning
-            await waitFor(() => {});
+            it("correctly assosiates transaction to account", async () => {
+              await runUserActions();
+
+              // Test the account was associated by looking for it in the transactions page
+              // First make sure we are in transactions page
+              await expectToBeInTransactionsPage();
+
+              await wrapper.findByText(selectedAccount.name, { exact: false });
+            });
           });
 
-          it("correctly assosiates transactions to account", async () => {
-            await runUserActions();
+          describe("user creates an expense transaction", () => {
+            let selectedAccount;
+            userAction(async () => {
+              [selectedAccount] = accounts;
 
-            // Test the account was associated by looking for it in the transactions page
-            // First make sure we are in transactions page
-            await expectToBeInTransactionsPage();
+              await createTransactionInForm({
+                accountName: selectedAccount.name,
+                type: "expense",
+              });
+            });
 
-            await wrapper.findByText(originAccount.name, { exact: false });
-            await wrapper.findByText(destinationAccount.name, { exact: false });
+            it("correctly assosiates transaction to account", async () => {
+              await runUserActions();
+
+              // Test the account was associated by looking for it in the transactions page
+              // First make sure we are in transactions page
+              await expectToBeInTransactionsPage();
+
+              await wrapper.findByText(selectedAccount.name, { exact: false });
+            });
+          });
+
+          describe("user creates a transfer transaction", () => {
+            let originAccount;
+            let destinationAccount;
+            userAction(async () => {
+              [originAccount, destinationAccount] = accounts;
+
+              await createTransactionInForm({
+                originAccountName: originAccount.name,
+                destinationAccountName: destinationAccount.name,
+                type: "transfer",
+              });
+
+              // Avoid missing act() warning
+              await waitFor(() => {});
+            });
+
+            it("correctly assosiates transactions to account", async () => {
+              await runUserActions();
+
+              // Test the account was associated by looking for it in the transactions page
+              // First make sure we are in transactions page
+              await expectToBeInTransactionsPage();
+
+              await wrapper.findByText(originAccount.name, { exact: false });
+              await wrapper.findByText(destinationAccount.name, {
+                exact: false,
+              });
+            });
           });
         });
       });

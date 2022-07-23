@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { DelayedCircularProgress, TextField } from "components";
-import { useFormContext } from "react-hook-form";
 import { transactionTypes } from "../../../entities";
 import { useFormAccounts } from "./hooks";
 import { useCurrentTransaction } from "../hooks";
 import { renderAccountAsMenuItem } from "./utils";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "originAccountId";
 
 const OriginAccountField = () => {
   const { openAccounts, closedAccounts, loading } = useFormAccounts();
-  const { register, watch } = useFormContext();
+  const {
+    values: { type, originAccountId },
+    setField,
+  } = useTransactionFormContext();
   const {
     transaction = {},
     loading: transactionLoading,
   } = useCurrentTransaction();
   const [open, setOpen] = useState(false);
 
-  const prevFieldValue = watch("type");
-  const value = watch("originAccountId");
-
   useEffect(() => {
-    if (prevFieldValue && !value) {
+    if (type && !originAccountId) {
       setOpen(true);
     }
-  }, [prevFieldValue, value]);
+  }, [type, originAccountId]);
 
-  if (watch("type") !== transactionTypes.transfer) {
+  if (type !== transactionTypes.transfer) {
     return null;
   }
-
-  const originAccount = register("originAccountId");
 
   return (
     ((loading || transactionLoading) && <DelayedCircularProgress />) || (
@@ -38,11 +38,9 @@ const OriginAccountField = () => {
         variant="filled"
         id="transaction-origin-account"
         fullWidth
-        defaultValue=""
-        onChange={originAccount.onChange}
-        onBlur={originAccount.onBlur}
-        name={originAccount.name}
-        inputRef={originAccount.ref}
+        value={originAccountId || ""}
+        onChange={(e) => setField(name)(e.target.value)}
+        name={name}
         SelectProps={{
           open,
           onClose: () => {
@@ -54,9 +52,7 @@ const OriginAccountField = () => {
         }}
       >
         {[
-          closedAccounts.find(
-            ({ id }) => transaction[originAccount.name] === id
-          ),
+          closedAccounts.find(({ id }) => transaction[name] === id),
           ...openAccounts,
         ]
           .filter((item) => !!item)

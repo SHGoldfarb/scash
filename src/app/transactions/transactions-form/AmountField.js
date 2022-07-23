@@ -1,48 +1,51 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { TextField } from "@mui/material";
-import { useFormContext } from "react-hook-form";
 import { transactionTypes } from "../../../entities";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "amount";
 
 const AmountField = () => {
   const {
-    register,
-    setFocus,
-    formState: { errors },
-    watch,
-  } = useFormContext();
+    values: {
+      type,
+      destinationAccountId,
+      incomeSourceId,
+      objectiveId,
+      originAccountId,
+      accountId,
+      amount,
+    },
+    setField,
+  } = useTransactionFormContext();
 
-  const transactionType = watch("type");
-  const prevFieldValue =
-    (transactionType === transactionTypes.transfer &&
-      watch("destinationAccountId")) ||
-    (transactionTypes.income && watch("incomeSourceId")) ||
-    (transactionTypes.expense && watch("objectiveId")) ||
+  const ref = useRef(null);
+
+  const prevFieldsCompleted =
+    (type === transactionTypes.transfer &&
+      destinationAccountId &&
+      originAccountId) ||
+    (type === transactionTypes.income && incomeSourceId && accountId) ||
+    (type === transactionTypes.expense && objectiveId && accountId) ||
     null;
-  const value = watch("amount");
 
   useEffect(() => {
-    if (prevFieldValue && !value) {
-      setFocus("amount");
+    if (prevFieldsCompleted && !amount) {
+      ref.current.focus();
     }
-  }, [prevFieldValue, value, setFocus]);
+  }, [prevFieldsCompleted, amount]);
 
-  const { onChange, onBlur, name, ref } = register("amount", {
-    pattern: /[0-9]*/,
-    required: true,
-  });
   return (
     <TextField
       variant="filled"
       label="Amount"
       type="number"
       required
-      error={!!errors.amount}
-      helperText={errors.amount ? "Enter a number" : ""}
+      value={amount || ""}
       inputRef={ref}
       id="transaction-amount"
       fullWidth
-      onChange={onChange}
-      onBlur={onBlur}
+      onChange={(e) => setField(name)(e.target.value)}
       name={name}
     />
   );

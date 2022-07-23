@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { DelayedCircularProgress, TextField } from "components";
 import { MenuItem } from "@mui/material";
-import { useFormContext } from "react-hook-form";
 import { useFormIncomeSources } from "./hooks";
 import { transactionTypes } from "../../../entities";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "incomeSourceId";
 
 const IncomeSourceField = () => {
   const { availableIncomeSources, loading } = useFormIncomeSources();
-  const { register, watch } = useFormContext();
+  const {
+    values: { accountId, type, incomeSourceId },
+    setField,
+  } = useTransactionFormContext();
   const [open, setOpen] = useState(false);
 
-  const prevFieldValue = watch("accountId");
-  const value = watch("incomeSourceId");
-
   useEffect(() => {
-    if (prevFieldValue && !value) {
+    if (accountId && !incomeSourceId) {
       setOpen(true);
     }
-  }, [prevFieldValue, value]);
+  }, [accountId, incomeSourceId]);
 
-  if (watch("type") !== transactionTypes.income) {
+  if (type !== transactionTypes.income) {
     return null;
   }
 
   if (loading) {
     return <DelayedCircularProgress />;
   }
-
-  const { name, ref, onBlur, onChange } = register("incomeSourceId");
 
   return (
     <TextField
@@ -37,9 +37,8 @@ const IncomeSourceField = () => {
       id="transaction-income-source"
       fullWidth
       name={name}
-      inputRef={ref}
-      onBlur={onBlur}
-      onChange={onChange}
+      value={incomeSourceId || ""}
+      onChange={(e) => setField(name)(e.target.value)}
       SelectProps={{
         open,
         onClose: () => {

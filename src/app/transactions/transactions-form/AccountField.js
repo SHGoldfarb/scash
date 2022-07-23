@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { DelayedCircularProgress, TextField } from "components";
-import { useFormContext } from "react-hook-form";
 import { transactionTypes } from "../../../entities";
 import { useFormAccounts } from "./hooks";
 import { useCurrentTransaction } from "../hooks";
 import { renderAccountAsMenuItem } from "./utils";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "accountId";
 
 const AccountField = () => {
   const { openAccounts, closedAccounts, loading } = useFormAccounts();
@@ -13,57 +15,53 @@ const AccountField = () => {
     transaction = {},
     loading: transactionLoading,
   } = useCurrentTransaction();
-  const { register, watch } = useFormContext();
+
+  const {
+    values: { type, accountId },
+    setField,
+  } = useTransactionFormContext();
+
   const [open, setOpen] = useState(false);
 
-  const prevFieldValue = watch("type");
-  const value = watch("accountId");
-
   useEffect(() => {
-    if (prevFieldValue && !value) {
+    if (type && !accountId) {
       setOpen(true);
     }
-  }, [prevFieldValue, value]);
+  }, [type, accountId]);
 
-  if (
-    watch("type") !== transactionTypes.income &&
-    watch("type") !== transactionTypes.expense
-  ) {
+  if (type !== transactionTypes.income && type !== transactionTypes.expense) {
     return null;
   }
 
-  const account = register("accountId");
-
-  return (
-    ((loading || transactionLoading) && <DelayedCircularProgress />) || (
-      <TextField
-        select
-        label="Account"
-        variant="filled"
-        id="transaction-account"
-        fullWidth
-        onChange={account.onChange}
-        onBlur={account.onBlur}
-        name={account.name}
-        inputRef={account.ref}
-        SelectProps={{
-          open,
-          onClose: () => {
-            setOpen(false);
-          },
-          onOpen: () => {
-            setOpen(true);
-          },
-        }}
-      >
-        {[
-          closedAccounts.find(({ id }) => transaction[account.name] === id),
-          ...openAccounts,
-        ]
-          .filter((item) => !!item)
-          .map(renderAccountAsMenuItem)}
-      </TextField>
-    )
+  return loading || transactionLoading ? (
+    <DelayedCircularProgress />
+  ) : (
+    <TextField
+      select
+      label="Account"
+      variant="filled"
+      id="transaction-account"
+      fullWidth
+      value={accountId || ""}
+      onChange={(e) => setField(name)(e.target.value)}
+      name={name}
+      SelectProps={{
+        open,
+        onClose: () => {
+          setOpen(false);
+        },
+        onOpen: () => {
+          setOpen(true);
+        },
+      }}
+    >
+      {[
+        closedAccounts.find(({ id }) => transaction[name] === id),
+        ...openAccounts,
+      ]
+        .filter((item) => !!item)
+        .map(renderAccountAsMenuItem)}
+    </TextField>
   );
 };
 

@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { DelayedCircularProgress, TextField } from "components";
 import { MenuItem } from "@mui/material";
-import { useFormContext } from "react-hook-form";
 import { transactionTypes } from "../../../entities";
 import { useFormObjectives } from "./hooks";
+import { useTransactionFormContext } from "../contexts";
+
+const name = "objectiveId";
 
 const ObjectiveField = () => {
   const { availableObjectives, loading } = useFormObjectives();
 
-  const { register, watch } = useFormContext();
+  const {
+    values: { accountId, objectiveId, type },
+    setField,
+  } = useTransactionFormContext();
   const [open, setOpen] = useState(false);
 
-  const prevFieldValue = watch("accountId");
-  const value = watch("objectiveId");
-
   useEffect(() => {
-    if (prevFieldValue && !value) {
+    if (accountId && !objectiveId) {
       setOpen(true);
     }
-  }, [prevFieldValue, value]);
+  }, [accountId, objectiveId]);
 
-  if (watch("type") !== transactionTypes.expense) {
+  if (type !== transactionTypes.expense) {
     return null;
   }
 
   if (loading) {
     return <DelayedCircularProgress />;
   }
-
-  const { name, ref, onBlur, onChange } = register("objectiveId");
 
   return (
     <TextField
@@ -38,9 +38,8 @@ const ObjectiveField = () => {
       id="transaction-objective"
       fullWidth
       name={name}
-      inputRef={ref}
-      onBlur={onBlur}
-      onChange={onChange}
+      value={objectiveId || ""}
+      onChange={(e) => setField(name)(e.target.value)}
       SelectProps={{
         open,
         onClose: () => {

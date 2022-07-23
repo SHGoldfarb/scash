@@ -1,9 +1,6 @@
-import React, { useEffect } from "react";
-
-import { DelayedCircularProgress } from "components";
+import React from "react";
 import { Button } from "@mui/material";
 import { useHistory } from "react-router-dom";
-import { FormProvider, useForm } from "react-hook-form";
 import {
   AmountField,
   IncomeSourceField,
@@ -17,40 +14,13 @@ import {
   OriginAccountField,
   DestinationAccountField,
 } from "./transactions-form";
-import { useCurrentTransaction } from "./hooks";
+import { TransactionFormProvider } from "./contexts";
 
 const TransactionsForm = () => {
   const history = useHistory();
 
-  const { reset, watch, ...methods } = useForm();
-
-  const { transaction, loading } = useCurrentTransaction();
-
-  useEffect(() => {
-    if (transaction) {
-      reset({
-        comment: transaction.comment,
-        amount: transaction.amount,
-        date: transaction.date,
-        type: transaction.type,
-        accountId: transaction.accountId,
-        originAccountId: transaction.originAccountId,
-        destinationAccountId: transaction.destinationAccountId,
-        objectiveId: transaction.objectiveId,
-        incomeSourceId: transaction.incomeSourceId,
-      });
-    }
-  }, [transaction, reset]);
-
-  // Transaction exists and values are still being set
-  const stillLoading = transaction && watch("type") === undefined;
-
-  if (loading || stillLoading) {
-    return <DelayedCircularProgress />;
-  }
-
   return (
-    <FormProvider reset={reset} watch={watch} {...methods}>
+    <TransactionFormProvider>
       <DateField />
       <TypeField />
       <OriginAccountField />
@@ -69,7 +39,7 @@ const TransactionsForm = () => {
       </Button>
       <DeleteButton />
       <SaveButton />
-    </FormProvider>
+    </TransactionFormProvider>
   );
 };
 
