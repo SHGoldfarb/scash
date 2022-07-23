@@ -1,8 +1,10 @@
 import React from "react";
 import { TextField } from "@mui/material";
-import { func } from "prop-types";
+import { useFormContext } from "react-hook-form";
 
-const CommentField = ({ register }) => {
+const CommentField = () => {
+  const { register } = useFormContext();
+
   const { name, ref, onChange, onBlur } = register("comment");
   return (
     <TextField
@@ -16,10 +18,6 @@ const CommentField = ({ register }) => {
       onBlur={onBlur}
     />
   );
-};
-
-CommentField.propTypes = {
-  register: func.isRequired,
 };
 
 export default CommentField;

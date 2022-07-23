@@ -1,9 +1,12 @@
 import { isString, throwError, throwInvalidEntityError } from "../lib";
 
-export const validTransactionTypes = ["income", "expense", "transfer"];
+export const transactionTypes = {
+  income: "income",
+  expense: "expense",
+  transfer: "transfer",
+};
 
-export const isValidTransactionType = (type) =>
-  validTransactionTypes.includes(type);
+export const isValidTransactionType = (type) => !!transactionTypes[type];
 
 export const validTransaction = (data) => ({
   amount: Number.isInteger(data.amount)

@@ -1,4 +1,6 @@
-export { default as AccountsFields } from "./AccountsFields";
+export { default as AccountField } from "./AccountField";
+export { default as OriginAccountField } from "./OriginAccountField";
+export { default as DestinationAccountField } from "./DestinationAccountField";
 export { default as AmountField } from "./AmountField";
 export { default as CommentField } from "./CommentField";
 export { default as DateField } from "./DateField";

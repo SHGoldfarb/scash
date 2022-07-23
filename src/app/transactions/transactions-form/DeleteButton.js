@@ -1,13 +1,19 @@
 import React from "react";
-import { number } from "prop-types";
 import { Button } from "@mui/material";
 import { useHistory } from "react-router-dom";
 import { useData } from "hooks";
+import { useCurrentTransaction } from "../hooks";
 
-const DeleteButton = ({ transactionId }) => {
+const DeleteButton = () => {
   const { remove } = useData("transactions");
-
+  const { transaction, loading } = useCurrentTransaction();
   const history = useHistory();
+
+  const transactionId = transaction?.id;
+
+  if (loading || !transactionId) {
+    return null;
+  }
 
   return (
     <Button
@@ -20,10 +26,6 @@ const DeleteButton = ({ transactionId }) => {
       Delete
     </Button>
   );
-};
-
-DeleteButton.propTypes = {
-  transactionId: number.isRequired,
 };
 
 export default DeleteButton;

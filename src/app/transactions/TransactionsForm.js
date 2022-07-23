@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+
 import { DelayedCircularProgress } from "components";
 import { Button } from "@mui/material";
 import { useHistory } from "react-router-dom";
+import { FormProvider, useForm } from "react-hook-form";
 import {
-  AccountsFields,
   AmountField,
   IncomeSourceField,
   CommentField,
@@ -13,20 +13,16 @@ import {
   ObjectiveField,
   SaveButton,
   TypeField,
+  AccountField,
+  OriginAccountField,
+  DestinationAccountField,
 } from "./transactions-form";
 import { useCurrentTransaction } from "./hooks";
 
 const TransactionsForm = () => {
   const history = useHistory();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-    reset,
-  } = useForm();
+  const { reset, watch, ...methods } = useForm();
 
   const { transaction, loading } = useCurrentTransaction();
 
@@ -53,27 +49,17 @@ const TransactionsForm = () => {
     return <DelayedCircularProgress />;
   }
 
-  // TODO: default value for transaction type should only be defined in one place
-  const transactionType = watch("type") || "expense";
-
   return (
-    <>
-      <TypeField register={register} />
-      <DateField control={control} />
-      <AmountField errors={errors} register={register} />
-      <AccountsFields
-        isTransfer={transactionType === "transfer"}
-        register={register}
-      />
-      {(transactionType === "income" && (
-        <IncomeSourceField register={register} />
-      )) ||
-        (transactionType === "expense" && (
-          <ObjectiveField register={register} />
-        )) ||
-        null}
-
-      <CommentField register={register} />
+    <FormProvider reset={reset} watch={watch} {...methods}>
+      <DateField />
+      <TypeField />
+      <OriginAccountField />
+      <DestinationAccountField />
+      <AccountField />
+      <IncomeSourceField />
+      <ObjectiveField />
+      <AmountField />
+      <CommentField />
       <Button
         onClick={() => {
           history.goBack();
@@ -81,13 +67,9 @@ const TransactionsForm = () => {
       >
         Back
       </Button>
-      {(transaction && <DeleteButton transactionId={transaction.id} />) || null}
-      <SaveButton
-        handleSubmit={handleSubmit}
-        transactionType={transactionType}
-        transactionId={transaction?.id}
-      />
-    </>
+      <DeleteButton />
+      <SaveButton />
+    </FormProvider>
   );
 };
 

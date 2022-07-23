@@ -1,8 +1,31 @@
-import React from "react";
-import { func, shape, string } from "prop-types";
+import React, { useEffect } from "react";
 import { TextField } from "@mui/material";
+import { useFormContext } from "react-hook-form";
+import { transactionTypes } from "../../../entities";
 
-const AmountField = ({ errors, register }) => {
+const AmountField = () => {
+  const {
+    register,
+    setFocus,
+    formState: { errors },
+    watch,
+  } = useFormContext();
+
+  const transactionType = watch("type");
+  const prevFieldValue =
+    (transactionType === transactionTypes.transfer &&
+      watch("destinationAccountId")) ||
+    (transactionTypes.income && watch("incomeSourceId")) ||
+    (transactionTypes.expense && watch("objectiveId")) ||
+    null;
+  const value = watch("amount");
+
+  useEffect(() => {
+    if (prevFieldValue && !value) {
+      setFocus("amount");
+    }
+  }, [prevFieldValue, value, setFocus]);
+
   const { onChange, onBlur, name, ref } = register("amount", {
     pattern: /[0-9]*/,
     required: true,
@@ -18,17 +41,11 @@ const AmountField = ({ errors, register }) => {
       inputRef={ref}
       id="transaction-amount"
       fullWidth
-      inputProps={{ autoFocus: true }}
       onChange={onChange}
       onBlur={onBlur}
       name={name}
     />
   );
-};
-
-AmountField.propTypes = {
-  errors: shape({ amount: string }).isRequired,
-  register: func.isRequired,
 };
 
 export default AmountField;

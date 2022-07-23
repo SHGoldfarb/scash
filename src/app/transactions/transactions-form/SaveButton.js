@@ -1,16 +1,18 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { func, number, string } from "prop-types";
 import { Button } from "@mui/material";
 import { DelayedCircularProgress } from "components";
+import { useFormContext } from "react-hook-form";
 import { useData } from "../../../hooks";
 import {
   useFormAccounts,
   useFormIncomeSources,
   useFormObjectives,
 } from "./hooks";
+import { transactionTypes } from "../../../entities";
+import { useCurrentTransaction } from "../hooks";
 
-const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
+const SaveButton = () => {
   const history = useHistory();
   const { upsert } = useData("transactions");
   const {
@@ -22,8 +24,15 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
     loading: incomeSourcesLoading,
   } = useFormIncomeSources();
   const { openAccounts, loading: accountsLoading } = useFormAccounts();
+  const { watch, handleSubmit } = useFormContext();
+  const { transaction, loading: transactionLoading } = useCurrentTransaction();
 
-  if (objectivesLoading || incomeSourcesLoading || accountsLoading) {
+  if (
+    objectivesLoading ||
+    incomeSourcesLoading ||
+    accountsLoading ||
+    transactionLoading
+  ) {
     return <DelayedCircularProgress />;
   }
 
@@ -35,8 +44,10 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
       variant="contained"
       disabled={
         !openAccounts.length ||
-        (transactionType === "income" && !availableIncomeSources.length) ||
-        (transactionType === "expense" && !availableObjectives.length)
+        (watch("type") === transactionTypes.income &&
+          !availableIncomeSources.length) ||
+        (watch("type") === transactionTypes.expense &&
+          !availableObjectives.length)
       }
       onClick={handleSubmit(
         async ({
@@ -51,7 +62,7 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
           objectiveId,
         }) => {
           await upsert({
-            id: transactionId,
+            id: transaction?.id,
             comment,
             amount: parseInt(amount, 10),
             date,
@@ -70,16 +81,6 @@ const SaveButton = ({ handleSubmit, transactionType, transactionId }) => {
       Save
     </Button>
   );
-};
-
-SaveButton.defaultProps = {
-  transactionId: null,
-};
-
-SaveButton.propTypes = {
-  handleSubmit: func.isRequired,
-  transactionType: string.isRequired,
-  transactionId: number,
 };
 
 export default SaveButton;

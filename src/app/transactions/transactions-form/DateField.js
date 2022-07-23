@@ -1,10 +1,9 @@
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { DateTime } from "luxon";
 import { MobileDateTimePicker } from "@mui/lab";
 import { TextField } from "@mui/material";
-import { shape } from "prop-types";
 import { parseSearchParams } from "../../../utils";
 
 const useDefaultDate = () => {
@@ -44,7 +43,8 @@ const useDefaultDate = () => {
 
 const dateDisplayFormat = "yyyy-MM-dd HH:mm";
 
-const DateField = ({ control }) => {
+const DateField = () => {
+  const { control } = useFormContext();
   const defaultDate = useDefaultDate().toSeconds();
   return (
     <Controller
@@ -72,10 +72,6 @@ const DateField = ({ control }) => {
       control={control}
     />
   );
-};
-
-DateField.propTypes = {
-  control: shape().isRequired,
 };
 
 export default DateField;
