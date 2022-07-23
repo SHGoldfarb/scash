@@ -3,7 +3,7 @@ import {
   validIncomeSource,
   validAccount,
   validObjective,
-} from "../entities";
+} from "src/entities";
 
 const validatorsObject = {
   accounts: validAccount,

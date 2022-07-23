@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { DelayedCircularProgress, TextField } from "components";
+import { DelayedCircularProgress, TextField } from "src/components";
 import { MenuItem } from "@mui/material";
 import { useFormIncomeSources } from "./hooks";
-import { transactionTypes } from "../../../entities";
+import { transactionTypes } from "src/entities";
 import { useTransactionFormContext } from "../contexts";
 
 const name = "incomeSourceId";

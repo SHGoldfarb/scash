@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { TextField } from "@mui/material";
-import { transactionTypes } from "../../../entities";
+import { transactionTypes } from "src/entities";
 import { useTransactionFormContext } from "../contexts";
 
 const name = "amount";

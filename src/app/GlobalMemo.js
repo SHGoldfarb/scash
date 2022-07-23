@@ -1,4 +1,4 @@
-import { usePerformNewGlobalMemoCalculations } from "hooks";
+import { usePerformNewGlobalMemoCalculations } from "src/hooks";
 
 const GlobalMemo = () => {
   usePerformNewGlobalMemoCalculations();

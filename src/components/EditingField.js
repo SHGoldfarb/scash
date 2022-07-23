@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { bool, func, string } from "prop-types";
 import { Done } from "@mui/icons-material";
 import { IconButton, ListItemSecondaryAction, TextField } from "@mui/material";
-import { isEnterKey } from "utils";
+import { isEnterKey } from "src/utils";
 
 const EditingField = ({ value, onConfirm, autoFocus }) => {
   const [inputValue, setInputValue] = useState(null);

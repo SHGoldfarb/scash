@@ -1,12 +1,12 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { DelayedCircularProgress } from "components";
+import { DelayedCircularProgress } from "src/components";
 import {
   useFormAccounts,
   useFormIncomeSources,
   useFormObjectives,
 } from "./hooks";
-import { transactionTypes } from "../../../entities";
+import { transactionTypes } from "src/entities";
 import { useTransactionFormContext } from "../contexts";
 
 const SaveButton = () => {

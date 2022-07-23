@@ -1,6 +1,6 @@
 import { CircularProgress } from "@mui/material";
 import React, { useState, useEffect } from "react";
-import { waitms } from "utils";
+import { waitms } from "src/utils";
 
 const DelayedCircularProgress = (props) => {
   const [show, setShow] = useState(false);

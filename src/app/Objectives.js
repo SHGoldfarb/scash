@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { List } from "@mui/material";
-import { useData } from "hooks";
-import { DelayedCircularProgress } from "components";
-import { by } from "utils";
+import { useData } from "src/hooks";
+import { DelayedCircularProgress } from "src/components";
+import { by } from "src/utils";
 import { Item, NewObjectiveButton, ObjectiveItem } from "./objectives";
 
 const Objectives = () => {

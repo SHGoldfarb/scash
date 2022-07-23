@@ -11,7 +11,7 @@ import {
   luxonSecondsToExcelDays,
   excelToJson,
   newId,
-} from "utils";
+} from "src/utils";
 import { utils } from "xlsx";
 import App from "./App";
 import { mockTable } from "./test-utils/mocks";

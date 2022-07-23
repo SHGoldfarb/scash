@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { DelayedCircularProgress, TextField } from "components";
+import { DelayedCircularProgress, TextField } from "src/components";
 import { useFormAccounts } from "./hooks";
 import { useCurrentTransaction } from "../hooks";
 import { renderAccountAsMenuItem } from "./utils";
-import { transactionTypes } from "../../../entities";
+import { transactionTypes } from "src/entities";
 import { useTransactionFormContext } from "../contexts";
 
 const name = "destinationAccountId";

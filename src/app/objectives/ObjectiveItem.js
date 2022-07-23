@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { number } from "prop-types";
 import { useHistory } from "react-router-dom";
-import { useData } from "hooks";
-import { DelayedCircularProgress } from "components";
-import { makePath, objectivePathName } from "utils";
+import { useData } from "src/hooks";
+import { DelayedCircularProgress } from "src/components";
+import { makePath, objectivePathName } from "src/utils";
 import { Item } from "./components";
 import { EditAmountDialog } from "./objective-item";
 

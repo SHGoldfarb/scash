@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { useHistory } from "react-router-dom";
-import { useData } from "hooks";
+import { useData } from "src/hooks";
 import { useCurrentTransaction } from "../hooks";
 
 const DeleteButton = () => {

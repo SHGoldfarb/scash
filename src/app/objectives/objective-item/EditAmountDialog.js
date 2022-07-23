@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { bool, func, number } from "prop-types";
-import { isEnterKey } from "utils";
+import { isEnterKey } from "src/utils";
 
 const EditAmountDialog = ({
   open,

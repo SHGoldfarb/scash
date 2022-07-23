@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Typography } from "@mui/material";
-import { DelayedCircularProgress, TransactionsList } from "components";
-import { useData } from "hooks";
+import { DelayedCircularProgress, TransactionsList } from "src/components";
+import { useData } from "src/hooks";
 import { useCurrentObjective } from "./hooks";
 
 const CurrentObjectiveTransactionsList = () => {

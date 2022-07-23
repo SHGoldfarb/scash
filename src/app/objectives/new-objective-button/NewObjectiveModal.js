@@ -8,8 +8,8 @@ import {
   TextField,
 } from "@mui/material";
 import { func } from "prop-types";
-import { useData } from "hooks";
-import { DelayedCircularProgress } from "components";
+import { useData } from "src/hooks";
+import { DelayedCircularProgress } from "src/components";
 
 const NewObjectiveModal = ({ onClose }) => {
   const [name, setName] = useState("");

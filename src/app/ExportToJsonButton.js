@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { exportToJSON, download } from "utils";
+import { exportToJSON, download } from "src/utils";
 import { DateTime } from "luxon";
 
 const exportData = async () => {

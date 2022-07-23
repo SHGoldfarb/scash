@@ -1,4 +1,4 @@
-import { newId, upsertById } from "utils";
+import { newId, upsertById } from "src/utils";
 import { asyncReduce } from "../../lib";
 
 let mockDatabase;

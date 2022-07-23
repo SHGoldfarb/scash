@@ -1,5 +1,5 @@
 import { useHistory } from "react-router-dom";
-import { parseSearchParams, stringifySearchParams } from "utils";
+import { parseSearchParams, stringifySearchParams } from "src/utils";
 
 export * from "./useData";
 export * from "./useGlobalMemo";

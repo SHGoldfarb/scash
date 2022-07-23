@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { useLocation, useHistory } from "react-router-dom";
-import { useData } from "hooks";
-import { makePath, transactionsPathName, parseSearchParams } from "utils";
+import { useData } from "src/hooks";
+import { makePath, transactionsPathName, parseSearchParams } from "src/utils";
 
 export const useCurrentTransaction = () => {
   const location = useLocation();

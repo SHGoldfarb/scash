@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
-import { useData } from "hooks";
-import { parseSearchParams } from "utils";
+import { useData } from "src/hooks";
+import { parseSearchParams } from "src/utils";
 
 const useCurrentObjective = () => {
   const location = useLocation();

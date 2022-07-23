@@ -8,10 +8,10 @@ import {
   editPathName,
   makePath,
   transactionsPathName,
-} from "utils";
+} from "src/utils";
 import { Link } from "react-router-dom";
-import { useData } from "hooks";
-import { DelayedCircularProgress } from "components";
+import { useData } from "src/hooks";
+import { DelayedCircularProgress } from "src/components";
 
 const TransactionColumn = styled("div", {
   shouldForwardProp: (prop) => isPropValid(prop),

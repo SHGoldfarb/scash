@@ -7,7 +7,7 @@ import {
   isEnterKey,
   makePath,
   transactionsPathName,
-} from "utils";
+} from "src/utils";
 import { useHistory } from "react-router-dom";
 import { TransactionInfo } from "./transactions-date-card";
 

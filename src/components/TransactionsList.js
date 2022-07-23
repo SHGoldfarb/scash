@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { shape, bool, arrayOf } from "prop-types";
 import { DateTime } from "luxon";
-import { by } from "utils";
-import { reversed } from "lib";
+import { by } from "src/utils";
+import { reversed } from "src/lib";
 import { PaginatedTransactionsByDate } from "./transactions-list";
 import { TransactionsDateCards } from "./transactions-list/components";
 import { MAX_DATES_PER_PAGE } from "./transactions-list/utils";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, IconButton, Typography } from "@mui/material";
-import { AppBar, DelayedCircularProgress } from "components";
+import { AppBar, DelayedCircularProgress } from "src/components";
 import { Edit } from "@mui/icons-material";
 import { useCurrentObjective } from "./hooks";
 import { EditDialog } from "./objective-app-bar";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, TextField } from "@mui/material";
-import { DelayedCircularProgress } from "components";
+import { DelayedCircularProgress } from "src/components";
 import { func } from "prop-types";
 import { useCurrentObjective } from "../../hooks";
 

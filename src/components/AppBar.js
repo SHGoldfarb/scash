@@ -1,6 +1,6 @@
 import React from "react";
 import { AppBar as MuiAppBar, Toolbar } from "@mui/material";
-import { TRANSACTIONS_APPBAR_HEIGHT_PX } from "utils";
+import { TRANSACTIONS_APPBAR_HEIGHT_PX } from "src/utils";
 import { node, shape } from "prop-types";
 
 const AppBar = ({

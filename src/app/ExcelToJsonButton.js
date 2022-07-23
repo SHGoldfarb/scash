@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { read } from "xlsx";
-import { download, excelToJson } from "utils";
+import { download, excelToJson } from "src/utils";
 import { DateTime } from "luxon";
 
 const readAsArrayBuffer = (file) =>

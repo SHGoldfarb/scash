@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { Button, IconButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
-import { editPathName, makePath, transactionsPathName } from "utils";
-import { AppBar } from "components";
+import { editPathName, makePath, transactionsPathName } from "src/utils";
+import { AppBar } from "src/components";
 import { useSelectedMonth } from "../hooks";
 
 const dateFormat = "MMMM yyyy";

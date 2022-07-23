@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, ListItem, ListItemButton, Typography } from "@mui/material";
 import { bool, func, number, string } from "prop-types";
-import { currencyFormat } from "utils";
+import { currencyFormat } from "src/utils";
 
 const Item = ({ amount, label, closed, onLabelClick, onAmountClick }) => {
   return (

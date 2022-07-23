@@ -1,4 +1,4 @@
-import { newId, sample } from "utils";
+import { newId, sample } from "src/utils";
 
 const words = "lorem ipsum dolor sit amet consectetur adipiscing elit praesent pellentesque turpis ut enim consequat at vestibulum felis viverra pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas nulla vitae justo condimentum rutrum sapien a congue magna duis vitae quam a metus rutrum venenatis et ut odio phasellus blandit leo erat sed vehicula lorem consectetur a suspendisse et vehicula urna proin purus massa hendrerit non tristique ac varius ut elit".split(
   " "

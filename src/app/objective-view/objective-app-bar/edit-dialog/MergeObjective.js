@@ -7,11 +7,11 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { DelayedCircularProgress } from "components";
-import { useData } from "hooks";
-import { makePath, objectivesPathName } from "utils";
+import { DelayedCircularProgress } from "src/components";
+import { makePath, objectivesPathName } from "src/utils";
+import { isObjectiveOpen } from "src/entities";
+import { useData } from "src/hooks";
 import { useCurrentObjective } from "../../hooks";
-import { isObjectiveOpen } from "../../../../entities";
 
 const MergeObjective = () => {
   const history = useHistory();

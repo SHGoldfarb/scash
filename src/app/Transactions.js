@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
-import { editPathName, makePath, transactionsPathName } from "utils";
+import { editPathName, makePath, transactionsPathName } from "src/utils";
 import { TransactionsForm, MonthTransactionsList } from "./transactions";
 
 const Transactions = () => {

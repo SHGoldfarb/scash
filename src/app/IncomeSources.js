@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
-import { by } from "utils";
+import { by } from "src/utils";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useData } from "../hooks";
 

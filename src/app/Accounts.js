@@ -2,7 +2,7 @@ import { Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DateTime } from "luxon";
 import React, { useMemo } from "react";
-import { by, isClosed, isOpen } from "utils";
+import { by, isClosed, isOpen } from "src/utils";
 import { DelayedCircularProgress, EditableList } from "../components";
 import { useData } from "../hooks";
 import { currencyFormat, getTransactionsStats } from "../utils";

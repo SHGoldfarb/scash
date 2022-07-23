@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { useData } from "hooks";
-import { importFromJSON } from "utils";
+import { useData } from "src/hooks";
+import { importFromJSON } from "src/utils";
 
 const readAsText = (file) =>
   new Promise((resolve) => {
