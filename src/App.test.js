@@ -894,24 +894,27 @@ describe("App", () => {
       });
     });
 
-    describe("user enters transaction fields and saves", () => {
-      const newTransaction = transactionMock();
-      newTransaction.type = "transfer";
-
-      userAction(async () => {
-        await createTransactionInForm({
-          type: "transfer",
-          amount: newTransaction.amount,
-          comment: newTransaction.comment,
-        });
-
-        // Avoid missing act() warning
-        await waitFor(() => {});
+    describe("database has at least 1 account", () => {
+      beforeEach(() => {
+        mockTable("accounts").set([accountMock()]);
       });
 
-      describe("database has at least 1 account", () => {
-        beforeEach(() => {
-          mockTable("accounts").set([accountMock()]);
+      describe("user enters transaction fields and saves", () => {
+        const newTransaction = transactionMock();
+        newTransaction.type = "transfer";
+
+        userAction(async () => {
+          const [account] = await mockTable("accounts").toArray();
+          await createTransactionInForm({
+            type: "transfer",
+            amount: newTransaction.amount,
+            comment: newTransaction.comment,
+            originAccountName: account.name,
+            destinationAccountName: account.name,
+          });
+
+          // Avoid missing act() warning
+          await waitFor(() => {});
         });
 
         it("goes back to correct view and displays new transaction", async () => {
