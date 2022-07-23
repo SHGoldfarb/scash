@@ -36,10 +36,11 @@ const ObjectiveItem = ({ objectiveId, amount }) => {
         <EditAmountDialog
           onClose={() => setAmountDialogOpen(false)}
           open
-          onAmountChange={(amountChange) =>
+          currentBalance={amount}
+          onAmountChange={(getNewAmount) =>
             handleUpdate({
               ...objective,
-              assignedAmount: objective.assignedAmount + amountChange,
+              assignedAmount: getNewAmount(objective.assignedAmount),
             })
           }
         />

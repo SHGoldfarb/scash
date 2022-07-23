@@ -7,13 +7,29 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { bool, func } from "prop-types";
+import { bool, func, number } from "prop-types";
 import { isEnterKey } from "utils";
 
-const EditAmountDialog = ({ open, onClose, onAmountChange }) => {
-  const [currentAmount, setCurrentAmount] = useState("");
+const EditAmountDialog = ({
+  open,
+  onClose,
+  onAmountChange,
+  currentBalance,
+}) => {
+  const [inputValue, setInputValue] = useState("");
+
   const handleAdd = () => {
-    onAmountChange(parseInt(currentAmount, 10));
+    onAmountChange((prevAmount) => prevAmount + parseInt(inputValue, 10));
+    onClose();
+  };
+  const handleSubstract = () => {
+    onAmountChange((prevAmount) => prevAmount - parseInt(inputValue, 10));
+    onClose();
+  };
+  const handleSet = () => {
+    onAmountChange(
+      (prevAmount) => prevAmount - currentBalance + parseInt(inputValue, 10)
+    );
     onClose();
   };
   return (
@@ -21,30 +37,27 @@ const EditAmountDialog = ({ open, onClose, onAmountChange }) => {
       <DialogTitle>Add or Subtract Amount</DialogTitle>
       <DialogContent>
         <TextField
-          value={currentAmount}
+          value={inputValue}
           label="Amount"
           type="number"
           inputProps={{ autoFocus: true }}
-          onChange={(ev) => setCurrentAmount(ev.target.value)}
+          onChange={(ev) => setInputValue(ev.target.value)}
           onKeyPress={(ev) => {
             if (isEnterKey(ev)) {
-              handleAdd();
+              handleSet();
             }
           }}
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={() => {
-            onAmountChange(-parseInt(currentAmount, 10));
-            onClose();
-          }}
-          color="error"
-        >
+        <Button onClick={handleSubstract} color="error">
           Subtract
         </Button>
         <Button onClick={handleAdd} color="success">
           Add
+        </Button>
+        <Button onClick={handleSet} color="primary">
+          Set
         </Button>
       </DialogActions>
     </Dialog>
@@ -55,6 +68,7 @@ EditAmountDialog.propTypes = {
   open: bool.isRequired,
   onClose: func.isRequired,
   onAmountChange: func.isRequired,
+  currentBalance: number.isRequired,
 };
 
 export default EditAmountDialog;

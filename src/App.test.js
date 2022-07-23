@@ -1100,6 +1100,30 @@ describe("App", () => {
       );
     });
 
+    it("correctly lets user set amount to objective", async () => {
+      const objective = objectiveMock({ assignedAmount: 1000 });
+      mockTable("objectives").set([objective]);
+
+      await runUserActions();
+
+      // Click on objective amount
+      fireEvent.click(
+        await wrapper.findByText(currencyFormat(objective.assignedAmount))
+      );
+
+      // Input amount
+      const newAmount = 5000;
+      fireEvent.change(await wrapper.findByLabelText("Amount"), {
+        target: { value: `${newAmount}` },
+      });
+
+      // Click set
+      fireEvent.click(wrapper.getByText("Set"));
+
+      // Test new objective name is shown
+      await wrapper.findByText(currencyFormat(newAmount));
+    });
+
     it("does not show closed objective with zero amount", async () => {
       const objective = objectiveMock({
         assignedAmount: 0,
