@@ -13,6 +13,18 @@ const theme = createTheme({
   typography: {
     fontSize: 12,
   },
+  components: {
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true, // No more ripple, on the whole application 💣!
+      },
+    },
+    MuiButton: {
+      defaultProps: {
+        disableRipple: true, // No more ripple, on the whole application 💣!
+      },
+    },
+  },
 });
 
 const ScashThemeProvider = ({ children }) => {
