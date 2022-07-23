@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { DateTime } from "luxon";
 import { readFileSync } from "fs";
 import {
@@ -589,21 +589,16 @@ describe("App", () => {
 
       if (accountName) {
         // Enter account
-        fireEvent.change(wrapper.getAllByLabelText("Account")[0].nextSibling, {
-          target: { value: wrapper.getByText(accountName).dataset.value },
-        });
+        const accountDiv = wrapper.getAllByLabelText("Account")[0];
+        fireEvent.mouseDown(accountDiv);
+        fireEvent.click(wrapper.getByText(accountName));
       }
 
       if (originAccountName) {
         // Enter account
         const originAccountDiv = wrapper.getAllByLabelText("Origin Account")[0];
         fireEvent.mouseDown(originAccountDiv);
-        const originAccountInput = originAccountDiv.nextSibling;
-        fireEvent.change(originAccountInput, {
-          target: {
-            value: wrapper.getAllByText(originAccountName)[0].dataset.value,
-          },
-        });
+        fireEvent.click(wrapper.getByText(originAccountName));
       }
 
       if (destinationAccountName) {
@@ -611,15 +606,13 @@ describe("App", () => {
         const destinationAccountDiv = wrapper.getAllByLabelText(
           "Destination Account"
         )[0];
+
         fireEvent.mouseDown(destinationAccountDiv);
-        const destinationAccountInput = destinationAccountDiv.nextSibling;
-        fireEvent.change(destinationAccountInput, {
-          target: {
-            value: wrapper.getAllByText(destinationAccountName)[0][
-              "data-value"
-            ],
-          },
-        });
+        fireEvent.click(
+          within(
+            wrapper.baseElement.querySelector("#menu-destinationAccountId")
+          ).getByText(destinationAccountName)
+        );
       }
 
       if (incomeSourceName) {
@@ -846,10 +839,14 @@ describe("App", () => {
             let selectedAccount;
             userAction(async () => {
               [selectedAccount] = accounts;
+              const [selectedObjective] = await mockTable(
+                "objectives"
+              ).toArray();
 
               await createTransactionInForm({
                 accountName: selectedAccount.name,
                 type: "expense",
+                objectiveName: selectedObjective.name,
               });
             });
 
