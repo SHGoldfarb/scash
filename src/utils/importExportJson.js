@@ -145,7 +145,7 @@ export const excelToJson = (workbook) => {
 
     const transaction = {
       amount: row.Amount,
-      comment: row.Note || "",
+      comment: row.Note || row.Subcategory || categoryName || "",
       date: dateTime.toSeconds(),
       type,
       accountId: account?.id,
