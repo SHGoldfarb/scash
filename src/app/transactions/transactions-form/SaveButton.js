@@ -1,42 +1,15 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { DelayedCircularProgress } from "src/components";
-import {
-  useFormAccounts,
-  useFormIncomeSources,
-  useFormObjectives,
-} from "./hooks";
-import { transactionTypes } from "src/entities";
 import { useTransactionFormContext } from "../contexts";
 
 const SaveButton = () => {
-  const {
-    availableObjectives,
-    loading: objectivesLoading,
-  } = useFormObjectives();
-  const {
-    availableIncomeSources,
-    loading: incomeSourcesLoading,
-  } = useFormIncomeSources();
-  const { openAccounts, loading: accountsLoading } = useFormAccounts();
-  const { values, handleSubmit } = useTransactionFormContext();
-
-  if (objectivesLoading || incomeSourcesLoading || accountsLoading) {
-    return <DelayedCircularProgress />;
-  }
+  const { handleSubmit, isValid } = useTransactionFormContext();
 
   return (
     <Button
       sx={{ margin: 1 }}
       variant="contained"
-      disabled={
-        !openAccounts.length ||
-        (values.type === transactionTypes.income &&
-          !availableIncomeSources.length) ||
-        (values.type === transactionTypes.expense &&
-          !availableObjectives.length) ||
-        !values.type
-      }
+      disabled={!isValid}
       onClick={handleSubmit}
     >
       Save

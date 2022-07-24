@@ -23,7 +23,7 @@ export const validTransaction = (data) => ({
     ),
   type: isValidTransactionType(data.type)
     ? data.type
-    : throwInvalidEntityError(data, "Transaction must include a comment"),
+    : throwInvalidEntityError(data, "Transaction must include a type"),
   accountId: ["income", "expense"].includes(data.type)
     ? data.accountId ||
       throwError(
@@ -84,3 +84,11 @@ export const validTransaction = (data) => ({
         )
       : null,
 });
+
+export const isValidTransaction = (transaction) => {
+  try {
+    return validTransaction(transaction);
+  } catch {
+    return false;
+  }
+};

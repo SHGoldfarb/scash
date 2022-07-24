@@ -699,14 +699,6 @@ describe("App", () => {
             );
           });
 
-          it("shows the save button as enabled", async () => {
-            await runUserActions();
-
-            expect(
-              (await wrapper.findByText("Save")).closest("button")
-            ).not.toBeDisabled();
-          });
-
           it("shows the expense objectives", async () => {
             await runUserActions();
 
