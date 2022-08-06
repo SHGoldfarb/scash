@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { upsertById } from "src/utils";
+import { isFunction } from "src/lib";
 import { useGlobalMemo } from "./useGlobalMemo";
 import {
   getAll,
@@ -25,28 +26,42 @@ const withHandleStateUpdate = (updateFunction) => async (
   return result;
 };
 
+const dataByIds = (data) => {
+  const hash = {};
+  data.forEach((item) => {
+    hash[item.id] = item;
+  });
+
+  return hash;
+};
+
+const withByIdsHash = (data) => ({ data, byIds: dataByIds(data) });
+
 export const useData = (tableName) => {
   const {
-    result: memoizedData,
+    result: { data: memoizedData, byIds: memoizedByIds } = {},
     loading,
     update: updateCache,
     reset: clearCache,
-  } = useGlobalMemo(tableName, async () => getAll(tableName));
+  } = useGlobalMemo(tableName, async () =>
+    withByIdsHash(await getAll(tableName))
+  );
+
+  const updateDataCache = (updateFunction) => {
+    if (isFunction(updateFunction)) {
+      return updateCache(({ data } = {}) => {
+        return withByIdsHash(updateFunction(data));
+      });
+    }
+    return updateCache(withByIdsHash(updateFunction));
+  };
 
   const data = useMemo(() => memoizedData || [], [memoizedData]);
-
-  const dataHash = useMemo(() => {
-    const hash = {};
-    data.forEach((item) => {
-      hash[item.id] = item;
-    });
-
-    return hash;
-  }, [data]);
+  const byIds = useMemo(() => memoizedByIds || {}, [memoizedByIds]);
 
   return {
     data,
-    dataHash,
+    dataHash: byIds,
     loading: loading || !memoizedData,
     refetch: clearCache,
     upsert: withHandleStateUpdate(async (newData) => {
@@ -56,14 +71,14 @@ export const useData = (tableName) => {
       return {
         result: newItem,
         updateState: () =>
-          updateCache((prevItems) => upsertById(prevItems, newItem)),
+          updateDataCache((prevItems) => upsertById(prevItems, newItem)),
       };
     }),
     remove: withHandleStateUpdate(async (id) => {
       return {
         result: await remove(tableName, id),
         updateState: () =>
-          updateCache((prevItems) =>
+          updateDataCache((prevItems) =>
             prevItems.filter((item) => item.id !== id)
           ),
       };
@@ -71,7 +86,7 @@ export const useData = (tableName) => {
     clear: withHandleStateUpdate(async () => {
       return {
         result: await clear(tableName),
-        updateState: () => updateCache([]),
+        updateState: () => updateDataCache([]),
       };
     }),
     bulkAdd: withHandleStateUpdate(async (items) => {
@@ -81,14 +96,14 @@ export const useData = (tableName) => {
       return {
         result: newItems,
         updateState: () =>
-          updateCache((prevItems) => [...prevItems, ...newItems]),
+          updateDataCache((prevItems) => [...prevItems, ...newItems]),
       };
     }),
     set: withHandleStateUpdate(async (items) => {
       await clear(tableName);
       const keys = await bulkAdd(tableName, items, { allKeys: true });
       const newItems = await bulkGet(tableName, keys);
-      return { result: newItems, updateState: () => updateCache(newItems) };
+      return { result: newItems, updateState: () => updateDataCache(newItems) };
     }),
   };
 };
